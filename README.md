@@ -52,3 +52,34 @@ Remove a vacancy:
 Hide entire Careers section:
 - Set `"vacancies": []`
 - The generator will omit the whole vacancies section automatically.
+
+## Widget behavior (`widgets`)
+
+Optional top-level object; omitted keys keep the original defaults.
+
+- `widgets.scroll_reveal`
+  - `respect_reduced_motion` (boolean, default `true`): when `true`, scroll-reveal animations are skipped if the visitor prefers reduced motion.
+  - `root_margin` (string, default `"0px 0px -5% 0px"`): passed to `IntersectionObserver`.
+  - `threshold` (number, default `0.12`): observer intersection threshold.
+- `widgets.game_swiper`
+  - `swipe_threshold_px` (number, default `30`): minimum horizontal swipe distance on touch devices to change screenshot slides.
+- `widgets.split_widget`
+  - `keyboard_navigation` (boolean, default `false`): when `true`, focused vacancy tabs widget responds to Left/Right arrow keys (the widget receives `tabindex="0"`).
+
+The generator injects these settings as JSON in the built page (`site-widgets-config`). If that block is missing (for example an old hand-edited export), scripts fall back to the same defaults as before.
+
+## Social links (`social`)
+
+You can keep the legacy flat shape (`github_url`, `linkedin_url`, `facebook_url`) or use an explicit ordered list:
+
+- `social.links`: array of `{ "url", "aria_label", "icon", "icon_image" }`.
+  - Each entry needs a non-empty `url` and either a built-in `icon` preset (`github`, `linkedin`, `facebook`) or `icon_image` (path under the project, copied like other assets).
+  - If `links` has at least one entry, only those links are shown; legacy URL fields are ignored for rendering.
+
+## Store buttons (`games[].store_links` and `game_store_icons`)
+
+- Legacy fields per game (`google_play_url`, `app_store_url`, `amazon_store_url`, `galaxy_store_url`) still work unchanged when `store_links` is absent or empty.
+- `games[].store_links`: ordered array of `{ "url", "aria_label", "icon", "icon_image" }`. When present and non-empty, **only** these buttons are rendered for that game.
+  - Use `icon` with a key matching `game_store_icons` (for example `google_play`, `steam`) **or** set `icon_image` to a project-relative image path for a fully custom badge.
+
+`game_store_icons` is a JSON object mapping arbitrary preset keys to image paths. Defaults are provided for `google_play`, `app_store`, `galaxy`, and `amazon`; add keys such as `"steam": "Images/steam-badge.png"` for extra presets referenced from `store_links`.

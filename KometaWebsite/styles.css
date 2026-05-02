@@ -522,6 +522,12 @@ p {
   display: block;
 }
 
+.follow-us__btn img.follow-us__icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
 .follow-us__btn--github {
   color: #181717;
 }

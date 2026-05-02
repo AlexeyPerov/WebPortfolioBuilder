@@ -1,12 +1,34 @@
 (function () {
+  function swipeThresholdPx() {
+    var def = 30;
+    var el = document.getElementById("site-widgets-config");
+    if (!el) {
+      return def;
+    }
+    try {
+      var cfg = JSON.parse(el.textContent || "{}");
+      var v =
+        cfg.game_swiper &&
+        typeof cfg.game_swiper.swipe_threshold_px === "number"
+          ? cfg.game_swiper.swipe_threshold_px
+          : def;
+      return v > 0 ? v : def;
+    } catch (err) {
+      return def;
+    }
+  }
+
   function initSwiper(root) {
-    var slides = Array.prototype.slice.call(root.querySelectorAll(".game-swiper__slide"));
+    var slides = Array.prototype.slice.call(
+      root.querySelectorAll(".game-swiper__slide")
+    );
     if (slides.length === 0) {
       return;
     }
     var prevBtn = root.querySelector(".game-swiper__arrow--prev");
     var nextBtn = root.querySelector(".game-swiper__arrow--next");
     var active = 0;
+    var threshold = swipeThresholdPx();
 
     function mod(n, m) {
       return ((n % m) + m) % m;
@@ -32,32 +54,48 @@
     }
 
     if (prevBtn) {
-      prevBtn.addEventListener("click", function () { go(-1); });
+      prevBtn.addEventListener("click", function () {
+        go(-1);
+      });
     }
     if (nextBtn) {
-      nextBtn.addEventListener("click", function () { go(1); });
+      nextBtn.addEventListener("click", function () {
+        go(1);
+      });
     }
 
     var startX = null;
     var viewport = root.querySelector(".game-swiper__viewport");
     if (viewport) {
-      viewport.addEventListener("touchstart", function (e) {
-        if (e.touches && e.touches.length) {
-          startX = e.touches[0].clientX;
-        }
-      }, { passive: true });
-      viewport.addEventListener("touchend", function (e) {
-        if (startX === null || !e.changedTouches || !e.changedTouches.length) {
-          return;
-        }
-        var endX = e.changedTouches[0].clientX;
-        var delta = endX - startX;
-        startX = null;
-        if (Math.abs(delta) < 30) {
-          return;
-        }
-        go(delta < 0 ? 1 : -1);
-      }, { passive: true });
+      viewport.addEventListener(
+        "touchstart",
+        function (e) {
+          if (e.touches && e.touches.length) {
+            startX = e.touches[0].clientX;
+          }
+        },
+        { passive: true }
+      );
+      viewport.addEventListener(
+        "touchend",
+        function (e) {
+          if (
+            startX === null ||
+            !e.changedTouches ||
+            !e.changedTouches.length
+          ) {
+            return;
+          }
+          var endX = e.changedTouches[0].clientX;
+          var delta = endX - startX;
+          startX = null;
+          if (Math.abs(delta) < threshold) {
+            return;
+          }
+          go(delta < 0 ? 1 : -1);
+        },
+        { passive: true }
+      );
     }
 
     render();

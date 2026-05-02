@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html"
 	"strings"
@@ -27,8 +28,53 @@ func buildPlaceholders(projectRoot string, config Config) map[string]string {
 	values["follow_us_section"] = buildFollowUsSection(config.Content, config.Social)
 	values["header_nav"] = buildHeaderNav(config.Content, len(config.Vacancies) > 0)
 	values["header_brand_row"] = buildHeaderBrandRowHTML(config.Content)
+	values["widgets_config_script"] = buildWidgetsConfigScript(config.Widgets)
 
 	return values
+}
+
+type widgetsExportJSON struct {
+	ScrollReveal struct {
+		RespectReducedMotion bool    `json:"respect_reduced_motion"`
+		RootMargin           string  `json:"root_margin"`
+		Threshold            float64 `json:"threshold"`
+	} `json:"scroll_reveal"`
+	GameSwiper struct {
+		SwipeThresholdPx int `json:"swipe_threshold_px"`
+	} `json:"game_swiper"`
+	SplitWidget struct {
+		KeyboardNavigation bool `json:"keyboard_navigation"`
+	} `json:"split_widget"`
+}
+
+func buildWidgetsConfigScript(w WidgetsConfig) string {
+	var j widgetsExportJSON
+	j.ScrollReveal.RespectReducedMotion = true
+	if w.ScrollReveal.RespectReducedMotion != nil {
+		j.ScrollReveal.RespectReducedMotion = *w.ScrollReveal.RespectReducedMotion
+	}
+	j.ScrollReveal.RootMargin = "0px 0px -5% 0px"
+	if rm := strings.TrimSpace(w.ScrollReveal.RootMargin); rm != "" {
+		j.ScrollReveal.RootMargin = rm
+	}
+	j.ScrollReveal.Threshold = 0.12
+	if w.ScrollReveal.Threshold != nil {
+		j.ScrollReveal.Threshold = *w.ScrollReveal.Threshold
+	}
+	j.GameSwiper.SwipeThresholdPx = 30
+	if w.GameSwiper.SwipeThresholdPx != nil && *w.GameSwiper.SwipeThresholdPx > 0 {
+		j.GameSwiper.SwipeThresholdPx = *w.GameSwiper.SwipeThresholdPx
+	}
+	j.SplitWidget.KeyboardNavigation = false
+	if w.SplitWidget.KeyboardNavigation != nil {
+		j.SplitWidget.KeyboardNavigation = *w.SplitWidget.KeyboardNavigation
+	}
+	b, err := json.Marshal(j)
+	if err != nil {
+		b = []byte("{}")
+	}
+	safe := strings.ReplaceAll(string(b), "<", "\\u003c")
+	return `<script type="application/json" id="site-widgets-config">` + safe + `</script>`
 }
 
 // buildHeaderBrandRowHTML renders the header logo and/or title. When header_logo_image is set,
@@ -227,30 +273,142 @@ func gameStoreIconImg(src string) string {
 		html.EscapeString(src))
 }
 
-func buildGameStoreRow(g Game, icons GameStoreIcons) string {
+type resolvedStoreEntry struct {
+	URL, AriaLabel, IconSrc, ClassSuffix string
+}
+
+var legacyStoreIconKeyToClass = map[string]string{
+	"google_play": "googleplay",
+	"app_store":   "appstore",
+	"amazon":      "amazon",
+	"galaxy":      "galaxy",
+}
+
+func normalizeStoreIconKey(icon string) string {
+	return strings.TrimSpace(strings.ToLower(strings.ReplaceAll(icon, " ", "_")))
+}
+
+func sanitizeIconClassKey(s string) string {
+	s = strings.TrimSpace(strings.ToLower(s))
 	var b strings.Builder
-	if u := strings.TrimSpace(g.GooglePlayURL); u != "" {
-		b.WriteString(fmt.Sprintf(
-			`<a class="game-store-btn game-store-btn--googleplay" href="%s"%s aria-label="Get it on Google Play">%s</a>`,
-			html.EscapeString(u), externalLinkAttrs(u), gameStoreIconImg(icons.GooglePlay)))
+	for _, r := range s {
+		switch {
+		case r >= 'a' && r <= 'z', r >= '0' && r <= '9':
+			b.WriteRune(r)
+		case r == '_' || r == '-':
+			b.WriteByte('-')
+		}
 	}
-	if u := strings.TrimSpace(g.AppStoreURL); u != "" {
-		b.WriteString(fmt.Sprintf(
-			`<a class="game-store-btn game-store-btn--appstore" href="%s"%s aria-label="Download on the App Store">%s</a>`,
-			html.EscapeString(u), externalLinkAttrs(u), gameStoreIconImg(icons.AppStore)))
+	out := strings.Trim(b.String(), "-")
+	if out == "" {
+		return "custom"
 	}
-	if u := strings.TrimSpace(g.AmazonStoreURL); u != "" {
-		b.WriteString(fmt.Sprintf(
-			`<a class="game-store-btn game-store-btn--amazon" href="%s"%s aria-label="Available at Amazon Appstore">%s</a>`,
-			html.EscapeString(u), externalLinkAttrs(u), gameStoreIconImg(icons.Amazon)))
+	return out
+}
+
+func storeClassSuffixFromLink(iconKey string, hasCustomImage bool) string {
+	if iconKey != "" {
+		if suffix, ok := legacyStoreIconKeyToClass[iconKey]; ok {
+			return suffix
+		}
+		return sanitizeIconClassKey(iconKey)
 	}
-	if u := strings.TrimSpace(g.GalaxyStoreURL); u != "" {
-		b.WriteString(fmt.Sprintf(
-			`<a class="game-store-btn game-store-btn--galaxy" href="%s"%s aria-label="Available on Galaxy Store">%s</a>`,
-			html.EscapeString(u), externalLinkAttrs(u), gameStoreIconImg(icons.Galaxy)))
+	if hasCustomImage {
+		return "custom"
 	}
-	if b.Len() == 0 {
+	return "custom"
+}
+
+func defaultAriaForStoreIconKey(iconKey string) string {
+	switch iconKey {
+	case "google_play":
+		return "Get it on Google Play"
+	case "app_store":
+		return "Download on the App Store"
+	case "amazon":
+		return "Available at Amazon Appstore"
+	case "galaxy":
+		return "Available on Galaxy Store"
+	default:
 		return ""
+	}
+}
+
+func resolveGameStoreEntries(g Game, icons GameStoreIcons) []resolvedStoreEntry {
+	if len(g.StoreLinks) > 0 {
+		var out []resolvedStoreEntry
+		for _, link := range g.StoreLinks {
+			u := strings.TrimSpace(link.URL)
+			if u == "" {
+				continue
+			}
+			imgPath := strings.TrimSpace(link.IconImage)
+			iconKey := normalizeStoreIconKey(link.Icon)
+			var iconSrc string
+			if imgPath != "" {
+				iconSrc = imgPath
+			} else if iconKey != "" {
+				if p, ok := icons[iconKey]; ok {
+					iconSrc = strings.TrimSpace(p)
+				}
+			}
+			if iconSrc == "" {
+				continue
+			}
+			aria := strings.TrimSpace(link.AriaLabel)
+			if aria == "" {
+				aria = defaultAriaForStoreIconKey(iconKey)
+				if aria == "" {
+					aria = "Store link"
+				}
+			}
+			classSuffix := storeClassSuffixFromLink(iconKey, imgPath != "")
+			out = append(out, resolvedStoreEntry{
+				URL: u, AriaLabel: aria, IconSrc: iconSrc, ClassSuffix: classSuffix,
+			})
+		}
+		return out
+	}
+	type legacySlot struct {
+		url, iconKey, classSuffix, defAria string
+	}
+	slots := []legacySlot{
+		{g.GooglePlayURL, "google_play", "googleplay", "Get it on Google Play"},
+		{g.AppStoreURL, "app_store", "appstore", "Download on the App Store"},
+		{g.AmazonStoreURL, "amazon", "amazon", "Available at Amazon Appstore"},
+		{g.GalaxyStoreURL, "galaxy", "galaxy", "Available on Galaxy Store"},
+	}
+	var out []resolvedStoreEntry
+	for _, slot := range slots {
+		u := strings.TrimSpace(slot.url)
+		if u == "" {
+			continue
+		}
+		iconSrc := strings.TrimSpace(icons[slot.iconKey])
+		if iconSrc == "" {
+			continue
+		}
+		out = append(out, resolvedStoreEntry{
+			URL: u, AriaLabel: slot.defAria, IconSrc: iconSrc, ClassSuffix: slot.classSuffix,
+		})
+	}
+	return out
+}
+
+func buildGameStoreRow(g Game, icons GameStoreIcons) string {
+	entries := resolveGameStoreEntries(g, icons)
+	if len(entries) == 0 {
+		return ""
+	}
+	var b strings.Builder
+	for _, e := range entries {
+		b.WriteString(fmt.Sprintf(
+			`<a class="game-store-btn game-store-btn--%s" href="%s"%s aria-label="%s">%s</a>`,
+			html.EscapeString(e.ClassSuffix),
+			html.EscapeString(e.URL),
+			externalLinkAttrs(e.URL),
+			html.EscapeString(e.AriaLabel),
+			gameStoreIconImg(e.IconSrc)))
 	}
 	return `<div class="game-card-full__stores">` + b.String() + `</div>`
 }
@@ -279,22 +437,85 @@ const (
 	svgFacebookIcon = `<svg class="follow-us__icon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M24 12.073C24 5.446 18.627.073 12 .073S0 5.446 0 12.073c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`
 )
 
-func buildFollowUsSection(content map[string]string, s SocialLinks) string {
+func socialIconPresetClass(icon string) string {
+	switch strings.ToLower(strings.TrimSpace(icon)) {
+	case "github":
+		return "follow-us__btn--github"
+	case "linkedin":
+		return "follow-us__btn--linkedin"
+	case "facebook":
+		return "follow-us__btn--facebook"
+	default:
+		return ""
+	}
+}
+
+func socialIconPresetSVG(icon string) string {
+	switch strings.ToLower(strings.TrimSpace(icon)) {
+	case "github":
+		return svgGitHubIcon
+	case "linkedin":
+		return svgLinkedInIcon
+	case "facebook":
+		return svgFacebookIcon
+	default:
+		return ""
+	}
+}
+
+func ariaDefaultForSocialPreset(icon string) string {
+	switch strings.ToLower(strings.TrimSpace(icon)) {
+	case "github":
+		return "GitHub"
+	case "linkedin":
+		return "LinkedIn"
+	case "facebook":
+		return "Facebook"
+	default:
+		return "Link"
+	}
+}
+
+func buildFollowUsSection(content map[string]string, s SocialSection) string {
 	var buttons []string
-	if u := strings.TrimSpace(s.Github); u != "" {
+	for _, link := range s.resolvedSocialLinks() {
+		u := strings.TrimSpace(link.URL)
+		if u == "" {
+			continue
+		}
+		imgPath := strings.TrimSpace(link.IconImage)
+		presetSVG := socialIconPresetSVG(link.Icon)
+		if imgPath == "" && presetSVG == "" {
+			continue
+		}
+		aria := strings.TrimSpace(link.AriaLabel)
+		if aria == "" {
+			if imgPath != "" && strings.TrimSpace(link.Icon) != "" {
+				aria = ariaDefaultForSocialPreset(link.Icon)
+			} else if presetSVG != "" {
+				aria = ariaDefaultForSocialPreset(link.Icon)
+			} else {
+				aria = "Link"
+			}
+		}
+		var inner string
+		btnClass := "follow-us__btn"
+		if imgPath != "" {
+			inner = fmt.Sprintf(`<img class="follow-us__icon" src="%s" alt="" decoding="async">`, html.EscapeString(imgPath))
+			btnClass += " follow-us__btn--custom"
+		} else {
+			inner = presetSVG
+			if mod := socialIconPresetClass(link.Icon); mod != "" {
+				btnClass += " " + mod
+			}
+		}
 		buttons = append(buttons, fmt.Sprintf(
-			`<a class="follow-us__btn follow-us__btn--github" href="%s"%s aria-label="GitHub">%s</a>`,
-			html.EscapeString(u), externalLinkAttrs(u), svgGitHubIcon))
-	}
-	if u := strings.TrimSpace(s.Linkedin); u != "" {
-		buttons = append(buttons, fmt.Sprintf(
-			`<a class="follow-us__btn follow-us__btn--linkedin" href="%s"%s aria-label="LinkedIn">%s</a>`,
-			html.EscapeString(u), externalLinkAttrs(u), svgLinkedInIcon))
-	}
-	if u := strings.TrimSpace(s.Facebook); u != "" {
-		buttons = append(buttons, fmt.Sprintf(
-			`<a class="follow-us__btn follow-us__btn--facebook" href="%s"%s aria-label="Facebook">%s</a>`,
-			html.EscapeString(u), externalLinkAttrs(u), svgFacebookIcon))
+			`<a class="%s" href="%s"%s aria-label="%s">%s</a>`,
+			btnClass,
+			html.EscapeString(u),
+			externalLinkAttrs(u),
+			html.EscapeString(aria),
+			inner))
 	}
 
 	title := strings.TrimSpace(content["follow_us_title"])

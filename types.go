@@ -12,8 +12,9 @@ type Config struct {
 	GameSubscribe  GameSubscribeBlock `json:"game_subscribe"`
 	Games          []Game             `json:"games"`
 	Vacancies      []Vacancy          `json:"vacancies"`
-	Social         SocialLinks        `json:"social"`
+	Social         SocialSection      `json:"social"`
 	Footer         FooterConfig       `json:"footer"`
+	Widgets        WidgetsConfig      `json:"widgets"`
 }
 
 // OfferItem is one card in the "We offer" section (any number of items).
@@ -23,12 +24,33 @@ type OfferItem struct {
 	Text  string `json:"text"`
 }
 
-// GameStoreIcons holds image paths used for all game cards’ store buttons (shared across games).
-type GameStoreIcons struct {
-	GooglePlay string `json:"google_play"`
-	AppStore   string `json:"app_store"`
-	Galaxy     string `json:"galaxy"`
-	Amazon     string `json:"amazon"`
+// GameStoreIcons maps preset keys (e.g. google_play, steam) to image paths shared across game cards.
+type GameStoreIcons map[string]string
+
+func defaultGameStoreIconPaths() GameStoreIcons {
+	return GameStoreIcons{
+		"google_play": "Images/gp-store-icon.png",
+		"app_store":   "Images/appstore-store-icon.png",
+		"galaxy":      "Images/galaxy-store-icon.png",
+		"amazon":      "Images/amazon-store-icon.png",
+	}
+}
+
+func (m GameStoreIcons) withDefaults() GameStoreIcons {
+	out := make(GameStoreIcons)
+	for k, v := range defaultGameStoreIconPaths() {
+		out[k] = v
+	}
+	if m == nil {
+		return out
+	}
+	for k, v := range m {
+		v = strings.TrimSpace(v)
+		if v != "" {
+			out[k] = v
+		}
+	}
+	return out
 }
 
 // GameSubscribeBlock is shown inside each game card above store buttons when at least one link has a URL.
@@ -42,43 +64,83 @@ type GameSubscribeLink struct {
 	URL   string `json:"url"`
 }
 
-func (i GameStoreIcons) withDefaults() GameStoreIcons {
-	pick := func(s, fallback string) string {
-		if strings.TrimSpace(s) != "" {
-			return strings.TrimSpace(s)
-		}
-		return fallback
-	}
-	return GameStoreIcons{
-		GooglePlay: pick(i.GooglePlay, "Images/gp-store-icon.png"),
-		AppStore:   pick(i.AppStore, "Images/appstore-store-icon.png"),
-		Galaxy:     pick(i.Galaxy, "Images/galaxy-store-icon.png"),
-		Amazon:     pick(i.Amazon, "Images/amazon-store-icon.png"),
-	}
+// WidgetsConfig tunes front-end scripts; omitted fields use defaults matching the original hardcoded behavior.
+type WidgetsConfig struct {
+	ScrollReveal ScrollRevealWidgetConfig `json:"scroll_reveal"`
+	GameSwiper   GameSwiperWidgetConfig   `json:"game_swiper"`
+	SplitWidget  SplitWidgetConfig        `json:"split_widget"`
 }
 
-type SocialLinks struct {
-	Github   string `json:"github_url"`
-	Linkedin string `json:"linkedin_url"`
-	Facebook string `json:"facebook_url"`
+type ScrollRevealWidgetConfig struct {
+	RespectReducedMotion *bool    `json:"respect_reduced_motion,omitempty"`
+	RootMargin           string   `json:"root_margin,omitempty"`
+	Threshold            *float64 `json:"threshold,omitempty"`
+}
+
+type GameSwiperWidgetConfig struct {
+	SwipeThresholdPx *int `json:"swipe_threshold_px,omitempty"`
+}
+
+type SplitWidgetConfig struct {
+	KeyboardNavigation *bool `json:"keyboard_navigation,omitempty"`
+}
+
+// SocialSection supports either legacy github_url / linkedin_url / facebook_url or an explicit links array.
+type SocialSection struct {
+	Links    []SocialLink `json:"links,omitempty"`
+	Github   string       `json:"github_url,omitempty"`
+	Linkedin string       `json:"linkedin_url,omitempty"`
+	Facebook string       `json:"facebook_url,omitempty"`
+}
+
+type SocialLink struct {
+	URL       string `json:"url"`
+	AriaLabel string `json:"aria_label,omitempty"`
+	Icon      string `json:"icon,omitempty"`
+	IconImage string `json:"icon_image,omitempty"`
+}
+
+func (s SocialSection) resolvedSocialLinks() []SocialLink {
+	if len(s.Links) > 0 {
+		return s.Links
+	}
+	var out []SocialLink
+	if u := strings.TrimSpace(s.Github); u != "" {
+		out = append(out, SocialLink{URL: u, Icon: "github"})
+	}
+	if u := strings.TrimSpace(s.Linkedin); u != "" {
+		out = append(out, SocialLink{URL: u, Icon: "linkedin"})
+	}
+	if u := strings.TrimSpace(s.Facebook); u != "" {
+		out = append(out, SocialLink{URL: u, Icon: "facebook"})
+	}
+	return out
 }
 
 type Game struct {
-	Image          string   `json:"image"`
-	HeaderImage    string   `json:"header_image"`
-	SwiperImages   []string `json:"swiper_images"`
-	CardBackground string   `json:"card_background"`
-	Title          string   `json:"title"`
-	Text1          string   `json:"text_1"`
-	Text2          string   `json:"text_2"`
-	StatLeftLine1  string   `json:"stat_left_line_1"`
-	StatLeftLine2  string   `json:"stat_left_line_2"`
-	StatRightLine1 string   `json:"stat_right_line_1"`
-	StatRightLine2 string   `json:"stat_right_line_2"`
-	GooglePlayURL  string   `json:"google_play_url"`
-	AppStoreURL    string   `json:"app_store_url"`
-	AmazonStoreURL string   `json:"amazon_store_url"`
-	GalaxyStoreURL string   `json:"galaxy_store_url"`
+	Image          string          `json:"image"`
+	HeaderImage    string          `json:"header_image"`
+	SwiperImages   []string        `json:"swiper_images"`
+	CardBackground string          `json:"card_background"`
+	Title          string          `json:"title"`
+	Text1          string          `json:"text_1"`
+	Text2          string          `json:"text_2"`
+	StatLeftLine1  string          `json:"stat_left_line_1"`
+	StatLeftLine2  string          `json:"stat_left_line_2"`
+	StatRightLine1 string          `json:"stat_right_line_1"`
+	StatRightLine2 string          `json:"stat_right_line_2"`
+	GooglePlayURL  string          `json:"google_play_url"`
+	AppStoreURL    string          `json:"app_store_url"`
+	AmazonStoreURL string          `json:"amazon_store_url"`
+	GalaxyStoreURL string          `json:"galaxy_store_url"`
+	StoreLinks     []GameStoreLink `json:"store_links,omitempty"`
+}
+
+type GameStoreLink struct {
+	URL       string `json:"url"`
+	AriaLabel string `json:"aria_label,omitempty"`
+	Icon      string `json:"icon,omitempty"`
+	IconImage string `json:"icon_image,omitempty"`
 }
 
 type Vacancy struct {

@@ -50,7 +50,7 @@ func scaledGameStoreIconHeightPx(measured int) int {
 
 func gameStoreIconHeightCSS(projectRoot string, icons GameStoreIcons) string {
 	def := scaledGameStoreIconHeightPx(defaultGameStoreIconHeightPx)
-	gp := strings.TrimSpace(icons.GooglePlay)
+	gp := strings.TrimSpace(icons["google_play"])
 	if gp == "" {
 		return fmt.Sprintf("%dpx", def)
 	}
@@ -130,10 +130,12 @@ func collectAssetPaths(config Config) []string {
 		add(config.Content["cover_image"])
 	}
 	gsi := config.GameStoreIcons.withDefaults()
-	add(gsi.GooglePlay)
-	add(gsi.AppStore)
-	add(gsi.Galaxy)
-	add(gsi.Amazon)
+	for _, path := range gsi {
+		add(path)
+	}
+	for _, link := range config.Social.resolvedSocialLinks() {
+		add(link.IconImage)
+	}
 	for _, p := range config.Photos {
 		add(p)
 	}
@@ -145,6 +147,9 @@ func collectAssetPaths(config Config) []string {
 		add(g.HeaderImage)
 		for _, p := range g.SwiperImages {
 			add(p)
+		}
+		for _, sl := range g.StoreLinks {
+			add(sl.IconImage)
 		}
 	}
 	return out
