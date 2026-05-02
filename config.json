@@ -1,0 +1,180 @@
+{
+  "output_folder": "KometaWebsite",
+  "theme": {
+    "page_bg": "#ffffff",
+    "surface": "#ffffff",
+    "surface_strong": "#f6f8fc",
+    "text_primary": "#1c1e2e",
+    "text_secondary": "#4c527d",
+    "accent": "#3296ed",
+    "line": "#dfe3f1",
+    "widget_gradient": "linear-gradient(to bottom, #f0f6fa, #f0f6fa)",
+    "cover_background": "#3296ed",
+    "intro_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
+    "game_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
+    "offers_gradient": "linear-gradient(to bottom, #ffffff 0, #f6f8fc 70%)",
+    "photos_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
+    "vacancies_gradient": "linear-gradient(to bottom, #ffffff 0, #f6f8fc 70%)",
+    "follow_us_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
+    "footer_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 85%)"
+  },
+  "content": {
+    "site_title": "Kometa.Games",
+    "header_brand_name": "Kometa.Games",
+    "site_icon": "Images/logo-3.png",
+    "header_logo_image": "Images/logo-3.png",
+    "cover_image": "Images/logo.png",
+    "cover_image_alt": "Kometa.Games",
+    "intro_title": "",
+    "company_description": "We are Kometa.Games, a mobile game studio focused on creating engaging and highly polished casual experiences. The team specializes in addictive core loops and player-driven progression. With a strong emphasis on gameplay feel and retention, Kometa.Games builds games that are easy to pick up and hard to put down.",
+    "company_description_2": "Kometa.Games is a trademark of © Yadarko Trading Ltd",
+    "games_title": "Our Games",
+    "offers_title": "Why join us",
+    "photos_title": "",
+    "vacancies_title": "Careers",
+    "vacancy_requirements_title": "Requirements for this position:",
+    "vacancy_responsibilities_title": "Responsibilities:",
+    "vacancy_advantages_title": "Advantages of working with us:",
+    "follow_us_title": "Follow us",
+    "nav_about": "Company",
+    "nav_games": "Our Games",
+    "nav_we_offer": "Why join us",
+    "nav_vacancies": "Careers",
+    "nav_contact": "Contacts"
+  },
+  "offers": [
+  {
+    "image": "Images/emoji_joy.png",
+    "title": "Adaptable schedule",
+    "text": "If the default working hours don’t suit you, we’re happy to adjust them to better fit your needs"
+  },
+  {
+    "image": "Images/emoji_Medal.png",
+    "title": "Professional growth",
+    "text": "We offer competitive compensation with regular reviews, personalized development plans, and opportunities to explore new career paths"
+  },
+  {
+    "image": "Images/emoji_salute.png",
+    "title": "Work from anywhere",
+    "text": "Join our team remotely from any location worldwide"
+  },
+  {
+    "image": "Images/emoji_playful.png",
+    "title": "Supportive team",
+    "text": "We value transparency and a positive environment, with accessible leadership and open communication across the company"
+  }
+  ],
+  "photos": [
+    "Images/pic1.png",
+    "Images/pic2.png",
+    "Images/pic3.png",
+    "Images/pic4.png",
+    "Images/pic5.png",
+    "Images/pic6.png"
+  ],
+  "game_store_icons": {
+    "google_play": "Images/gp-store-icon.png",
+    "app_store": "Images/appstore-store-icon.png",
+    "galaxy": "Images/galaxy-store-icon.png",
+    "amazon": "Images/amazon-store-icon.png"
+  },
+  "game_subscribe": {
+    "title": "Subscribe for news",
+    "links": [
+    ]
+  },
+  "games": [
+    {
+      "image": "Images/aoc-icon.png",
+      "header_image": "Images/aoc_logo.png",
+      "swiper_images": [
+        "Images/aoc_c_1.jpg",
+        "Images/aoc_c_2.jpeg",
+        "Images/aoc_c_3.jpeg",
+        "Images/aoc_c_4.jpeg",
+        "Images/aoc_c_5.jpeg"
+      ],
+      "card_background": "linear-gradient(to bottom, #e7bdff 0, #d9ebfa 70%)",
+      "title": "",
+      "text_1": "Welcome to Age of Coins: Master of Spins — the ultimate spin & raid adventure! Spin the wheel, collect coins, attack enemies, and build your dream empire in this addictive coin game.",
+      "text_2": "Play with millions of players around the world, climb the leaderboard, and become the true spin master of the ages!",
+      "stat_left_line_1": "1M+",
+      "stat_left_line_2": "Downloads",
+      "stat_right_line_1": "4.8",
+      "stat_right_line_2": "on Google Play",
+      "google_play_url": "https://play.google.com/store/apps/details?id=com.casualgamesonline.coinslotsgame",
+      "app_store_url": "https://apps.apple.com/us/app/age-of-coins-master-of-spins/id1540246787",
+      "amazon_store_url": "https://www.amazon.com/Yadairgo-Trading-Limited-Age-Coins/dp/B0CRTP4KBS",
+      "galaxy_store_url": "https://galaxystore.samsung.com/detail/com.kometagames.coinslotsgame?langCd=nl"
+    },
+    {
+      "image": "Images/ma_icon.png",
+      "header_image": "Images/ma_logo.png",
+      "swiper_images": [
+        "Images/ma_c_1.jpg",
+        "Images/ma_c_2.jpg",
+        "Images/ma_c_3.jpg",
+        "Images/ma_c_4.jpg",
+        "Images/ma_c_5.jpeg"
+      ],
+      "card_background": "linear-gradient(to bottom, #ffbdd6 0, #d9ebfa 70%)",
+      "title": "",
+      "text_1": "Try the ultimate roguelike archer RPG in a magical world full of fantasy battles and epic loot!",
+      "text_2": "Enter a roleplaying adventure, where your archer hero fights monsters, explores dungeons, upgrades weapons and abilities, and defeats powerful bosses.",
+      "stat_left_line_1": "500k+",
+      "stat_left_line_2": "Downloads",
+      "stat_right_line_1": "4.4",
+      "stat_right_line_2": "on Google Play",
+      "google_play_url": "https://play.google.com/store/apps/details?id=com.aftaa.magicarcher&hl=en",
+      "app_store_url": "https://apps.apple.com/us/app/magic-archer-fantasy-rpg-game/id6503351190",
+      "amazon_store_url": "",
+      "galaxy_store_url": ""
+    }
+  ],
+  "vacancies": [
+    {
+      "role": "UI Designer",
+      "requirements": [
+        "2+ years of relevant experience;",
+        "A portfolio showcasing UI work for game projects with casual graphics;",
+        "Understanding of UI/UX design principles;",
+        "Proficiency in Adobe Photoshop;",
+        "Proficiency in Figma;",
+        "Strong artistic skills in creating icons, banners, and UI elements in a casual style."
+      ],
+      "responsibilities": [
+        "Creating UI for mobile game projects with casual-style graphics based on provided specifications;",
+        "Designing layouts and preparing state previews;",
+        "Creating raster game icons;",
+        "Maintaining a library of UI elements."
+      ],
+      "advantages": [
+        "Option to work under a Cyprus-based contract with salary tied to EUR, or as an independent contractor (with vacation/holidays aligned to standard labor practices);",
+        "An experienced team with a strong track record of successful releases;",
+        "Remote work with a flexible schedule."
+      ],
+      "apply_url": "mailto:alena@kometadevs.com",
+      "apply_label": "Apply"
+    }    
+  ],
+  "social": {
+    "github_url": "https://github.com/orgs/Kometa-Developer/repositories",
+    "linkedin_url": "https://www.linkedin.com/company/kometagames/?originalSubdomain=cy",
+    "facebook_url": "https://www.facebook.com/p/KometaGames-100057502747171/"
+  },
+  "footer": {
+    "section_title": "Contacts",
+    "contact": {
+      "paragraphs": [
+        "Gr.Xenopoulou 17, 3106, Limassol, Cyprus"
+      ],
+      "email": "support@kometadevs.com"
+    },
+    "privacy_url": "https://kometa.games/privacy-aoc.html",
+    "privacy_label": "Privacy Policy",
+    "terms_url": "",
+    "terms_label": "Terms of Service",
+    "copyright": "© 2019–2026 Yadarko Trading Ltd",
+    "cookie_notice": "This website does not use cookies"
+  }
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{site_title}}</title>
+  <link rel="icon" type="image/png" href="{{site_icon}}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css?family=Quicksand:700|Roboto:400,400i,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --page-bg: {{theme_page_bg}};
+      --surface: {{theme_surface}};
+      --surface-strong: {{theme_surface_strong}};
+      --text-primary: {{theme_text_primary}};
+      --text-secondary: {{theme_text_secondary}};
+      --accent: {{theme_accent}};
+      --line: {{theme_line}};
+      --widget-gradient: {{theme_widget_gradient}};
+      --cover-background: {{theme_cover_background}};
+      --intro-gradient: {{theme_intro_gradient}};
+      --game-gradient: {{theme_game_gradient}};
+      --offers-gradient: {{theme_offers_gradient}};
+      --photos-gradient: {{theme_photos_gradient}};
+      --vacancies-gradient: {{theme_vacancies_gradient}};
+      --follow-us-gradient: {{theme_follow_us_gradient}};
+      --footer-gradient: {{theme_footer_gradient}};
+      --game-store-icon-height: {{game_store_icon_height}};
+    }
+  </style>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <noscript>
+    <style>
+      .scroll-reveal,
+      .scroll-reveal.scroll-reveal--visible {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    </style>
+  </noscript>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="brand-row">
+          {{header_brand_row}}
+        </div>
+        {{header_nav}}
+      </div>
+    </div>
+  </header>
+
+  {{cover_banner_section}}
+
+  <main>
+    <section class="intro section section-gradient scroll-reveal">
+      <div class="container center">
+        <h1 id="intro_title">{{intro_title}}</h1>
+        <p>{{company_description}}</p>
+        <p>{{company_description_2}}</p>
+      </div>
+    </section>
+
+    <section class="game section section-gradient" id="games">
+      <div class="container">
+        <h2 id="games_title" class="center">{{games_title}}</h2>
+        <div class="games-stack">
+          {{games_columns}}
+        </div>
+      </div>
+    </section>
+
+    <section class="offers section section-gradient scroll-reveal" id="offers">
+      <div class="container">
+        <h2 id="offers_title" class="center">{{offers_title}}</h2>
+        <div class="offers-grid">
+          {{offers_items}}
+        </div>
+      </div>
+    </section>
+
+    <section class="photos section section-gradient scroll-reveal">
+      <div class="container">
+        <h2 class="center">{{photos_title}}</h2>
+        <div class="photos-grid">
+          {{photos_items}}
+        </div>
+      </div>
+    </section>
+
+    {{vacancies_section}}
+
+    {{follow_us_section}}
+  </main>
+
+  <footer class="footer section section-gradient scroll-reveal" id="footer">
+    <div class="container">
+      {{footer_section}}
+    </div>
+  </footer>
+  <script src="scroll-reveal.js" defer></script>
+  <script src="game-swiper.js" defer></script>
+  <script src="split-widget.js" defer></script>
+</body>
+</html>
