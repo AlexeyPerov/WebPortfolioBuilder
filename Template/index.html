@@ -7,9 +7,11 @@
   <link rel="icon" type="image/png" href="{{site_icon}}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css?family=Quicksand:700|Roboto:400,400i,700&display=swap" rel="stylesheet">
+  <link href="{{typography_google_fonts_href}}" rel="stylesheet">
   <style>
     :root {
+      --font-heading: {{typography_font_heading}};
+      --font-body: {{typography_font_body}};
       --page-bg: {{theme_page_bg}};
       --surface: {{theme_surface}};
       --surface-strong: {{theme_surface_strong}};
@@ -55,51 +57,10 @@
   {{cover_banner_section}}
 
   <main>
-    <section class="intro section section-gradient scroll-reveal">
-      <div class="container center">
-        <h1 id="intro_title">{{intro_title}}</h1>
-        <p>{{company_description}}</p>
-        <p>{{company_description_2}}</p>
-      </div>
-    </section>
-
-    <section class="game section section-gradient" id="games">
-      <div class="container">
-        <h2 id="games_title" class="center">{{games_title}}</h2>
-        <div class="games-stack">
-          {{games_columns}}
-        </div>
-      </div>
-    </section>
-
-    <section class="offers section section-gradient scroll-reveal" id="offers">
-      <div class="container">
-        <h2 id="offers_title" class="center">{{offers_title}}</h2>
-        <div class="offers-grid">
-          {{offers_items}}
-        </div>
-      </div>
-    </section>
-
-    <section class="photos section section-gradient scroll-reveal">
-      <div class="container">
-        <h2 class="center">{{photos_title}}</h2>
-        <div class="photos-grid">
-          {{photos_items}}
-        </div>
-      </div>
-    </section>
-
-    {{vacancies_section}}
-
-    {{follow_us_section}}
+{{main_sections}}
   </main>
 
-  <footer class="footer section section-gradient scroll-reveal" id="footer">
-    <div class="container">
-      {{footer_section}}
-    </div>
-  </footer>
+  {{footer_html}}
   {{widgets_config_script}}
   <script src="scroll-reveal.js" defer></script>
   <script src="game-swiper.js" defer></script>

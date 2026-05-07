@@ -7,6 +7,18 @@ import (
 	"strings"
 )
 
+const (
+	defaultGoogleFontsHref = "https://fonts.googleapis.com/css?family=Quicksand:700|Roboto:400,400i,700&display=swap"
+
+	sectionIDCover     = "cover"
+	sectionIDIntro     = "intro"
+	sectionIDGames     = "games"
+	sectionIDOffers    = "offers"
+	sectionIDPhotos    = "photos"
+	sectionIDVacancies = "vacancies"
+	sectionIDContact   = "contact"
+)
+
 func buildPlaceholders(projectRoot string, config Config) map[string]string {
 	values := map[string]string{}
 
@@ -17,20 +29,238 @@ func buildPlaceholders(projectRoot string, config Config) map[string]string {
 		values["theme_"+key] = value
 	}
 
+	hrefFonts, fontHeading, fontBody := normalizedTypography(config.Typography)
+	values["typography_google_fonts_href"] = html.EscapeString(hrefFonts)
+	values["typography_font_heading"] = fontHeading
+	values["typography_font_body"] = fontBody
+
 	values["game_store_icon_height"] = gameStoreIconHeightCSS(projectRoot, config.GameStoreIcons.withDefaults())
 
-	values["games_columns"] = buildGamesColumns(projectRoot, config.Games, config.GameStoreIcons.withDefaults(), config.GameSubscribe)
-	values["offers_items"] = buildOffersItems(config.Offers)
-	values["vacancies_section"] = buildVacanciesSection(config.Vacancies, config.Content)
-	values["photos_items"] = buildPhotosItems(config.Photos)
-	values["footer_section"] = buildFooterSection(config.Footer)
-	values["cover_banner_section"] = buildCoverBannerSection(config.Content)
-	values["follow_us_section"] = buildFollowUsSection(config.Content, config.Social)
-	values["header_nav"] = buildHeaderNav(config.Content, len(config.Vacancies) > 0)
+	coverRaw := buildCoverBannerSection(config.Content)
+	values["cover_banner_section"] = resolveCoverBannerHTML(config, coverRaw)
+
+	values["main_sections"] = buildOrderedMainSections(projectRoot, config)
+
+	values["footer_html"] = buildFooterOuterHTML(config.Footer)
+
+	values["header_nav"] = buildHeaderNav(config)
 	values["header_brand_row"] = buildHeaderBrandRowHTML(config.Content)
 	values["widgets_config_script"] = buildWidgetsConfigScript(config.Widgets)
 
 	return values
+}
+
+func normalizedTypography(t TypographyConfig) (href, headingStack, bodyStack string) {
+	href = strings.TrimSpace(t.GoogleFontsStylesheetHref)
+	if href == "" {
+		href = defaultGoogleFontsHref
+	}
+	headingStack = strings.TrimSpace(t.FontFamilyHeading)
+	if headingStack == "" {
+		headingStack = `"Quicksand", sans-serif`
+	}
+	bodyStack = strings.TrimSpace(t.FontFamilyBody)
+	if bodyStack == "" {
+		bodyStack = `"Roboto", sans-serif`
+	}
+	return href, headingStack, bodyStack
+}
+
+func explicitSectionsLayout(config Config) bool {
+	return len(config.Sections) > 0
+}
+
+func firstEnabledSectionID(config Config) string {
+	for _, s := range config.Sections {
+		if !s.isEnabled() {
+			continue
+		}
+		return strings.ToLower(strings.TrimSpace(s.ID))
+	}
+	return ""
+}
+
+func resolveCoverBannerHTML(config Config, coverRaw string) string {
+	if coverRaw == "" {
+		return ""
+	}
+	if !explicitSectionsLayout(config) {
+		return coverRaw
+	}
+	if firstEnabledSectionID(config) == sectionIDCover {
+		return coverRaw
+	}
+	return ""
+}
+
+func defaultLegacySectionOrder() []SectionSpec {
+	return []SectionSpec{
+		{ID: sectionIDIntro},
+		{ID: sectionIDGames},
+		{ID: sectionIDOffers},
+		{ID: sectionIDPhotos},
+		{ID: sectionIDVacancies},
+		{ID: sectionIDContact},
+	}
+}
+
+func buildOrderedMainSections(projectRoot string, config Config) string {
+	var specs []SectionSpec
+	if explicitSectionsLayout(config) {
+		specs = config.Sections
+	} else {
+		specs = defaultLegacySectionOrder()
+	}
+	var parts []string
+	for _, spec := range specs {
+		if !spec.isEnabled() {
+			continue
+		}
+		id := strings.ToLower(strings.TrimSpace(spec.ID))
+		if id == sectionIDCover {
+			continue
+		}
+		frag := buildMainSectionHTML(projectRoot, config, id)
+		if frag == "" {
+			continue
+		}
+		parts = append(parts, frag)
+	}
+	return strings.Join(parts, "\n")
+}
+
+func buildMainSectionHTML(projectRoot string, config Config, id string) string {
+	c := config.Content
+	switch id {
+	case sectionIDIntro:
+		return buildIntroSectionHTML(c)
+	case sectionIDGames:
+		return buildGamesSectionHTML(projectRoot, c, config.Games, config.GameStoreIcons.withDefaults(), config.GameSubscribe)
+	case sectionIDOffers:
+		return buildOffersSectionHTML(c, config.Offers)
+	case sectionIDPhotos:
+		return buildPhotosSectionHTML(c, config.Photos)
+	case sectionIDVacancies:
+		return buildVacanciesSection(config.Vacancies, c)
+	case sectionIDContact:
+		return buildFollowUsSection(c, config.Social)
+	default:
+		return ""
+	}
+}
+
+func buildIntroSectionHTML(c map[string]string) string {
+	return fmt.Sprintf(
+		`<section class="intro section section-gradient scroll-reveal"><div class="container center"><h1 id="intro_title">%s</h1><p>%s</p><p>%s</p></div></section>`,
+		html.EscapeString(c["intro_title"]),
+		html.EscapeString(c["company_description"]),
+		html.EscapeString(c["company_description_2"]),
+	)
+}
+
+func buildGamesSectionHTML(projectRoot string, c map[string]string, games []Game, icons GameStoreIcons, subscribe GameSubscribeBlock) string {
+	cols := buildGamesColumns(projectRoot, games, icons, subscribe)
+	title := strings.TrimSpace(c["games_title"])
+	return fmt.Sprintf(
+		`<section class="game section section-gradient" id="games"><div class="container"><h2 id="games_title" class="center">%s</h2><div class="games-stack">%s</div></div></section>`,
+		html.EscapeString(title),
+		cols,
+	)
+}
+
+func buildOffersSectionHTML(c map[string]string, offers []OfferItem) string {
+	items := buildOffersItems(offers)
+	title := strings.TrimSpace(c["offers_title"])
+	return fmt.Sprintf(
+		`<section class="offers section section-gradient scroll-reveal" id="offers"><div class="container"><h2 id="offers_title" class="center">%s</h2><div class="offers-grid">%s</div></div></section>`,
+		html.EscapeString(title),
+		items,
+	)
+}
+
+func buildPhotosSectionHTML(c map[string]string, photos []string) string {
+	items := buildPhotosItems(photos)
+	title := strings.TrimSpace(c["photos_title"])
+	return fmt.Sprintf(
+		`<section class="photos section section-gradient scroll-reveal" id="photos"><div class="container"><h2 id="photos_title" class="center">%s</h2><div class="photos-grid">%s</div></div></section>`,
+		html.EscapeString(title),
+		items,
+	)
+}
+
+func buildFooterOuterHTML(f FooterConfig) string {
+	if !f.isFooterEnabled() {
+		return ""
+	}
+	inner := buildFooterSection(f)
+	return `<footer class="footer section section-gradient scroll-reveal" id="footer"><div class="container">` + inner + `</div></footer>`
+}
+
+func navLinkAttrs(href string, openInNewTab bool) string {
+	if !openInNewTab {
+		return ""
+	}
+	if strings.HasPrefix(href, "http://") || strings.HasPrefix(href, "https://") {
+		return ` target="_blank" rel="noopener noreferrer"`
+	}
+	return ""
+}
+
+func buildCustomHeaderNav(items []NavItem) string {
+	var parts []string
+	for _, it := range items {
+		label := strings.TrimSpace(it.Label)
+		href := strings.TrimSpace(it.Href)
+		if label == "" || href == "" {
+			continue
+		}
+		parts = append(parts, fmt.Sprintf(
+			`<a class="site-nav__link" href="%s"%s>%s</a>`,
+			html.EscapeString(href),
+			navLinkAttrs(href, it.OpenInNewTab),
+			html.EscapeString(label)))
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return `<nav class="site-nav" aria-label="Site">` + strings.Join(parts, "") + `</nav>`
+}
+
+func buildLegacyHeaderNav(c map[string]string, includeVacancies bool) string {
+	type navItem struct {
+		href, labelKey string
+	}
+	items := []navItem{
+		{"#intro_title", "nav_about"},
+		{"#games_title", "nav_games"},
+		{"#offers_title", "nav_we_offer"},
+	}
+	if includeVacancies {
+		items = append(items, navItem{"#vacancies_title", "nav_vacancies"})
+	}
+	items = append(items, navItem{"#follow_us_title", "nav_contact"})
+	var parts []string
+	for _, it := range items {
+		label := strings.TrimSpace(c[it.labelKey])
+		if label == "" {
+			continue
+		}
+		parts = append(parts, fmt.Sprintf(
+			`<a class="site-nav__link" href="%s">%s</a>`,
+			it.href,
+			html.EscapeString(label)))
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return `<nav class="site-nav" aria-label="On this page">` + strings.Join(parts, "") + `</nav>`
+}
+
+func buildHeaderNav(config Config) string {
+	if len(config.Nav) > 0 {
+		return buildCustomHeaderNav(config.Nav)
+	}
+	return buildLegacyHeaderNav(config.Content, len(config.Vacancies) > 0)
 }
 
 type widgetsExportJSON struct {
@@ -90,36 +320,6 @@ func buildHeaderBrandRowHTML(c map[string]string) string {
 		return fmt.Sprintf(`<span class="brand-name">%s</span>`, html.EscapeString(brand))
 	}
 	return ""
-}
-
-func buildHeaderNav(c map[string]string, includeVacancies bool) string {
-	type navItem struct {
-		href, labelKey string
-	}
-	items := []navItem{
-		{"#intro_title", "nav_about"},
-		{"#games_title", "nav_games"},
-		{"#offers_title", "nav_we_offer"},
-	}
-	if includeVacancies {
-		items = append(items, navItem{"#vacancies_title", "nav_vacancies"})
-	}
-	items = append(items, navItem{"#follow_us_title", "nav_contact"})
-	var parts []string
-	for _, it := range items {
-		label := strings.TrimSpace(c[it.labelKey])
-		if label == "" {
-			continue
-		}
-		parts = append(parts, fmt.Sprintf(
-			`<a class="site-nav__link" href="%s">%s</a>`,
-			it.href,
-			html.EscapeString(label)))
-	}
-	if len(parts) == 0 {
-		return ""
-	}
-	return `<nav class="site-nav" aria-label="On this page">` + strings.Join(parts, "") + `</nav>`
 }
 
 func gameStatLineOr(value, fallback string) string {

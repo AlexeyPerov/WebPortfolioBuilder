@@ -5,6 +5,9 @@ import "strings"
 type Config struct {
 	OutputFolder   string             `json:"output_folder"`
 	Theme          map[string]string  `json:"theme"`
+	Typography     TypographyConfig   `json:"typography"`
+	Nav            []NavItem          `json:"nav"`
+	Sections       []SectionSpec      `json:"sections"`
 	Content        map[string]string  `json:"content"`
 	Offers         []OfferItem        `json:"offers"`
 	Photos         []string           `json:"photos"`
@@ -15,6 +18,34 @@ type Config struct {
 	Social         SocialSection      `json:"social"`
 	Footer         FooterConfig       `json:"footer"`
 	Widgets        WidgetsConfig      `json:"widgets"`
+}
+
+// TypographyConfig optional; empty fields use built-in Google Fonts URL and stacks.
+type TypographyConfig struct {
+	GoogleFontsStylesheetHref string `json:"google_fonts_stylesheet_href,omitempty"`
+	FontFamilyHeading         string `json:"font_family_heading,omitempty"`
+	FontFamilyBody            string `json:"font_family_body,omitempty"`
+}
+
+// NavItem is one header link when using custom nav (non-empty nav array replaces legacy nav_* content keys).
+type NavItem struct {
+	Label          string `json:"label"`
+	Href           string `json:"href"`
+	OpenInNewTab   bool   `json:"open_in_new_tab"`
+}
+
+// SectionSpec controls ordering and visibility inside <main>. ID "cover" is special: only shown above <main>
+// when it is the first enabled entry in sections; legacy mode (no sections array) keeps cover behavior from content.
+type SectionSpec struct {
+	ID      string `json:"id"`
+	Enabled *bool  `json:"enabled,omitempty"`
+}
+
+func (s SectionSpec) isEnabled() bool {
+	if s.Enabled == nil {
+		return true
+	}
+	return *s.Enabled
 }
 
 // OfferItem is one card in the "We offer" section (any number of items).
@@ -153,6 +184,7 @@ type Vacancy struct {
 }
 
 type FooterConfig struct {
+	Enabled      *bool         `json:"enabled,omitempty"`
 	SectionTitle string        `json:"section_title"`
 	Contact      FooterContact `json:"contact"`
 	PrivacyURL   string        `json:"privacy_url"`
@@ -161,6 +193,13 @@ type FooterConfig struct {
 	TermsLabel   string        `json:"terms_label"`
 	Copyright    string        `json:"copyright"`
 	CookieNotice string        `json:"cookie_notice"`
+}
+
+func (f FooterConfig) isFooterEnabled() bool {
+	if f.Enabled == nil {
+		return true
+	}
+	return *f.Enabled
 }
 
 type FooterContact struct {

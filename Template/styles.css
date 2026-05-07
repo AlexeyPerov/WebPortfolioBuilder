@@ -9,7 +9,7 @@ html {
 
 body {
   margin: 0;
-  font-family: "Roboto", sans-serif;
+  font-family: var(--font-body);
   color: var(--text-primary);
   background: var(--page-bg);
   line-height: 1.6;
@@ -18,13 +18,14 @@ body {
 #intro_title,
 #games_title,
 #offers_title,
+#photos_title,
 #vacancies_title,
 #follow_us_title {
   scroll-margin-top: 84px;
 }
 
 h1, h2, h3, h4 {
-  font-family: "Quicksand", sans-serif;
+  font-family: var(--font-heading);
   margin-top: 0;
   line-height: 1.2;
 }
@@ -119,7 +120,7 @@ p {
   border: none;
   background: var(--widget-gradient);
   color: var(--text-primary);
-  font-family: "Quicksand", sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600;
   font-size: 0.875rem;
   text-decoration: none;
@@ -142,7 +143,7 @@ p {
 }
 
 .brand-name {
-  font-family: "Quicksand", sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
 }
 
@@ -274,7 +275,7 @@ p {
 
 .game-card-full__subscribe-title {
   margin: 0 0 7.5px;
-  font-family: "Quicksand", sans-serif;
+  font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -590,7 +591,7 @@ p {
   background: var(--widget-gradient);
   color: var(--text-primary);
   font: inherit;
-  font-family: "Quicksand", sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600;
   cursor: pointer;
   transition: filter 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
@@ -651,7 +652,7 @@ p {
   color: #fff;
   text-decoration: none;
   font-weight: 700;
-  font-family: "Quicksand", sans-serif;
+  font-family: var(--font-heading);
 }
 
 .vacancy-apply-btn:hover {
