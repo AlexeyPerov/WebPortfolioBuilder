@@ -16,20 +16,32 @@ func main() {
 	must(err)
 	templateDir := filepath.Join(rootDir, "Template")
 
-	fmt.Print("Enter config.json path to use (absolute or relative; empty = ./config.json in project root): ")
-	configInput, err := readOptionalLine(reader)
+	fmt.Print("Enter site bundle directory path (absolute or relative; empty = ./sites/kometa): ")
+	siteInput, err := readOptionalLine(reader)
 	must(err)
-	configPath := filepath.Join(rootDir, "config.json")
-	if configInput != "" {
-		if filepath.IsAbs(configInput) {
-			configPath = configInput
+	siteDir := filepath.Join(rootDir, "sites", "kometa")
+	if siteInput != "" {
+		if filepath.IsAbs(siteInput) {
+			siteDir = siteInput
 		} else {
-			configPath = filepath.Join(rootDir, configInput)
+			siteDir = filepath.Join(rootDir, siteInput)
 		}
 	}
 
-	config, err := loadConfig(configPath)
+	bundle, warnings, err := loadSiteBundle(siteDir)
 	must(err)
+	for _, warning := range warnings {
+		fmt.Fprintln(os.Stderr, "Warning:", warning.String())
+	}
+
+	config := Config{
+		OutputFolder: bundle.Site.OutputFolder,
+		Theme:        bundle.Site.Theme,
+		Typography:   bundle.Site.Typography,
+		Nav:          bundle.Site.Header.Nav,
+		Social:       bundle.Site.Social,
+		Footer:       bundle.Site.Footer,
+	}
 
 	outputFolder, err := validatedOutputFolder(config.OutputFolder)
 	must(err)

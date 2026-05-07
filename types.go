@@ -1,6 +1,80 @@
 package main
 
-import "strings"
+import (
+	"encoding/json"
+	"strings"
+)
+
+type SiteBundle struct {
+	SiteDir  string
+	SitePath string
+	Site     SiteConfig
+	Pages    []SitePageFile
+}
+
+type SitePageFile struct {
+	Path       string
+	Page       PageConfig
+	HasSlug    bool
+	HasWidgets bool
+}
+
+type ConfigWarning struct {
+	FilePath string
+	Key      string
+}
+
+func (w ConfigWarning) String() string {
+	return w.FilePath + " -> unknown key: " + w.Key
+}
+
+type SiteConfig struct {
+	SiteID       string            `json:"site_id"`
+	OutputFolder string            `json:"output_folder"`
+	Theme        map[string]string `json:"theme,omitempty"`
+	Typography   TypographyConfig  `json:"typography,omitempty"`
+	Social       SocialSection     `json:"social,omitempty"`
+	Header       HeaderConfig      `json:"header,omitempty"`
+	Footer       FooterConfig      `json:"footer,omitempty"`
+	BaseURL      string            `json:"base_url,omitempty"`
+}
+
+type HeaderConfig struct {
+	Brand HeaderBrand `json:"brand,omitempty"`
+	Nav   []NavItem   `json:"nav,omitempty"`
+}
+
+type HeaderBrand struct {
+	Logo string `json:"logo,omitempty"`
+	Text string `json:"text,omitempty"`
+}
+
+type PageConfig struct {
+	Slug    string          `json:"slug"`
+	Widgets []WidgetNode    `json:"widgets"`
+	Title   string          `json:"title,omitempty"`
+	SEO     PageSEO         `json:"seo,omitempty"`
+	Hero    json.RawMessage `json:"hero,omitempty"`
+	Layout  PageLayout      `json:"layout,omitempty"`
+}
+
+type PageSEO struct {
+	Description  string `json:"description,omitempty"`
+	OGImage      string `json:"og_image,omitempty"`
+	CanonicalURL string `json:"canonical_url,omitempty"`
+}
+
+type PageLayout struct {
+	HideHeader bool `json:"hide_header,omitempty"`
+	HideFooter bool `json:"hide_footer,omitempty"`
+}
+
+type WidgetNode struct {
+	Type    string                     `json:"type"`
+	ID      string                     `json:"id,omitempty"`
+	Enabled *bool                      `json:"enabled,omitempty"`
+	Props   map[string]json.RawMessage `json:"props,omitempty"`
+}
 
 type Config struct {
 	OutputFolder   string             `json:"output_folder"`
@@ -29,9 +103,9 @@ type TypographyConfig struct {
 
 // NavItem is one header link when using custom nav (non-empty nav array replaces legacy nav_* content keys).
 type NavItem struct {
-	Label          string `json:"label"`
-	Href           string `json:"href"`
-	OpenInNewTab   bool   `json:"open_in_new_tab"`
+	Label        string `json:"label"`
+	Href         string `json:"href"`
+	OpenInNewTab bool   `json:"open_in_new_tab"`
 }
 
 // SectionSpec controls ordering and visibility inside <main>. ID "cover" is special: only shown above <main>
