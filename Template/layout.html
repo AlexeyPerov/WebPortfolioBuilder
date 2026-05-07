@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Title}}</title>
+  {{if .SiteIconHref}}<link rel="icon" type="image/png" href="{{.SiteIconHref}}">{{end}}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="{{.TypographyGoogleFonts}}" rel="stylesheet">
+  {{if .MetaDescription}}<meta name="description" content="{{.MetaDescription}}">{{end}}
+  {{if .CanonicalURL}}<link rel="canonical" href="{{.CanonicalURL}}">{{end}}
+  {{if .OpenGraphImage}}<meta property="og:image" content="{{.OpenGraphImage}}">{{end}}
+  <style>
+    :root {
+      --font-heading: {{.TypographyFontHeading}};
+      --font-body: {{.TypographyFontBody}};
+{{.ThemeCSSVariables}}
+    }
+  </style>
+  <link rel="stylesheet" href="{{.StylesHref}}">
+</head>
+<body>
+  <noscript>
+    <style>
+      .scroll-reveal,
+      .scroll-reveal.scroll-reveal--visible {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    </style>
+  </noscript>
+  {{if .ShowHeader}}
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="brand-row">
+          <a class="brand-home" href="{{.HeaderBrandHref}}" aria-label="Home">
+            {{if .HeaderBrandLogo}}<img class="logo" src="{{.HeaderBrandLogo}}" alt="Site logo">{{end}}
+            {{if .HeaderBrandText}}<span class="brand-home__text">{{.HeaderBrandText}}</span>{{end}}
+          </a>
+        </div>
+        {{if .HeaderNav}}
+        <nav class="site-nav" aria-label="Site navigation">
+          {{range .HeaderNav}}
+          <a class="site-nav__link" href="{{.Href}}"{{if .OpenNewTab}} target="_blank" rel="noopener noreferrer"{{end}}>{{.Label}}</a>
+          {{end}}
+        </nav>
+        {{end}}
+      </div>
+    </div>
+  </header>
+  {{end}}
+
+  <main>
+    {{.MainContentHTML}}
+  </main>
+
+  {{if .ShowFooter}}{{.FooterHTML}}{{end}}
+  <script src="{{.ScrollRevealScriptHref}}" defer></script>
+  <script src="{{.GameSwiperScriptHref}}" defer></script>
+  <script src="{{.SplitWidgetScriptHref}}" defer></script>
+</body>
+</html>

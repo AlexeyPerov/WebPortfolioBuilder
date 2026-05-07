@@ -34,16 +34,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Warning:", warning.String())
 	}
 
-	config := Config{
-		OutputFolder: bundle.Site.OutputFolder,
-		Theme:        bundle.Site.Theme,
-		Typography:   bundle.Site.Typography,
-		Nav:          bundle.Site.Header.Nav,
-		Social:       bundle.Site.Social,
-		Footer:       bundle.Site.Footer,
-	}
-
-	outputFolder, err := validatedOutputFolder(config.OutputFolder)
+	outputFolder, err := validatedOutputFolderFor(bundle.Site.OutputFolder, bundle.SitePath)
 	must(err)
 
 	fmt.Printf("Enter destination directory (absolute or relative path, empty = project root).\n(Please note that website will be created in subdirectory: %q)\n", outputFolder)
@@ -56,10 +47,9 @@ func main() {
 	targetDir := filepath.Join(baseLocation, outputFolder)
 	must(prepareDestination(targetDir))
 
-	must(copyDir(templateDir, targetDir))
-	placeholderValues := buildPlaceholders(rootDir, config)
-	must(applyConfigToDir(targetDir, placeholderValues))
-	must(copyConfigAssets(rootDir, targetDir, config))
+	must(copyTemplateStaticAssets(templateDir, targetDir))
+	must(copyDirIfExists(filepath.Join(bundle.SiteDir, "assets"), filepath.Join(targetDir, "assets")))
+	must(renderSiteBundle(bundle, targetDir, templateDir))
 
 	fmt.Println("Website generated successfully.")
 	fmt.Println("Output:", targetDir)

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 var placeholderRegex = regexp.MustCompile(`\{\{\s*([a-zA-Z0-9_]+)\s*\}\}`)
@@ -91,4 +92,39 @@ func applyConfigToDir(root string, config map[string]string) error {
 
 		return os.WriteFile(path, []byte(updated), 0o644)
 	})
+}
+
+func copyTemplateStaticAssets(src, dst string) error {
+	return filepath.WalkDir(src, func(path string, d fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+
+		relPath, err := filepath.Rel(src, path)
+		if err != nil {
+			return err
+		}
+		if relPath == "." {
+			return nil
+		}
+		targetPath := filepath.Join(dst, relPath)
+
+		if d.IsDir() {
+			return os.MkdirAll(targetPath, 0o755)
+		}
+		if strings.EqualFold(filepath.Ext(d.Name()), ".html") {
+			return nil
+		}
+		return copyFile(path, targetPath)
+	})
+}
+
+func copyDirIfExists(src, dst string) error {
+	if _, err := os.Stat(src); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	return copyDir(src, dst)
 }
