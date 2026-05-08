@@ -29,17 +29,17 @@ func (w ConfigWarning) String() string {
 }
 
 type SiteConfig struct {
-	SiteID         string             `json:"site_id"`
-	OutputFolder   string             `json:"output_folder"`
-	Theme          map[string]string  `json:"theme,omitempty"`
-	Typography     TypographyConfig   `json:"typography,omitempty"`
-	GameStoreIcons GameStoreIcons     `json:"game_store_icons,omitempty"`
-	GameSubscribe  GameSubscribeBlock `json:"game_subscribe,omitempty"`
-	Social         SocialSection      `json:"social,omitempty"`
-	Header         HeaderConfig       `json:"header,omitempty"`
-	Footer         FooterConfig       `json:"footer,omitempty"`
-	BaseURL        string             `json:"base_url,omitempty"`
-	Widgets        WidgetsConfig      `json:"widgets,omitempty"`
+	SiteID         string            `json:"site_id"`
+	OutputFolder   string            `json:"output_folder"`
+	Theme          map[string]string `json:"theme,omitempty"`
+	Typography     TypographyConfig  `json:"typography,omitempty"`
+	StoreIcons     StoreIcons        `json:"store_icons,omitempty"`
+	SubscribeBlock SubscribeBlock    `json:"subscribe_block,omitempty"`
+	Social         SocialSection     `json:"social,omitempty"`
+	Header         HeaderConfig      `json:"header,omitempty"`
+	Footer         FooterConfig      `json:"footer,omitempty"`
+	BaseURL        string            `json:"base_url,omitempty"`
+	Widgets        WidgetsConfig     `json:"widgets,omitempty"`
 }
 
 type HeaderConfig struct {
@@ -79,64 +79,23 @@ type WidgetNode struct {
 	Props   map[string]json.RawMessage `json:"props,omitempty"`
 }
 
-type Config struct {
-	OutputFolder   string             `json:"output_folder"`
-	Theme          map[string]string  `json:"theme"`
-	Typography     TypographyConfig   `json:"typography"`
-	Nav            []NavItem          `json:"nav"`
-	Sections       []SectionSpec      `json:"sections"`
-	Content        map[string]string  `json:"content"`
-	Offers         []OfferItem        `json:"offers"`
-	Photos         []string           `json:"photos"`
-	GameStoreIcons GameStoreIcons     `json:"game_store_icons"`
-	GameSubscribe  GameSubscribeBlock `json:"game_subscribe"`
-	Games          []Game             `json:"games"`
-	Vacancies      []Vacancy          `json:"vacancies"`
-	Social         SocialSection      `json:"social"`
-	Footer         FooterConfig       `json:"footer"`
-	Widgets        WidgetsConfig      `json:"widgets"`
-}
-
-// TypographyConfig optional; empty fields use built-in Google Fonts URL and stacks.
 type TypographyConfig struct {
 	GoogleFontsStylesheetHref string `json:"google_fonts_stylesheet_href,omitempty"`
 	FontFamilyHeading         string `json:"font_family_heading,omitempty"`
 	FontFamilyBody            string `json:"font_family_body,omitempty"`
 }
 
-// NavItem is one header link when using custom nav (non-empty nav array replaces legacy nav_* content keys).
+// NavItem is one header link (`site.json` → `header.nav`).
 type NavItem struct {
 	Label        string `json:"label"`
 	Href         string `json:"href"`
 	OpenInNewTab bool   `json:"open_in_new_tab"`
 }
 
-// SectionSpec controls ordering and visibility inside <main>. ID "cover" is special: only shown above <main>
-// when it is the first enabled entry in sections; legacy mode (no sections array) keeps cover behavior from content.
-type SectionSpec struct {
-	ID      string `json:"id"`
-	Enabled *bool  `json:"enabled,omitempty"`
-}
+type StoreIcons map[string]string
 
-func (s SectionSpec) isEnabled() bool {
-	if s.Enabled == nil {
-		return true
-	}
-	return *s.Enabled
-}
-
-// OfferItem is one card in the "We offer" section (any number of items).
-type OfferItem struct {
-	Image string `json:"image"`
-	Title string `json:"title"`
-	Text  string `json:"text"`
-}
-
-// GameStoreIcons maps preset keys (e.g. google_play, steam) to image paths shared across game cards.
-type GameStoreIcons map[string]string
-
-func defaultGameStoreIconPaths() GameStoreIcons {
-	return GameStoreIcons{
+func defaultStoreIconPaths() StoreIcons {
+	return StoreIcons{
 		"google_play": "Images/gp-store-icon.png",
 		"app_store":   "Images/appstore-store-icon.png",
 		"galaxy":      "Images/galaxy-store-icon.png",
@@ -144,9 +103,9 @@ func defaultGameStoreIconPaths() GameStoreIcons {
 	}
 }
 
-func (m GameStoreIcons) withDefaults() GameStoreIcons {
-	out := make(GameStoreIcons)
-	for k, v := range defaultGameStoreIconPaths() {
+func (m StoreIcons) withDefaults() StoreIcons {
+	out := make(StoreIcons)
+	for k, v := range defaultStoreIconPaths() {
 		out[k] = v
 	}
 	if m == nil {
@@ -161,13 +120,13 @@ func (m GameStoreIcons) withDefaults() GameStoreIcons {
 	return out
 }
 
-// GameSubscribeBlock is shown inside each game card above store buttons when at least one link has a URL.
-type GameSubscribeBlock struct {
-	Title string              `json:"title"`
-	Links []GameSubscribeLink `json:"links"`
+// SubscribeBlock is shown inside each catalog app card above store buttons when at least one link has a URL.
+type SubscribeBlock struct {
+	Title string          `json:"title"`
+	Links []SubscribeLink `json:"links"`
 }
 
-type GameSubscribeLink struct {
+type SubscribeLink struct {
 	Label string `json:"label"`
 	URL   string `json:"url"`
 }
@@ -175,7 +134,7 @@ type GameSubscribeLink struct {
 // WidgetsConfig tunes front-end scripts; omitted fields use defaults matching the original hardcoded behavior.
 type WidgetsConfig struct {
 	ScrollReveal ScrollRevealWidgetConfig `json:"scroll_reveal"`
-	GameSwiper   GameSwiperWidgetConfig   `json:"game_swiper"`
+	Carousel     CarouselWidgetConfig     `json:"carousel"`
 	SplitWidget  SplitWidgetConfig        `json:"split_widget"`
 }
 
@@ -185,7 +144,7 @@ type ScrollRevealWidgetConfig struct {
 	Threshold            *float64 `json:"threshold,omitempty"`
 }
 
-type GameSwiperWidgetConfig struct {
+type CarouselWidgetConfig struct {
 	SwipeThresholdPx *int `json:"swipe_threshold_px,omitempty"`
 }
 
@@ -225,26 +184,27 @@ func (s SocialSection) resolvedSocialLinks() []SocialLink {
 	return out
 }
 
-type Game struct {
-	Image          string          `json:"image"`
-	HeaderImage    string          `json:"header_image"`
-	SwiperImages   []string        `json:"swiper_images"`
-	CardBackground string          `json:"card_background"`
-	Title          string          `json:"title"`
-	Text1          string          `json:"text_1"`
-	Text2          string          `json:"text_2"`
-	StatLeftLine1  string          `json:"stat_left_line_1"`
-	StatLeftLine2  string          `json:"stat_left_line_2"`
-	StatRightLine1 string          `json:"stat_right_line_1"`
-	StatRightLine2 string          `json:"stat_right_line_2"`
-	GooglePlayURL  string          `json:"google_play_url"`
-	AppStoreURL    string          `json:"app_store_url"`
-	AmazonStoreURL string          `json:"amazon_store_url"`
-	GalaxyStoreURL string          `json:"galaxy_store_url"`
-	StoreLinks     []GameStoreLink `json:"store_links,omitempty"`
+// CatalogApp is one entry in the catalog / apps showcase (legacy single-page config shape).
+type CatalogApp struct {
+	Image          string      `json:"image"`
+	HeaderImage    string      `json:"header_image"`
+	SwiperImages   []string    `json:"swiper_images"`
+	CardBackground string      `json:"card_background"`
+	Title          string      `json:"title"`
+	Text1          string      `json:"text_1"`
+	Text2          string      `json:"text_2"`
+	StatLeftLine1  string      `json:"stat_left_line_1"`
+	StatLeftLine2  string      `json:"stat_left_line_2"`
+	StatRightLine1 string      `json:"stat_right_line_1"`
+	StatRightLine2 string      `json:"stat_right_line_2"`
+	GooglePlayURL  string      `json:"google_play_url"`
+	AppStoreURL    string      `json:"app_store_url"`
+	AmazonStoreURL string      `json:"amazon_store_url"`
+	GalaxyStoreURL string      `json:"galaxy_store_url"`
+	StoreLinks     []StoreLink `json:"store_links,omitempty"`
 }
 
-type GameStoreLink struct {
+type StoreLink struct {
 	URL       string `json:"url"`
 	AriaLabel string `json:"aria_label,omitempty"`
 	Icon      string `json:"icon,omitempty"`

@@ -87,7 +87,7 @@ Implement **one** canonical `type` string in JSON (recommend `column`); if both 
 
 **Purpose:** Vertical stack of **large product cards**: optional header image or title band, icon row + stats, body copy, screenshot swiper, store badges, optional subscribe links.
 
-**Parity:** Current catalog-entry struct and builders in [`types.go`](../types.go) and [`html.go`](../html.go), screenshot carousel, store badges, subscribe block (`game_subscribe` in legacy JSON until Task 16 schema pass).
+**Parity:** Catalog entry struct in [`types.go`](../types.go) (`CatalogApp`), shared store resolution in [`html.go`](../html.go), screenshot carousel ([`Template/catalog-carousel.js`](../Template/catalog-carousel.js)), store badges, subscribe block from site-level `subscribe_block`.
 
 | `props` | Required | Default | Notes |
 |---------|----------|---------|--------|
@@ -99,7 +99,7 @@ Implement **one** canonical `type` string in JSON (recommend `column`); if both 
 **Validation:**
 
 - `apps` length ≥ 1.
-- Each entry: enforce same asset and URL rules as today (store icons resolved via site-level preset map—legacy JSON key `game_store_icons` until renamed in Task 16).
+- Each entry: enforce same asset and URL rules as today (store icons resolved via site-level **`store_icons`** preset map in [`site.json`](../sites/kometa/site.json)).
 
 ---
 
@@ -245,7 +245,7 @@ Wrap content in the same **page container** width as other sections (`container`
 | `images` | yes | — | Array of `{ src, alt? }`. |
 | `aria_label` | no | `"Image carousel"` | For wrapper. |
 
-**Behavior:** Reuse or generalize the screenshot carousel script (currently [`game-swiper.js`](../Template/game-swiper.js); rename in Task 16) with neutral class names or shared data attributes documented in ImplementationSpec / code.
+**Behavior:** Reuses [`Template/catalog-carousel.js`](../Template/catalog-carousel.js): root `[data-catalog-carousel]` and `.catalog-carousel__*` elements (same contract as `apps_showcase` swiper markup).
 
 **Validation:** `images` length ≥ 1.
 

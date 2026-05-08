@@ -1,70 +1,70 @@
 {{define "apps_showcase"}}
-<section class="game section section-gradient" id="{{if .ID}}{{.ID}}{{else}}games{{end}}" data-widget-type="apps_showcase">
+<section class="catalog-showcase section section-gradient" id="{{if .ID}}{{.ID}}{{else}}apps{{end}}" data-widget-type="apps_showcase">
   <div class="container">
-    {{if .SectionTitle}}<h2 id="games_title" class="center">{{.SectionTitle}}</h2>{{end}}
-    <div class="games-stack">
+    {{if .SectionTitle}}<h2 id="apps_title" class="center">{{.SectionTitle}}</h2>{{end}}
+    <div class="catalog-apps-stack">
       {{range .Cards}}
       <article class="{{.CardClass}}"{{.CardStyleAttr}}>
         {{if .HeaderImage}}
-        <div class="game-card-full__header">
-          <img class="game-card-full__header-image" src="{{.HeaderImage}}" alt="{{.HeaderAlt}}" decoding="async">
+        <div class="catalog-app-card__header">
+          <img class="catalog-app-card__header-image" src="{{.HeaderImage}}" alt="{{.HeaderAlt}}" decoding="async">
         </div>
         {{else if .TitleInHeader}}
-        <div class="game-card-full__header">
-          <h3 class="game-card-full__header-title">{{.TitleInHeader}}</h3>
+        <div class="catalog-app-card__header">
+          <h3 class="catalog-app-card__header-title">{{.TitleInHeader}}</h3>
         </div>
         {{end}}
-        <div class="game-card-full__icon-row">
-          <div class="game-card-full__stat game-card-full__stat--left">
-            <span class="game-card-full__stat-line game-card-full__stat-line--emphasis">{{.StatLeft1}}</span>
-            <span class="game-card-full__stat-line">{{.StatLeft2}}</span>
+        <div class="catalog-app-card__icon-row">
+          <div class="catalog-app-card__stat catalog-app-card__stat--left">
+            <span class="catalog-app-card__stat-line catalog-app-card__stat-line--emphasis">{{.StatLeft1}}</span>
+            <span class="catalog-app-card__stat-line">{{.StatLeft2}}</span>
           </div>
-          <div class="game-card-full__icon-wrap">
-            <img class="game-icon" src="{{.IconSrc}}" alt="{{.IconAlt}}">
+          <div class="catalog-app-card__icon-wrap">
+            <img class="catalog-app-icon" src="{{.IconSrc}}" alt="{{.IconAlt}}">
           </div>
-          <div class="game-card-full__stat game-card-full__stat--right">
-            <span class="game-card-full__stat-line game-card-full__stat-line--emphasis">{{.StatRight1}}</span>
-            <span class="game-card-full__stat-line">{{.StatRight2}}</span>
+          <div class="catalog-app-card__stat catalog-app-card__stat--right">
+            <span class="catalog-app-card__stat-line catalog-app-card__stat-line--emphasis">{{.StatRight1}}</span>
+            <span class="catalog-app-card__stat-line">{{.StatRight2}}</span>
           </div>
         </div>
-        <div class="game-card-full__body">
+        <div class="catalog-app-card__body">
           {{if .BodyTitle}}<h3>{{.BodyTitle}}</h3>{{end}}
-          <div class="game-card-full__columns">
-            <p class="game-card-full__col">{{.Text1}}</p>
-            <p class="game-card-full__col">{{.Text2}}</p>
+          <div class="catalog-app-card__columns">
+            <p class="catalog-app-card__col">{{.Text1}}</p>
+            <p class="catalog-app-card__col">{{.Text2}}</p>
           </div>
         </div>
         {{if .Slides}}
-        <div class="game-swiper" data-game-swiper>
-          <button class="game-swiper__arrow game-swiper__arrow--prev" type="button" aria-label="Previous screenshot">‹</button>
-          <div class="game-swiper__viewport">
-            <div class="game-swiper__track">
+        <div class="catalog-carousel" data-catalog-carousel>
+          <button class="catalog-carousel__arrow catalog-carousel__arrow--prev" type="button" aria-label="Previous screenshot">‹</button>
+          <div class="catalog-carousel__viewport">
+            <div class="catalog-carousel__track">
               {{range .Slides}}
-              <div class="game-swiper__slide">
-                <img class="game-swiper__img" src="{{.Src}}" alt="{{.Alt}}" loading="lazy" decoding="async">
+              <div class="catalog-carousel__slide">
+                <img class="catalog-carousel__img" src="{{.Src}}" alt="{{.Alt}}" loading="lazy" decoding="async">
               </div>
               {{end}}
             </div>
           </div>
-          <button class="game-swiper__arrow game-swiper__arrow--next" type="button" aria-label="Next screenshot">›</button>
+          <button class="catalog-carousel__arrow catalog-carousel__arrow--next" type="button" aria-label="Next screenshot">›</button>
         </div>
         {{end}}
         {{if .Stores}}
-        <div class="game-card-full__stores">
+        <div class="catalog-app-card__stores">
           {{range .Stores}}
-          <a class="game-store-btn game-store-btn--{{.ClassSuffix}}" href="{{.URL}}"{{.Attrs}} aria-label="{{.AriaLabel}}">
-            <img class="game-store-btn__icon" src="{{.IconSrc}}" alt="" decoding="async">
+          <a class="catalog-store-btn catalog-store-btn--{{.ClassSuffix}}" href="{{.URL}}"{{.Attrs}} aria-label="{{.AriaLabel}}">
+            <img class="catalog-store-btn__icon" src="{{.IconSrc}}" alt="" decoding="async">
           </a>
           {{end}}
         </div>
         {{end}}
         {{with .Subscribe}}
-        <div class="game-card-full__subscribe">
-          <p class="game-card-full__subscribe-title">{{.Title}}</p>
-          <ul class="game-card-full__subscribe-list">
+        <div class="catalog-app-card__subscribe">
+          <p class="catalog-app-card__subscribe-title">{{.Title}}</p>
+          <ul class="catalog-app-card__subscribe-list">
             {{range .Links}}
-            <li class="game-card-full__subscribe-item">
-              <a class="game-card-full__subscribe-link" href="{{.URL}}"{{.Attrs}}>{{.Label}}</a>
+            <li class="catalog-app-card__subscribe-item">
+              <a class="catalog-app-card__subscribe-link" href="{{.URL}}"{{.Attrs}}>{{.Label}}</a>
             </li>
             {{end}}
           </ul>

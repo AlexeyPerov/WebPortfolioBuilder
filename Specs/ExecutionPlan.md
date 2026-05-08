@@ -47,7 +47,7 @@ Residual uncertainties:
 
 1. [ImplementationSpec.md §2–§5, §9](./ImplementationSpec.md)
 2. [UpgradeQuestions.md §1–§2](./UpgradeQuestions.md)
-3. Existing patterns: [`config.go`](../config.go) (`loadConfig`)
+3. Existing patterns: [`config.go`](../config.go) (`loadSiteBundle`, `decodeJSONObjectFile`)
 
 - Introduce types and loader for `sites/<site-id>/site.json` plus glob/read of `sites/<site-id>/pages/*.json`.
 - Validate: unique slugs across pages; **at most one** page with `slug === ""`; required fields per ImplementationSpec.
@@ -82,7 +82,7 @@ Dependencies: Task 1.
 
 - Add shared **`layout.html`** (or equivalent) with slots for `<head>`, header, main widget stream, footer, scripts.
 - Inject `:root` CSS variables from `site.theme` and typography ([ImplementationSpec.md §3](./ImplementationSpec.md)).
-- Reduce or eliminate directory-wide `{{placeholder}}` replacement for the main layout per spec; keep tiny injections only if justified ([`fs.go`](../fs.go) `applyConfigToDir`).
+- Eliminate directory-wide `{{placeholder}}` replacement for the generated layout; [`fs.go`](../fs.go) retains only `prepareDestination`, file copy helpers, and [`copyTemplateStaticAssets`](../fs.go) (no placeholder walk).
 
 Dependencies: Task 1.
 
@@ -123,7 +123,7 @@ Dependencies: Tasks 2, 3 (routing + layout wired enough to emit at least one emp
 **Required context**
 
 1. [ImplementationSpec.md §8](./ImplementationSpec.md)
-2. [`assets.go`](../assets.go) (`resolveAssetUnderProject`, `copyProjectAsset`, `collectAssetPaths`)
+2. [`assets.go`](../assets.go) (`collectBundleAssetReferences`, `copyReferencedSiteAssets`, `normalizeAssetReference`)
 
 - Canonical asset prefix under **`sites/<site-id>/assets/`** (document in code/README).
 - Traverse site config + **all widget props** to collect referenced paths; copy into output preserving deduped relative paths ([ImplementationSpec.md §8](./ImplementationSpec.md)).
@@ -198,10 +198,10 @@ Dependencies: Tasks 7, 9.
 
 1. [WidgetRegistryV1.md — apps_showcase](./WidgetRegistryV1.md)
 2. [`html.go`](../html.go) (`buildGamesColumns`, store rows, swiper HTML)
-3. [`Template/game-swiper.js`](../Template/game-swiper.js), [`Template/styles.css`](../Template/styles.css)
+3. [`Template/catalog-carousel.js`](../Template/catalog-carousel.js), [`Template/styles.css`](../Template/styles.css)
 
 - Port catalog card markup to templates; retain swiper/store/subscribe behavior ([ImplementationSpec.md §11](./ImplementationSpec.md)).
-- Ensure [`collectAssetPaths`](../assets.go) extensions (Task 6) pick up all nested image/icon paths.
+- Ensure [`collectBundleAssetReferences`](../assets.go) extensions (Task 6) pick up all nested image/icon paths.
 
 Dependencies: Tasks 7, 6.
 
@@ -226,7 +226,7 @@ Dependencies: Tasks 7, 8.
 **Required context**
 
 1. [WidgetRegistryV1.md — media_swiper](./WidgetRegistryV1.md)
-2. [`Template/game-swiper.js`](../Template/game-swiper.js)
+2. [`Template/catalog-carousel.js`](../Template/catalog-carousel.js)
 
 - Generic carousel: neutral markup/data attributes or reuse the screenshot carousel script with generalized selectors (document choice).
 - Optional for “full” v1 release path ([ImplementationSpec.md §13](./ImplementationSpec.md)).
@@ -250,7 +250,7 @@ Dependencies: Tasks 11, 12, 10, 9.
 
 ---
 
-#### Task 15: Cleanup, entrypoint, README [Score:3] [Agent:easy]
+#### Task 15: Cleanup, entrypoint, README [Score:3] [Agent:easy] [DONE]
 
 **Required context**
 
@@ -264,7 +264,7 @@ Dependencies: Task 14 (coordinate **Task 16** Phase B before freezing README det
 
 ---
 
-#### Task 16: Rename product to PortfolioWebsiteBuilder and purge deprecated naming [Score:8] [Agent:heavy]
+#### Task 16: Rename product to PortfolioWebsiteBuilder and purge deprecated naming [Score:8] [Agent:heavy] [DONE]
 
 **Required context**
 
@@ -276,8 +276,8 @@ Dependencies: Task 14 (coordinate **Task 16** Phase B before freezing README det
 
 - **Canonical names:** Repository / product identifier **PortfolioWebsiteBuilder**; Go module **`portfoliowebsitebuilder`** ([`go.mod`](../go.mod)); human-readable title **Portfolio Website Builder**.
 - **Forbidden branding substrings** (must not appear in authored docs, identifiers, JSON keys, CSS classes, filenames, or generator output after this task):  
-  `GameDevStudio`, `GameDevStudio-SiteCreator`, `GameDev`, `sitecreator` (legacy module slug), and legacy marketing slug **Site Creator** tied to the old product name.
-- **Neutral technical vocabulary:** Replace remaining `game*` / `Game*` / `games` tokens in **first-party** code and docs with portfolio/catalog terminology (examples: JSON `games` → `apps`, `game_store_icons` → neutral preset map key, `game_swiper` → `carousel`, CSS `game-*` → `catalog-*`, [`Template/game-swiper.js`](../Template/game-swiper.js) → renamed script + matching selectors). Third-party **client samples** (e.g. Kometa trade names in copy) may stay only inside clearly labeled customer content; regenerated HTML/CSS/JS under output folders must not reintroduce forbidden generator tokens.
+  `GameDevStudio`, `GameDevStudio-SiteCreator`, `GameDev`, `sitecreator` (legacy module slug), and legacy marketing slug **Site Creator** tied to the old product name (Task 16 complete; keep this list as the ripgrep policy).
+- **Neutral technical vocabulary (schema/CSS/JS):** JSON `apps`, `store_icons`, `subscribe_block`, `widgets.carousel`; CSS `catalog-*`; script [`Template/catalog-carousel.js`](../Template/catalog-carousel.js) with `[data-catalog-carousel]`. Third-party **client samples** may keep natural language trade names in copy; regenerated HTML/CSS/JS must not reintroduce obsolete generator tokens (`games` array key, `game_*` schema keys, `game-swiper.js`, `.game-swiper__*`, etc.).
 
 **Steps**
 

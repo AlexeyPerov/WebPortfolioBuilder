@@ -6,11 +6,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
-
-var placeholderRegex = regexp.MustCompile(`\{\{\s*([a-zA-Z0-9_]+)\s*\}\}`)
 
 func prepareDestination(targetDir string) error {
 	if err := os.RemoveAll(targetDir); err != nil {
@@ -61,37 +58,6 @@ func copyFile(src, dst string) error {
 	}
 
 	return out.Close()
-}
-
-func applyConfigToDir(root string, config map[string]string) error {
-	return filepath.WalkDir(root, func(path string, d fs.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		if d.IsDir() {
-			return nil
-		}
-
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-
-		updated := placeholderRegex.ReplaceAllStringFunc(string(data), func(match string) string {
-			groups := placeholderRegex.FindStringSubmatch(match)
-			if len(groups) != 2 {
-				return match
-			}
-
-			key := groups[1]
-			if value, ok := config[key]; ok {
-				return value
-			}
-			return match
-		})
-
-		return os.WriteFile(path, []byte(updated), 0o644)
-	})
 }
 
 func copyTemplateStaticAssets(src, dst string) error {

@@ -141,7 +141,7 @@ All widget types, **`props`** fields, defaults, validation, and behavioral notes
 ## 7. Styling and scripts
 
 - Keep **one primary stylesheet** (`styles.css`) or split by feature if maintainability improves; theme tokens injected via `:root` in layout from `site.theme`.
-- Reuse existing JS modules where possible: `scroll-reveal.js`, screenshot carousel script (`Template/game-swiper.js`, renamed in Task 16), `split-widget.js`, with **`site-widgets-config`** JSON block for tunables (existing `WidgetsConfig` semantics).
+- Reuse existing JS modules where possible: `scroll-reveal.js`, screenshot carousel script [`Template/catalog-carousel.js`](../Template/catalog-carousel.js), `split-widget.js`, with **`site-widgets-config`** JSON block for tunables (`WidgetsConfig` maps to `scroll_reveal`, **`carousel`** screenshot swipe threshold, and `split_widget`).
 
 New widgets that need JS must document **data attributes** and **config keys** (see registry + code).
 

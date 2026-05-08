@@ -204,12 +204,12 @@ func TestCareersTabsEmitSplitWidget(t *testing.T) {
 func TestAppsShowcaseRendersCardsAndSwiperAndStores(t *testing.T) {
 	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	ctx.Site = SiteConfig{
-		GameStoreIcons: GameStoreIcons{
+		StoreIcons: StoreIcons{
 			"google_play": "assets/icons/googleplay.png",
 		},
-		GameSubscribe: GameSubscribeBlock{
+		SubscribeBlock: SubscribeBlock{
 			Title: "Stay updated",
-			Links: []GameSubscribeLink{
+			Links: []SubscribeLink{
 				{Label: "Telegram", URL: "https://t.me/example"},
 			},
 		},
@@ -219,7 +219,7 @@ func TestAppsShowcaseRendersCardsAndSwiperAndStores(t *testing.T) {
 			Type: "apps_showcase",
 			Props: map[string]json.RawMessage{
 				"section_title": mustWidgetRawJSON(t, "Our apps"),
-				"apps": mustWidgetRawJSON(t, []Game{
+				"apps": mustWidgetRawJSON(t, []CatalogApp{
 					{
 						Image:         "assets/icons/app.png",
 						HeaderImage:   "assets/headers/app-header.png",
@@ -232,7 +232,7 @@ func TestAppsShowcaseRendersCardsAndSwiperAndStores(t *testing.T) {
 					{
 						Image: "assets/icons/app2.png",
 						Title: "Kometa 2",
-						StoreLinks: []GameStoreLink{
+						StoreLinks: []StoreLink{
 							{
 								URL:       "https://example.com/store",
 								AriaLabel: "Open store",
@@ -252,13 +252,13 @@ func TestAppsShowcaseRendersCardsAndSwiperAndStores(t *testing.T) {
 	if !strings.Contains(html, `data-widget-type="apps_showcase"`) {
 		t.Fatalf("expected apps_showcase section marker, got: %s", html)
 	}
-	if !strings.Contains(html, `class="game-swiper" data-game-swiper`) {
-		t.Fatalf("expected game swiper contract markup, got: %s", html)
+	if !strings.Contains(html, `class="catalog-carousel" data-catalog-carousel`) {
+		t.Fatalf("expected catalog carousel contract markup, got: %s", html)
 	}
-	if !strings.Contains(html, `class="game-store-btn game-store-btn--googleplay"`) {
+	if !strings.Contains(html, `class="catalog-store-btn catalog-store-btn--googleplay"`) {
 		t.Fatalf("expected store badge button, got: %s", html)
 	}
-	if !strings.Contains(html, `class="game-card-full__subscribe"`) {
+	if !strings.Contains(html, `class="catalog-app-card__subscribe"`) {
 		t.Fatalf("expected subscribe block, got: %s", html)
 	}
 }
@@ -286,7 +286,7 @@ func TestAppsShowcaseAppImageRequiredPath(t *testing.T) {
 		{
 			Type: "apps_showcase",
 			Props: map[string]json.RawMessage{
-				"apps": mustWidgetRawJSON(t, []Game{
+				"apps": mustWidgetRawJSON(t, []CatalogApp{
 					{Title: "No image"},
 				}),
 			},
@@ -349,8 +349,8 @@ func TestRenderWidgetTreeRecognizesMediaSwiper(t *testing.T) {
 	if !strings.Contains(html, `data-widget-type="media_swiper"`) {
 		t.Fatalf("expected media_swiper marker: %s", html)
 	}
-	if !strings.Contains(html, `data-game-swiper`) || !strings.Contains(html, `class="game-swiper__slide`) {
-		t.Fatalf("expected game-swiper-compatible markup: %s", html)
+	if !strings.Contains(html, `data-catalog-carousel`) || !strings.Contains(html, `class="catalog-carousel__slide`) {
+		t.Fatalf("expected catalog-carousel-compatible markup: %s", html)
 	}
 }
 

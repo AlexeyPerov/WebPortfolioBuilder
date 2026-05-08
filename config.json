@@ -11,7 +11,7 @@
     "widget_gradient": "linear-gradient(to bottom, #f0f6fa, #f0f6fa)",
     "cover_background": "#3296ed",
     "intro_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
-    "game_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
+    "catalog_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
     "offers_gradient": "linear-gradient(to bottom, #ffffff 0, #f6f8fc 70%)",
     "photos_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
     "vacancies_gradient": "linear-gradient(to bottom, #ffffff 0, #f6f8fc 70%)",
@@ -28,7 +28,7 @@
     "intro_title": "",
     "company_description": "We are Kometa.Games, a mobile game studio focused on creating engaging and highly polished casual experiences. The team specializes in addictive core loops and player-driven progression. With a strong emphasis on gameplay feel and retention, Kometa.Games builds games that are easy to pick up and hard to put down.",
     "company_description_2": "Kometa.Games is a trademark of © Yadarko Trading Ltd",
-    "games_title": "Our Games",
+    "apps_title": "Our Games",
     "offers_title": "Why join us",
     "photos_title": "",
     "vacancies_title": "Careers",
@@ -37,7 +37,7 @@
     "vacancy_advantages_title": "Advantages of working with us:",
     "follow_us_title": "Follow us",
     "nav_about": "Company",
-    "nav_games": "Our Games",
+    "nav_apps": "Our Games",
     "nav_we_offer": "Why join us",
     "nav_vacancies": "Careers",
     "nav_contact": "Contacts"
@@ -72,18 +72,18 @@
     "Images/pic5.png",
     "Images/pic6.png"
   ],
-  "game_store_icons": {
+  "store_icons": {
     "google_play": "Images/gp-store-icon.png",
     "app_store": "Images/appstore-store-icon.png",
     "galaxy": "Images/galaxy-store-icon.png",
     "amazon": "Images/amazon-store-icon.png"
   },
-  "game_subscribe": {
+  "subscribe_block": {
     "title": "Subscribe for news",
     "links": [
     ]
   },
-  "games": [
+  "apps": [
     {
       "image": "Images/aoc-icon.png",
       "header_image": "Images/aoc_logo.png",

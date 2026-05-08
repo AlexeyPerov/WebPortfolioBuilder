@@ -9,19 +9,6 @@ import (
 	"strings"
 )
 
-func loadConfig(path string) (Config, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return Config{}, fmt.Errorf("cannot read config %q: %w", path, err)
-	}
-
-	var config Config
-	if err := json.Unmarshal(data, &config); err != nil {
-		return Config{}, fmt.Errorf("invalid config json %q: %w", path, err)
-	}
-	return config, nil
-}
-
 func loadSiteBundle(siteDir string) (SiteBundle, []ConfigWarning, error) {
 	cleanSiteDir := filepath.Clean(siteDir)
 	bundle := SiteBundle{
@@ -94,8 +81,8 @@ var siteTopLevelKeys = keySet(
 	"output_folder",
 	"theme",
 	"typography",
-	"game_store_icons",
-	"game_subscribe",
+	"store_icons",
+	"subscribe_block",
 	"social",
 	"header",
 	"footer",

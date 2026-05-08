@@ -95,7 +95,7 @@ func TestCopyReferencedSiteAssetsCopiesDedupedRecursiveReferences(t *testing.T) 
 		SiteDir:  siteDir,
 		SitePath: filepath.Join(siteDir, "site.json"),
 		Site: SiteConfig{
-			GameStoreIcons: GameStoreIcons{
+			StoreIcons: StoreIcons{
 				"google_play": "assets/icons/googleplay.png",
 			},
 		},
@@ -125,7 +125,7 @@ func TestCopyReferencedSiteAssetsCopiesDedupedRecursiveReferences(t *testing.T) 
 		t.Fatalf("expected copied nested icon image: %v", err)
 	}
 	if _, err := os.Stat(filepath.Join(outDir, "assets", "icons", "googleplay.png")); err != nil {
-		t.Fatalf("expected copied site game_store_icon image: %v", err)
+		t.Fatalf("expected copied site store icon image: %v", err)
 	}
 }
 

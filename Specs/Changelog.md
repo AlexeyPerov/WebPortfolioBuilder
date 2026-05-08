@@ -1,5 +1,15 @@
 # Specs / implementation changelog
 
+## 2026-05-08 — Tasks 15–16 completed (cleanup + neutral catalog schema)
+
+- Marked Tasks **15** and **16** as `[DONE]` in [ExecutionPlan.md](./ExecutionPlan.md).
+- **Schema / types:** `games` → `apps` (`CatalogApp`), `game_store_icons` → `store_icons`, `game_subscribe` → `subscribe_block`, `widgets.game_swiper` → `widgets.carousel`; theme key `game_gradient` → `catalog_gradient`. Updated [sites/kometa/site.json](../sites/kometa/site.json) and legacy sample [config.json](../config.json).
+- **Front end:** Renamed carousel script to [`Template/catalog-carousel.js`](../Template/catalog-carousel.js) (`[data-catalog-carousel]`, `.catalog-carousel__*`); refreshed [`Template/styles.css`](../Template/styles.css) (`catalog-app-card`, `#apps_title`, `--catalog-gradient`); synced widget templates and regenerated [KometaWebsite/](../KometaWebsite/).
+- **Go:** Trimmed unused legacy placeholder pipeline (`loadConfig`, `applyConfigToDir`, root `collectAssetPaths` / `copyConfigAssets`), kept shared helpers in [`html.go`](../html.go) (footer, widgets JSON export, catalog store resolution, social SVG presets). Theme CSS variables now emit hyphenated custom property names (e.g. `catalog_gradient` → `--catalog-gradient`).
+- **Docs:** README now describes the `sites/<site-id>/` workflow; [WidgetRegistryV1.md](./WidgetRegistryV1.md) and [ImplementationSpec.md](./ImplementationSpec.md) reference the new script and JSON keys.
+
+---
+
 ## 2026-05-08 18:20 UTC+3 — Codex 5.3 — Tasks 12–14 completed
 
 - Marked Tasks 12–14 as `[DONE]` in [ExecutionPlan.md](./ExecutionPlan.md).

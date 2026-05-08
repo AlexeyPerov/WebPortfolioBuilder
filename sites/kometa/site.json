@@ -12,20 +12,20 @@
     "widget_gradient": "linear-gradient(to bottom, #f0f6fa, #f0f6fa)",
     "cover_background": "#3296ed",
     "intro_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
-    "game_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
+    "catalog_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
     "offers_gradient": "linear-gradient(to bottom, #ffffff 0, #f6f8fc 70%)",
     "photos_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
     "vacancies_gradient": "linear-gradient(to bottom, #ffffff 0, #f6f8fc 70%)",
     "follow_us_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 70%)",
     "footer_gradient": "linear-gradient(to bottom, #f6f8fc 0, #ffffff 85%)"
   },
-  "game_store_icons": {
+  "store_icons": {
     "google_play": "assets/gp-store-icon.png",
     "app_store": "assets/appstore-store-icon.png",
     "galaxy": "assets/galaxy-store-icon.png",
     "amazon": "assets/amazon-store-icon.png"
   },
-  "game_subscribe": {
+  "subscribe_block": {
     "title": "Subscribe for news",
     "links": []
   },
@@ -41,7 +41,7 @@
     },
     "nav": [
       { "label": "Company", "href": "#intro_title", "open_in_new_tab": false },
-      { "label": "Our Games", "href": "#games", "open_in_new_tab": false },
+      { "label": "Our Games", "href": "#apps", "open_in_new_tab": false },
       { "label": "Why join us", "href": "#offers", "open_in_new_tab": false },
       { "label": "Careers", "href": "#vacancies", "open_in_new_tab": false },
       { "label": "Contacts", "href": "#contact", "open_in_new_tab": false }

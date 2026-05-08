@@ -17,29 +17,29 @@ type renderedNavItem struct {
 }
 
 type renderedPageData struct {
-	Title                  string
-	MetaDescription        string
-	CanonicalURL           string
-	OpenGraphImage         string
-	HasSEO                 bool
-	TypographyGoogleFonts  string
-	TypographyFontHeading  string
-	TypographyFontBody     string
-	ThemeCSSVariables      string
-	SiteIconHref           string
-	ShowHeader             bool
-	ShowFooter             bool
-	HeaderBrandHref        string
-	HeaderBrandLogo        string
-	HeaderBrandText        string
-	HeaderNav              []renderedNavItem
-	MainContentHTML        template.HTML
-	FooterHTML             template.HTML
-	StylesHref             string
-	ScrollRevealScriptHref string
-	GameSwiperScriptHref   string
-	SplitWidgetScriptHref  string
-	WidgetsConfigScript    template.HTML
+	Title                     string
+	MetaDescription           string
+	CanonicalURL              string
+	OpenGraphImage            string
+	HasSEO                    bool
+	TypographyGoogleFonts     string
+	TypographyFontHeading     string
+	TypographyFontBody        string
+	ThemeCSSVariables         string
+	SiteIconHref              string
+	ShowHeader                bool
+	ShowFooter                bool
+	HeaderBrandHref           string
+	HeaderBrandLogo           string
+	HeaderBrandText           string
+	HeaderNav                 []renderedNavItem
+	MainContentHTML           template.HTML
+	FooterHTML                template.HTML
+	StylesHref                string
+	ScrollRevealScriptHref    string
+	CatalogCarouselScriptHref string
+	SplitWidgetScriptHref     string
+	WidgetsConfigScript       template.HTML
 }
 
 func loadWidgetTemplates(templateDir string) (*template.Template, error) {
@@ -163,7 +163,7 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	assetPrefix := assetPrefixForDepth(route.DirRelPath)
 	data.StylesHref = assetPrefix + "styles.css"
 	data.ScrollRevealScriptHref = assetPrefix + "scroll-reveal.js"
-	data.GameSwiperScriptHref = assetPrefix + "game-swiper.js"
+	data.CatalogCarouselScriptHref = assetPrefix + "catalog-carousel.js"
 	data.SplitWidgetScriptHref = assetPrefix + "split-widget.js"
 	data.WidgetsConfigScript = template.HTML(buildWidgetsConfigScript(bundle.Site.Widgets))
 
@@ -210,7 +210,7 @@ func buildThemeCSSVariables(theme map[string]string) string {
 			b.WriteString("\n")
 		}
 		b.WriteString("      --")
-		b.WriteString(key)
+		b.WriteString(strings.ReplaceAll(key, "_", "-"))
 		b.WriteString(": ")
 		b.WriteString(val)
 		b.WriteString(";")

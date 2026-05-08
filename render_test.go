@@ -149,9 +149,9 @@ func TestRenderKometaSiteBundleSmoke(t *testing.T) {
 	for _, needle := range []string{
 		`id="site-widgets-config"`,
 		`data-split-widget`,
-		`data-game-swiper`,
+		`data-catalog-carousel`,
 		`id="vacancies"`,
-		`id="games"`,
+		`id="apps"`,
 	} {
 		if !strings.Contains(html, needle) {
 			t.Fatalf("expected %q in rendered index.html", needle)

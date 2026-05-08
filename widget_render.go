@@ -675,8 +675,8 @@ type appsShowcaseSubscribeLinkData struct {
 
 func parseAppsShowcaseProps(ctx *widgetRenderContext, widget WidgetNode, path, widgetID string) (*appsShowcaseTemplateData, error) {
 	type raw struct {
-		SectionTitle string `json:"section_title"`
-		Apps         []Game `json:"apps"`
+		SectionTitle string       `json:"section_title"`
+		Apps         []CatalogApp `json:"apps"`
 	}
 	var p raw
 	b, err := json.Marshal(widget.Props)
@@ -690,8 +690,8 @@ func parseAppsShowcaseProps(ctx *widgetRenderContext, widget WidgetNode, path, w
 		return nil, fmt.Errorf("%s.props.apps: required and must not be empty", path)
 	}
 
-	icons := ctx.Site.GameStoreIcons
-	subscribe := buildAppsShowcaseSubscribeData(ctx.Site.GameSubscribe)
+	icons := ctx.Site.StoreIcons
+	subscribe := buildAppsShowcaseSubscribeData(ctx.Site.SubscribeBlock)
 	cards := make([]appsShowcaseCardData, 0, len(p.Apps))
 	for i, app := range p.Apps {
 		card, err := buildAppsShowcaseCardData(ctx, app, fmt.Sprintf("%s.props.apps[%d]", path, i), icons, subscribe)
@@ -710,9 +710,9 @@ func parseAppsShowcaseProps(ctx *widgetRenderContext, widget WidgetNode, path, w
 
 func buildAppsShowcaseCardData(
 	ctx *widgetRenderContext,
-	app Game,
+	app CatalogApp,
 	appPath string,
-	icons GameStoreIcons,
+	icons StoreIcons,
 	subscribe *appsShowcaseSubscribeData,
 ) (appsShowcaseCardData, error) {
 	image := strings.TrimSpace(app.Image)
@@ -743,9 +743,9 @@ func buildAppsShowcaseCardData(
 		bg = "var(--widget-gradient)"
 	}
 	cardStyleAttr := template.HTMLAttr(fmt.Sprintf(` style="background: %s"`, html.EscapeString(bg)))
-	cardClass := "offer-card game-card-full scroll-reveal"
+	cardClass := "offer-card catalog-app-card scroll-reveal"
 	if titleInHeader != "" {
-		cardClass += " game-card-full--title-in-header"
+		cardClass += " catalog-app-card--title-in-header"
 	}
 
 	slides := make([]appsShowcaseSlideData, 0, len(app.SwiperImages))
@@ -760,7 +760,7 @@ func buildAppsShowcaseCardData(
 		})
 	}
 
-	resolvedStores := resolveGameStoreEntries(app, icons)
+	resolvedStores := resolveCatalogStoreEntries(app, icons)
 	stores := make([]appsShowcaseStoreData, 0, len(resolvedStores))
 	for _, store := range resolvedStores {
 		stores = append(stores, appsShowcaseStoreData{
@@ -781,10 +781,10 @@ func buildAppsShowcaseCardData(
 		BodyTitle:     bodyTitle,
 		IconSrc:       resolveAssetHrefForPage(image, ctx.Route),
 		IconAlt:       title,
-		StatLeft1:     gameStatLineOr(app.StatLeftLine1, "1M+"),
-		StatLeft2:     gameStatLineOr(app.StatLeftLine2, "Downloads"),
-		StatRight1:    gameStatLineOr(app.StatRightLine1, "4.8"),
-		StatRight2:    gameStatLineOr(app.StatRightLine2, "on Google Play"),
+		StatLeft1:     catalogStatLineOr(app.StatLeftLine1, "1M+"),
+		StatLeft2:     catalogStatLineOr(app.StatLeftLine2, "Downloads"),
+		StatRight1:    catalogStatLineOr(app.StatRightLine1, "4.8"),
+		StatRight2:    catalogStatLineOr(app.StatRightLine2, "on Google Play"),
 		Text1:         strings.TrimSpace(app.Text1),
 		Text2:         strings.TrimSpace(app.Text2),
 		Slides:        slides,
@@ -793,7 +793,7 @@ func buildAppsShowcaseCardData(
 	}, nil
 }
 
-func buildAppsShowcaseSubscribeData(s GameSubscribeBlock) *appsShowcaseSubscribeData {
+func buildAppsShowcaseSubscribeData(s SubscribeBlock) *appsShowcaseSubscribeData {
 	links := make([]appsShowcaseSubscribeLinkData, 0, len(s.Links))
 	for _, link := range s.Links {
 		u := strings.TrimSpace(link.URL)
@@ -1027,7 +1027,7 @@ func parseProjectGridCardMeta(raw json.RawMessage, metaPath string) (line string
 	return "", pairs, nil
 }
 
-// --- media_swiper (reuses game-swiper.js DOM: data-game-swiper + .game-swiper__* classes).
+// --- media_swiper (reuses catalog-carousel.js DOM: [data-catalog-carousel] + .catalog-carousel__* classes).
 
 type mediaSwiperTemplateData struct {
 	AriaLabel string

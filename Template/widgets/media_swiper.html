@@ -1,19 +1,19 @@
-{{/* Reuses game-swiper.js: same root data-game-swiper + .game-swiper__* classes as apps_showcase swiper. */}}
+{{/* Reuses catalog-carousel.js: root [data-catalog-carousel] + .catalog-carousel__* classes as apps_showcase swiper. */}}
 {{define "media_swiper"}}
 <section class="media-swiper-widget section section-gradient scroll-reveal" data-widget-type="media_swiper" aria-label="{{.AriaLabel}}">
   <div class="container">
-    <div class="game-swiper" data-game-swiper role="region" aria-roledescription="carousel" aria-label="{{.AriaLabel}}">
-      <button class="game-swiper__arrow game-swiper__arrow--prev" type="button" aria-label="Previous slide">‹</button>
-      <div class="game-swiper__viewport">
-        <div class="game-swiper__track">
+    <div class="catalog-carousel" data-catalog-carousel role="region" aria-roledescription="carousel" aria-label="{{.AriaLabel}}">
+      <button class="catalog-carousel__arrow catalog-carousel__arrow--prev" type="button" aria-label="Previous slide">‹</button>
+      <div class="catalog-carousel__viewport">
+        <div class="catalog-carousel__track">
           {{range .Slides}}
-          <div class="game-swiper__slide">
-            <img class="game-swiper__img" src="{{.Src}}" alt="{{.Alt}}" loading="lazy" decoding="async">
+          <div class="catalog-carousel__slide">
+            <img class="catalog-carousel__img" src="{{.Src}}" alt="{{.Alt}}" loading="lazy" decoding="async">
           </div>
           {{end}}
         </div>
       </div>
-      <button class="game-swiper__arrow game-swiper__arrow--next" type="button" aria-label="Next slide">›</button>
+      <button class="catalog-carousel__arrow catalog-carousel__arrow--next" type="button" aria-label="Next slide">›</button>
     </div>
   </div>
 </section>
