@@ -73,6 +73,7 @@ func TestCopyReferencedSiteAssetsCopiesDedupedRecursiveReferences(t *testing.T) 
 	}
 	writeTestAsset(t, filepath.Join(assetsDir, "cover.png"))
 	writeTestAsset(t, filepath.Join(assetsDir, "icons", "badge.png"))
+	writeTestAsset(t, filepath.Join(assetsDir, "icons", "googleplay.png"))
 
 	childWidget := WidgetNode{
 		Type: "column",
@@ -93,6 +94,11 @@ func TestCopyReferencedSiteAssetsCopiesDedupedRecursiveReferences(t *testing.T) 
 	bundle := SiteBundle{
 		SiteDir:  siteDir,
 		SitePath: filepath.Join(siteDir, "site.json"),
+		Site: SiteConfig{
+			GameStoreIcons: GameStoreIcons{
+				"google_play": "assets/icons/googleplay.png",
+			},
+		},
 		Pages: []SitePageFile{
 			{
 				Path: pagePath,
@@ -117,6 +123,9 @@ func TestCopyReferencedSiteAssetsCopiesDedupedRecursiveReferences(t *testing.T) 
 	}
 	if _, err := os.Stat(filepath.Join(outDir, "assets", "icons", "badge.png")); err != nil {
 		t.Fatalf("expected copied nested icon image: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(outDir, "assets", "icons", "googleplay.png")); err != nil {
+		t.Fatalf("expected copied site game_store_icon image: %v", err)
 	}
 }
 

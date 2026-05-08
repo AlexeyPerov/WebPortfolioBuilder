@@ -192,7 +192,7 @@ Dependencies: Tasks 7, 9.
 
 ---
 
-#### Task 11: Leaf widget — `apps_showcase` [Score:13] [Agent:heavy]
+#### Task 11: Leaf widget — `apps_showcase` [DONE] [Score:13] [Agent:heavy]
 
 **Required context**
 

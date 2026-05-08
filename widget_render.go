@@ -312,7 +312,11 @@ func renderLeafWidget(ctx *widgetRenderContext, path, widgetType string, widget 
 		if id != "" && !isSafeHTMLID(id) {
 			return "", fmt.Errorf("%s.id: invalid id %q", path, id)
 		}
-		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "apps_showcase", struct{ ID string }{ID: id}); err != nil {
+		data, err := parseAppsShowcaseProps(ctx, widget, path, id)
+		if err != nil {
+			return "", err
+		}
+		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "apps_showcase", data); err != nil {
 			return "", fmt.Errorf("cannot render apps_showcase: %w", err)
 		}
 	case "project_grid":
@@ -607,6 +611,206 @@ func normalizeImagesGridRaw(raw json.RawMessage, cfgPath string) ([]imagesGridEn
 		out = append(out, imagesGridEntry{Src: src, Alt: alt})
 	}
 	return out, nil
+}
+
+type appsShowcaseTemplateData struct {
+	ID           string
+	SectionTitle string
+	Cards        []appsShowcaseCardData
+}
+
+type appsShowcaseCardData struct {
+	CardClass     string
+	CardStyleAttr template.HTMLAttr
+	HeaderImage   string
+	HeaderAlt     string
+	TitleInHeader string
+	BodyTitle     string
+	IconSrc       string
+	IconAlt       string
+	StatLeft1     string
+	StatLeft2     string
+	StatRight1    string
+	StatRight2    string
+	Text1         string
+	Text2         string
+	Slides        []appsShowcaseSlideData
+	Stores        []appsShowcaseStoreData
+	Subscribe     *appsShowcaseSubscribeData
+}
+
+type appsShowcaseSlideData struct {
+	Src string
+	Alt string
+}
+
+type appsShowcaseStoreData struct {
+	ClassSuffix string
+	URL         string
+	Attrs       template.HTMLAttr
+	AriaLabel   string
+	IconSrc     string
+}
+
+type appsShowcaseSubscribeData struct {
+	Title string
+	Links []appsShowcaseSubscribeLinkData
+}
+
+type appsShowcaseSubscribeLinkData struct {
+	URL   string
+	Attrs template.HTMLAttr
+	Label string
+}
+
+func parseAppsShowcaseProps(ctx *widgetRenderContext, widget WidgetNode, path, widgetID string) (*appsShowcaseTemplateData, error) {
+	type raw struct {
+		SectionTitle string `json:"section_title"`
+		Apps         []Game `json:"apps"`
+	}
+	var p raw
+	b, err := json.Marshal(widget.Props)
+	if err != nil {
+		return nil, fmt.Errorf("%s.props: invalid json: %w", path, err)
+	}
+	if err := json.Unmarshal(b, &p); err != nil {
+		return nil, fmt.Errorf("%s.props: invalid shape: %w", path, err)
+	}
+	if len(p.Apps) == 0 {
+		return nil, fmt.Errorf("%s.props.apps: required and must not be empty", path)
+	}
+
+	icons := ctx.Site.GameStoreIcons
+	subscribe := buildAppsShowcaseSubscribeData(ctx.Site.GameSubscribe)
+	cards := make([]appsShowcaseCardData, 0, len(p.Apps))
+	for i, app := range p.Apps {
+		card, err := buildAppsShowcaseCardData(ctx, app, fmt.Sprintf("%s.props.apps[%d]", path, i), icons, subscribe)
+		if err != nil {
+			return nil, err
+		}
+		cards = append(cards, card)
+	}
+
+	return &appsShowcaseTemplateData{
+		ID:           widgetID,
+		SectionTitle: strings.TrimSpace(p.SectionTitle),
+		Cards:        cards,
+	}, nil
+}
+
+func buildAppsShowcaseCardData(
+	ctx *widgetRenderContext,
+	app Game,
+	appPath string,
+	icons GameStoreIcons,
+	subscribe *appsShowcaseSubscribeData,
+) (appsShowcaseCardData, error) {
+	image := strings.TrimSpace(app.Image)
+	if image == "" {
+		return appsShowcaseCardData{}, fmt.Errorf("%s.image: required field missing", appPath)
+	}
+	title := strings.TrimSpace(app.Title)
+	headerImage := strings.TrimSpace(app.HeaderImage)
+	headerHref := ""
+	headerAlt := ""
+	titleInHeader := ""
+	bodyTitle := ""
+	if headerImage != "" {
+		headerHref = resolveAssetHrefForPage(headerImage, ctx.Route)
+		headerAlt = title
+		if headerAlt == "" {
+			headerAlt = "App"
+		}
+		if title != "" {
+			bodyTitle = title
+		}
+	} else if title != "" {
+		titleInHeader = title
+	}
+
+	bg := strings.TrimSpace(app.CardBackground)
+	if bg == "" {
+		bg = "var(--widget-gradient)"
+	}
+	cardStyleAttr := template.HTMLAttr(fmt.Sprintf(` style="background: %s"`, html.EscapeString(bg)))
+	cardClass := "offer-card game-card-full scroll-reveal"
+	if titleInHeader != "" {
+		cardClass += " game-card-full--title-in-header"
+	}
+
+	slides := make([]appsShowcaseSlideData, 0, len(app.SwiperImages))
+	for i, rawSrc := range app.SwiperImages {
+		src := strings.TrimSpace(rawSrc)
+		if src == "" {
+			return appsShowcaseCardData{}, fmt.Errorf("%s.swiper_images[%d]: required field missing", appPath, i)
+		}
+		slides = append(slides, appsShowcaseSlideData{
+			Src: resolveAssetHrefForPage(src, ctx.Route),
+			Alt: fmt.Sprintf("%s screenshot %d", title, i+1),
+		})
+	}
+
+	resolvedStores := resolveGameStoreEntries(app, icons)
+	stores := make([]appsShowcaseStoreData, 0, len(resolvedStores))
+	for _, store := range resolvedStores {
+		stores = append(stores, appsShowcaseStoreData{
+			ClassSuffix: store.ClassSuffix,
+			URL:         store.URL,
+			Attrs:       template.HTMLAttr(externalLinkAttrs(store.URL)),
+			AriaLabel:   store.AriaLabel,
+			IconSrc:     resolveAssetHrefForPage(store.IconSrc, ctx.Route),
+		})
+	}
+
+	return appsShowcaseCardData{
+		CardClass:     cardClass,
+		CardStyleAttr: cardStyleAttr,
+		HeaderImage:   headerHref,
+		HeaderAlt:     headerAlt,
+		TitleInHeader: titleInHeader,
+		BodyTitle:     bodyTitle,
+		IconSrc:       resolveAssetHrefForPage(image, ctx.Route),
+		IconAlt:       title,
+		StatLeft1:     gameStatLineOr(app.StatLeftLine1, "1M+"),
+		StatLeft2:     gameStatLineOr(app.StatLeftLine2, "Downloads"),
+		StatRight1:    gameStatLineOr(app.StatRightLine1, "4.8"),
+		StatRight2:    gameStatLineOr(app.StatRightLine2, "on Google Play"),
+		Text1:         strings.TrimSpace(app.Text1),
+		Text2:         strings.TrimSpace(app.Text2),
+		Slides:        slides,
+		Stores:        stores,
+		Subscribe:     subscribe,
+	}, nil
+}
+
+func buildAppsShowcaseSubscribeData(s GameSubscribeBlock) *appsShowcaseSubscribeData {
+	links := make([]appsShowcaseSubscribeLinkData, 0, len(s.Links))
+	for _, link := range s.Links {
+		u := strings.TrimSpace(link.URL)
+		if u == "" {
+			continue
+		}
+		label := strings.TrimSpace(link.Label)
+		if label == "" {
+			label = u
+		}
+		links = append(links, appsShowcaseSubscribeLinkData{
+			URL:   u,
+			Attrs: template.HTMLAttr(externalLinkAttrs(u)),
+			Label: label,
+		})
+	}
+	if len(links) == 0 {
+		return nil
+	}
+	title := strings.TrimSpace(s.Title)
+	if title == "" {
+		title = "Subscribe for news"
+	}
+	return &appsShowcaseSubscribeData{
+		Title: title,
+		Links: links,
+	}
 }
 
 type careersTabsTemplateData struct {

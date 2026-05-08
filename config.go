@@ -94,6 +94,8 @@ var siteTopLevelKeys = keySet(
 	"output_folder",
 	"theme",
 	"typography",
+	"game_store_icons",
+	"game_subscribe",
 	"social",
 	"header",
 	"footer",

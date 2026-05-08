@@ -224,6 +224,11 @@ func collectBundleAssetReferences(bundle SiteBundle) ([]bundleAssetReference, er
 	if err := addKnown(bundle.Site.Header.Brand.Logo, bundle.SitePath+" -> header.brand.logo"); err != nil {
 		return nil, err
 	}
+	for iconKey, iconPath := range bundle.Site.GameStoreIcons {
+		if err := addKnown(iconPath, fmt.Sprintf("%s -> game_store_icons.%s", bundle.SitePath, iconKey)); err != nil {
+			return nil, err
+		}
+	}
 	for i, link := range bundle.Site.Social.Links {
 		if err := addKnown(link.IconImage, fmt.Sprintf("%s -> social.links[%d].icon_image", bundle.SitePath, i)); err != nil {
 			return nil, err

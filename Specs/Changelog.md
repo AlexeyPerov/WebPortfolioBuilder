@@ -1,5 +1,14 @@
 # Specs / implementation changelog
 
+## 2026-05-08 15:50 UTC+3 — Codex 5.3 — Task 11 completed
+
+- Marked Task 11 as `[DONE]` in [ExecutionPlan.md](./ExecutionPlan.md).
+- Replaced `apps_showcase` widget stub with full template-driven rendering in [`Template/widgets/apps_showcase.html`](../Template/widgets/apps_showcase.html), preserving `game-swiper` JS hooks and card/store/subscribe structure.
+- Added typed `apps_showcase` parsing + path-aware validation in [`widget_render.go`](../widget_render.go), including `props.apps` non-empty checks, per-entry image validation, asset href resolution, and store badge mapping.
+- Extended site schema and asset collection for legacy storefront presets (`game_store_icons`, `game_subscribe`) and added focused tests for apps rendering/validation and nested asset copying.
+
+---
+
 ## 2026-05-08 17:45 UTC+3 — Composer — Tasks 8–10 completed
 
 - Marked Tasks 8–10 as `[DONE]` in [ExecutionPlan.md](./ExecutionPlan.md).

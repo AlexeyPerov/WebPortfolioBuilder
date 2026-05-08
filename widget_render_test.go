@@ -200,6 +200,106 @@ func TestCareersTabsEmitSplitWidget(t *testing.T) {
 	}
 }
 
+func TestAppsShowcaseRendersCardsAndSwiperAndStores(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx.Site = SiteConfig{
+		GameStoreIcons: GameStoreIcons{
+			"google_play": "assets/icons/googleplay.png",
+		},
+		GameSubscribe: GameSubscribeBlock{
+			Title: "Stay updated",
+			Links: []GameSubscribeLink{
+				{Label: "Telegram", URL: "https://t.me/example"},
+			},
+		},
+	}
+	widgets := []WidgetNode{
+		{
+			Type: "apps_showcase",
+			Props: map[string]json.RawMessage{
+				"section_title": mustWidgetRawJSON(t, "Our apps"),
+				"apps": mustWidgetRawJSON(t, []Game{
+					{
+						Image:         "assets/icons/app.png",
+						HeaderImage:   "assets/headers/app-header.png",
+						Title:         "Kometa",
+						Text1:         "First paragraph",
+						Text2:         "Second paragraph",
+						SwiperImages:  []string{"assets/swiper/1.png"},
+						GooglePlayURL: "https://play.google.com/store/apps/details?id=kometa",
+					},
+					{
+						Image: "assets/icons/app2.png",
+						Title: "Kometa 2",
+						StoreLinks: []GameStoreLink{
+							{
+								URL:       "https://example.com/store",
+								AriaLabel: "Open store",
+								Icon:      "google_play",
+							},
+						},
+					},
+				}),
+			},
+		},
+	}
+	out, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	html := string(out)
+	if !strings.Contains(html, `data-widget-type="apps_showcase"`) {
+		t.Fatalf("expected apps_showcase section marker, got: %s", html)
+	}
+	if !strings.Contains(html, `class="game-swiper" data-game-swiper`) {
+		t.Fatalf("expected game swiper contract markup, got: %s", html)
+	}
+	if !strings.Contains(html, `class="game-store-btn game-store-btn--googleplay"`) {
+		t.Fatalf("expected store badge button, got: %s", html)
+	}
+	if !strings.Contains(html, `class="game-card-full__subscribe"`) {
+		t.Fatalf("expected subscribe block, got: %s", html)
+	}
+}
+
+func TestAppsShowcaseRequiresApps(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	widgets := []WidgetNode{
+		{
+			Type:  "apps_showcase",
+			Props: map[string]json.RawMessage{},
+		},
+	}
+	_, err := renderWidgetTree(ctx, widgets)
+	if err == nil {
+		t.Fatal("expected apps_showcase apps validation error")
+	}
+	if !strings.Contains(err.Error(), "widgets[0].props.apps") {
+		t.Fatalf("expected path-aware apps error, got: %v", err)
+	}
+}
+
+func TestAppsShowcaseAppImageRequiredPath(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	widgets := []WidgetNode{
+		{
+			Type: "apps_showcase",
+			Props: map[string]json.RawMessage{
+				"apps": mustWidgetRawJSON(t, []Game{
+					{Title: "No image"},
+				}),
+			},
+		},
+	}
+	_, err := renderWidgetTree(ctx, widgets)
+	if err == nil {
+		t.Fatal("expected apps_showcase image validation error")
+	}
+	if !strings.Contains(err.Error(), "widgets[0].props.apps[0].image") {
+		t.Fatalf("expected path-aware image error, got: %v", err)
+	}
+}
+
 func TestRenderWidgetTreeSkipsDisabledWidgets(t *testing.T) {
 	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	disabled := false

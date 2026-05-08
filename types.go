@@ -29,14 +29,16 @@ func (w ConfigWarning) String() string {
 }
 
 type SiteConfig struct {
-	SiteID       string            `json:"site_id"`
-	OutputFolder string            `json:"output_folder"`
-	Theme        map[string]string `json:"theme,omitempty"`
-	Typography   TypographyConfig  `json:"typography,omitempty"`
-	Social       SocialSection     `json:"social,omitempty"`
-	Header       HeaderConfig      `json:"header,omitempty"`
-	Footer       FooterConfig      `json:"footer,omitempty"`
-	BaseURL      string            `json:"base_url,omitempty"`
+	SiteID         string             `json:"site_id"`
+	OutputFolder   string             `json:"output_folder"`
+	Theme          map[string]string  `json:"theme,omitempty"`
+	Typography     TypographyConfig   `json:"typography,omitempty"`
+	GameStoreIcons GameStoreIcons     `json:"game_store_icons,omitempty"`
+	GameSubscribe  GameSubscribeBlock `json:"game_subscribe,omitempty"`
+	Social         SocialSection      `json:"social,omitempty"`
+	Header         HeaderConfig       `json:"header,omitempty"`
+	Footer         FooterConfig       `json:"footer,omitempty"`
+	BaseURL        string             `json:"base_url,omitempty"`
 }
 
 type HeaderConfig struct {
