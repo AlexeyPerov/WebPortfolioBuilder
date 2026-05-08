@@ -41,8 +41,30 @@ type renderedPageData struct {
 	SplitWidgetScriptHref  string
 }
 
+func loadWidgetTemplates(templateDir string) (*template.Template, error) {
+	pattern := filepath.Join(templateDir, "widgets", "*.html")
+	paths, err := filepath.Glob(pattern)
+	if err != nil {
+		return nil, fmt.Errorf("glob widget templates %q: %w", pattern, err)
+	}
+	if len(paths) == 0 {
+		return nil, fmt.Errorf("no widget templates matched %q", pattern)
+	}
+	tpl := template.New("widgets")
+	tpl, err = tpl.ParseFiles(paths...)
+	if err != nil {
+		return nil, fmt.Errorf("parse widget templates: %w", err)
+	}
+	return tpl, nil
+}
+
 func renderSiteBundle(bundle SiteBundle, targetDir, templateDir string) error {
 	routes, err := buildRouteIndex(bundle)
+	if err != nil {
+		return err
+	}
+
+	widgetTpl, err := loadWidgetTemplates(templateDir)
 	if err != nil {
 		return err
 	}
@@ -60,7 +82,7 @@ func renderSiteBundle(bundle SiteBundle, targetDir, templateDir string) error {
 
 	for _, route := range routes.Ordered {
 		pageFile := pageByPath[route.SourcePath]
-		data, err := buildRenderedPageData(bundle, pageFile, route, routes)
+		data, err := buildRenderedPageData(bundle, pageFile, route, routes, widgetTpl)
 		if err != nil {
 			return err
 		}
@@ -82,7 +104,7 @@ func renderSiteBundle(bundle SiteBundle, targetDir, templateDir string) error {
 	return nil
 }
 
-func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageRoute, routes RouteIndex) (renderedPageData, error) {
+func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageRoute, routes RouteIndex, widgetTpl *template.Template) (renderedPageData, error) {
 	page := pageFile.Page
 	data := renderedPageData{}
 
@@ -121,7 +143,13 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	}
 	data.HeaderNav = navItems
 
-	mainContent, err := renderWidgetTree(pageFile.Path, page.Widgets)
+	ctx := &widgetRenderContext{
+		PagePath:  pageFile.Path,
+		Site:      bundle.Site,
+		Route:     route,
+		WidgetTpl: widgetTpl,
+	}
+	mainContent, err := renderWidgetTree(ctx, page.Widgets)
 	if err != nil {
 		return renderedPageData{}, err
 	}

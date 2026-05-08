@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -55,7 +56,11 @@ func TestBuildRenderedPageDataAppliesMergeModel(t *testing.T) {
 		}
 	}
 
-	data, err := buildRenderedPageData(bundle, bundle.Pages[1], aboutRoute, routes)
+	widgetTpl, err := loadWidgetTemplates("Template")
+	if err != nil {
+		t.Fatalf("loadWidgetTemplates: %v", err)
+	}
+	data, err := buildRenderedPageData(bundle, bundle.Pages[1], aboutRoute, routes, widgetTpl)
 	if err != nil {
 		t.Fatalf("buildRenderedPageData error: %v", err)
 	}
@@ -75,13 +80,6 @@ func TestBuildRenderedPageDataAppliesMergeModel(t *testing.T) {
 }
 
 func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
-	templateDir := t.TempDir()
-	layoutPath := filepath.Join(templateDir, "layout.html")
-	layout := `<!doctype html><html><head><title>{{.Title}}</title></head><body>{{.MainContentHTML}}</body></html>`
-	if err := os.WriteFile(layoutPath, []byte(layout), 0o644); err != nil {
-		t.Fatalf("write layout: %v", err)
-	}
-
 	bundle := SiteBundle{
 		SitePath: "sites/demo/site.json",
 		Site: SiteConfig{
@@ -89,13 +87,24 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 			Footer: FooterConfig{},
 		},
 		Pages: []SitePageFile{
-			{Path: "sites/demo/pages/home.json", Page: PageConfig{Slug: "", Widgets: []WidgetNode{{Type: "intro"}}}},
+			{
+				Path: "sites/demo/pages/home.json",
+				Page: PageConfig{
+					Slug: "",
+					Widgets: []WidgetNode{{
+						Type: "intro",
+						Props: map[string]json.RawMessage{
+							"title": json.RawMessage(`"Home"`),
+						},
+					}},
+				},
+			},
 			{Path: "sites/demo/pages/about.json", Page: PageConfig{Slug: "about", Widgets: []WidgetNode{}}},
 		},
 	}
 
 	outDir := t.TempDir()
-	if err := renderSiteBundle(bundle, outDir, templateDir); err != nil {
+	if err := renderSiteBundle(bundle, outDir, "Template"); err != nil {
 		t.Fatalf("renderSiteBundle failed: %v", err)
 	}
 
@@ -109,7 +118,7 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read generated index.html: %v", err)
 	}
-	if !strings.Contains(string(data), "widget-leaf--intro") {
-		t.Fatalf("expected rendered widget output in index.html, got: %s", string(data))
+	if !strings.Contains(string(data), `class="intro section`) {
+		t.Fatalf("expected rendered intro section in index.html, got: %s", string(data))
 	}
 }

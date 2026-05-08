@@ -149,7 +149,7 @@ Dependencies: Task 3.
 
 ---
 
-#### Task 8: Layout widgets — `row`, `column`/`columns`, `grid` [Score:5] [Agent:medium]
+#### Task 8: Layout widgets — `row`, `column`/`columns`, `grid` [DONE] [Score:5] [Agent:medium]
 
 **Required context**
 
@@ -163,7 +163,7 @@ Dependencies: Task 7.
 
 ---
 
-#### Task 9: Leaf widgets — intro, cover, follow_us, info_grid, images_grid [Score:8] [Agent:medium]
+#### Task 9: Leaf widgets — intro, cover, follow_us, info_grid, images_grid [DONE] [Score:8] [Agent:medium]
 
 **Required context**
 
@@ -177,7 +177,7 @@ Dependencies: Tasks 7, 8.
 
 ---
 
-#### Task 10: Leaf widget — `careers_tabs` (split-widget JS) [Score:5] [Agent:medium]
+#### Task 10: Leaf widget — `careers_tabs` (split-widget JS) [DONE] [Score:5] [Agent:medium]
 
 **Required context**
 

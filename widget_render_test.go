@@ -2,15 +2,36 @@ package main
 
 import (
 	"encoding/json"
+	"html/template"
 	"strings"
 	"testing"
 )
 
+func testWidgetTpl(t *testing.T) *template.Template {
+	t.Helper()
+	tpl, err := loadWidgetTemplates("Template")
+	if err != nil {
+		t.Fatalf("loadWidgetTemplates: %v", err)
+	}
+	return tpl
+}
+
+func testRenderCtx(t *testing.T, pagePath string) *widgetRenderContext {
+	t.Helper()
+	return &widgetRenderContext{
+		PagePath:  pagePath,
+		Site:      SiteConfig{},
+		Route:     PageRoute{Slug: "", DirRelPath: ""},
+		WidgetTpl: testWidgetTpl(t),
+	}
+}
+
 func TestRenderWidgetTreeUnknownTypeFailsWithPath(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{Type: "unknown"},
 	}
-	_, err := renderWidgetTree("sites/demo/pages/home.json", widgets)
+	_, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected unknown type error")
 	}
@@ -20,10 +41,11 @@ func TestRenderWidgetTreeUnknownTypeFailsWithPath(t *testing.T) {
 }
 
 func TestRenderWidgetTreeRejectsColumnsAlias(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{Type: "columns"},
 	}
-	_, err := renderWidgetTree("sites/demo/pages/home.json", widgets)
+	_, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected columns alias rejection")
 	}
@@ -33,6 +55,7 @@ func TestRenderWidgetTreeRejectsColumnsAlias(t *testing.T) {
 }
 
 func TestRenderWidgetTreeLeafChildrenFails(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "intro",
@@ -41,7 +64,7 @@ func TestRenderWidgetTreeLeafChildrenFails(t *testing.T) {
 			},
 		},
 	}
-	_, err := renderWidgetTree("sites/demo/pages/home.json", widgets)
+	_, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected leaf children error")
 	}
@@ -51,10 +74,11 @@ func TestRenderWidgetTreeLeafChildrenFails(t *testing.T) {
 }
 
 func TestRenderWidgetTreeLayoutNeedsChildren(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{Type: "row"},
 	}
-	_, err := renderWidgetTree("sites/demo/pages/home.json", widgets)
+	_, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected missing children error")
 	}
@@ -64,6 +88,7 @@ func TestRenderWidgetTreeLayoutNeedsChildren(t *testing.T) {
 }
 
 func TestRenderWidgetTreeLayoutRecurses(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "row",
@@ -73,7 +98,13 @@ func TestRenderWidgetTreeLayoutRecurses(t *testing.T) {
 						Type: "column",
 						Props: map[string]json.RawMessage{
 							"children": mustWidgetRawJSON(t, []WidgetNode{
-								{Type: "intro", ID: "intro1"},
+								{
+									Type: "intro",
+									ID:   "intro1",
+									Props: map[string]json.RawMessage{
+										"title": mustWidgetRawJSON(t, "About us"),
+									},
+								},
 							}),
 						},
 					},
@@ -81,46 +112,135 @@ func TestRenderWidgetTreeLayoutRecurses(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree("sites/demo/pages/home.json", widgets)
+	out, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
 	html := string(out)
-	if !strings.Contains(html, `widget-layout--row`) {
-		t.Fatalf("expected row layout wrapper, got: %s", html)
+	if !strings.Contains(html, `class="widget-row"`) {
+		t.Fatalf("expected widget-row wrapper, got: %s", html)
 	}
-	if !strings.Contains(html, `widget-layout--column`) {
-		t.Fatalf("expected column layout wrapper, got: %s", html)
+	if !strings.Contains(html, `class="widget-column"`) {
+		t.Fatalf("expected widget-column wrapper, got: %s", html)
 	}
-	if !strings.Contains(html, `widget-leaf--intro`) {
-		t.Fatalf("expected intro leaf widget, got: %s", html)
+	if !strings.Contains(html, `class="intro section`) {
+		t.Fatalf("expected intro section, got: %s", html)
+	}
+	if !strings.Contains(html, `id="intro_title"`) {
+		t.Fatalf("expected intro heading id parity, got: %s", html)
+	}
+}
+
+func TestGridRendersCustomMinColumnWidth(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	widgets := []WidgetNode{
+		{
+			Type: "grid",
+			Props: map[string]json.RawMessage{
+				"min_column_width": mustWidgetRawJSON(t, "312px"),
+				"children": mustWidgetRawJSON(t, []WidgetNode{
+					{
+						Type: "intro",
+						Props: map[string]json.RawMessage{
+							"title": mustWidgetRawJSON(t, "Hi"),
+						},
+					},
+				}),
+			},
+		},
+	}
+	out, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	html := string(out)
+	if !strings.Contains(html, "312px") {
+		t.Fatalf("expected min column width in output, got: %s", html)
+	}
+}
+
+func TestCoverBannerRequiresSrc(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	widgets := []WidgetNode{{Type: "cover_banner", Props: map[string]json.RawMessage{}}}
+	_, err := renderWidgetTree(ctx, widgets)
+	if err == nil || !strings.Contains(err.Error(), "src") {
+		t.Fatalf("expected src required error, got: %v", err)
+	}
+}
+
+func TestCareersTabsEmitSplitWidget(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	widgets := []WidgetNode{
+		{
+			Type: "careers_tabs",
+			Props: map[string]json.RawMessage{
+				"title": mustWidgetRawJSON(t, "Careers"),
+				"vacancies": mustWidgetRawJSON(t, []Vacancy{
+					{
+						Role:             "Designer",
+						Requirements:     []string{"Portfolio"},
+						Responsibilities: []string{"UI work"},
+						Advantages:       []string{"Remote"},
+						ApplyURL:         "https://example.com/apply",
+					},
+				}),
+			},
+		},
+	}
+	out, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	html := string(out)
+	if !strings.Contains(html, `data-split-widget`) {
+		t.Fatalf("expected split widget marker: %s", html)
+	}
+	if !strings.Contains(html, `data-target="vacancy-0"`) || !strings.Contains(html, `id="vacancy-0"`) {
+		t.Fatalf("expected vacancy tab wiring: %s", html)
 	}
 }
 
 func TestRenderWidgetTreeSkipsDisabledWidgets(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	disabled := false
 	widgets := []WidgetNode{
-		{Type: "intro", Enabled: &disabled},
+		{
+			Type: "intro",
+			Props: map[string]json.RawMessage{
+				"title": mustWidgetRawJSON(t, "Shown"),
+			},
+		},
+		{
+			Type:    "intro",
+			Enabled: &disabled,
+			Props: map[string]json.RawMessage{
+				"title": mustWidgetRawJSON(t, "Hidden"),
+			},
+		},
 	}
-	out, err := renderWidgetTree("sites/demo/pages/home.json", widgets)
+	out, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
-	if strings.TrimSpace(string(out)) != "" {
-		t.Fatalf("expected empty output for disabled widget, got: %s", string(out))
+	if !strings.Contains(string(out), "Shown") {
+		t.Fatalf("expected enabled intro: %s", string(out))
+	}
+	if strings.Contains(string(out), "Hidden") {
+		t.Fatalf("disabled widget should not render: %s", string(out))
 	}
 }
 
 func TestRenderWidgetTreeRecognizesMediaSwiper(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{Type: "media_swiper"},
 	}
-	out, err := renderWidgetTree("sites/demo/pages/home.json", widgets)
+	out, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("expected media_swiper recognized, got error: %v", err)
 	}
-	if !strings.Contains(string(out), `widget-leaf--media_swiper`) {
-		t.Fatalf("expected media_swiper leaf output, got: %s", string(out))
+	if !strings.Contains(string(out), `data-widget-type="media_swiper"`) {
+		t.Fatalf("expected media_swiper output, got: %s", string(out))
 	}
 }
 

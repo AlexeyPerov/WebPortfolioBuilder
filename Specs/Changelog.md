@@ -1,5 +1,14 @@
 # Specs / implementation changelog
 
+## 2026-05-08 17:45 UTC+3 — Composer — Tasks 8–10 completed
+
+- Marked Tasks 8–10 as `[DONE]` in [ExecutionPlan.md](./ExecutionPlan.md).
+- Wired `html/template` widget partials (`Template/widgets/*.html`) with `widgetRenderContext` threaded from `renderSiteBundle`; layout widgets (`row`, `column`, `grid`) recurse children then execute templates with gap / `min_column_width` defaults and CSS (`Template/styles.css`).
+- Implemented leaf widgets `intro`, `cover_banner`, `follow_us`, `info_grid`, `images_grid`, and `careers_tabs` with path-aware validation, asset URL resolution via `resolveAssetHrefForPage`, split-widget-compatible careers markup, plus stub templates for deferred types.
+- Updated `render_test` / `widget_render_test` expectations for real widget output.
+
+---
+
 ## 2026-05-08 13:00 UTC+3 — Codex 5.3 — Task 7 completed
 
 - Marked Task 7 as `[DONE]` in [ExecutionPlan.md](./ExecutionPlan.md).

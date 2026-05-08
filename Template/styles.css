@@ -765,6 +765,26 @@ p {
   }
 }
 
+.widget-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--widget-row-gap, 1.25rem);
+}
+
+.widget-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--widget-column-gap, 1.25rem);
+}
+
+.widget-grid-inner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--widget-grid-min, 260px), 1fr));
+  gap: var(--widget-grid-gap, 1.25rem);
+}
+
 .scroll-reveal {
   opacity: 0;
   transform: translateY(24px);
