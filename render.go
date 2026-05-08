@@ -39,6 +39,7 @@ type renderedPageData struct {
 	ScrollRevealScriptHref string
 	GameSwiperScriptHref   string
 	SplitWidgetScriptHref  string
+	WidgetsConfigScript    template.HTML
 }
 
 func loadWidgetTemplates(templateDir string) (*template.Template, error) {
@@ -147,6 +148,7 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 		PagePath:  pageFile.Path,
 		Site:      bundle.Site,
 		Route:     route,
+		Routes:    routes,
 		WidgetTpl: widgetTpl,
 	}
 	mainContent, err := renderWidgetTree(ctx, page.Widgets)
@@ -163,6 +165,7 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	data.ScrollRevealScriptHref = assetPrefix + "scroll-reveal.js"
 	data.GameSwiperScriptHref = assetPrefix + "game-swiper.js"
 	data.SplitWidgetScriptHref = assetPrefix + "split-widget.js"
+	data.WidgetsConfigScript = template.HTML(buildWidgetsConfigScript(bundle.Site.Widgets))
 
 	return data, nil
 }

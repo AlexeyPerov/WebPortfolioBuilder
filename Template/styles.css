@@ -785,6 +785,133 @@ p {
   gap: var(--widget-grid-gap, 1.25rem);
 }
 
+/* --- project_grid (Task 12) --- */
+.project-grid__sub {
+  margin: -8px auto 22px;
+  max-width: 640px;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.project-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card__media {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--surface_strong);
+}
+
+.project-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.project-card__body {
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.project-card__meta-line {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.project-card__meta-dl {
+  margin: 0;
+  padding: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.project-card__meta-row {
+  display: grid;
+  grid-template-columns: minmax(0, 110px) 1fr;
+  gap: 8px;
+  align-items: baseline;
+  padding: 2px 0;
+}
+
+.project-card__meta-row dt {
+  margin: 0;
+  font-weight: 700;
+}
+
+.project-card__meta-row dd {
+  margin: 0;
+}
+
+.project-card__title {
+  margin: 4px 0 0;
+  font-size: 1.15rem;
+  font-family: var(--font-heading);
+}
+
+.project-card__desc {
+  margin: 0;
+  flex: 1;
+  font-size: 0.94rem;
+  line-height: 1.52;
+}
+
+.project-card__tags {
+  list-style: none;
+  padding: 0;
+  margin: 2px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.project-card__tags li {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface_strong);
+  border: 1px solid var(--line);
+}
+
+.project-card__cta-wrap {
+  margin: 12px 0 0;
+}
+
+.project-card__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+
+.project-card__cta:hover {
+  filter: brightness(1.05);
+}
+
+.media-swiper-widget .game-swiper {
+  margin-top: 8px;
+}
+
 .scroll-reveal {
   opacity: 0;
   transform: translateY(24px);

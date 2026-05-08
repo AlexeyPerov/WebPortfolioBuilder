@@ -39,6 +39,7 @@ type SiteConfig struct {
 	Header         HeaderConfig       `json:"header,omitempty"`
 	Footer         FooterConfig       `json:"footer,omitempty"`
 	BaseURL        string             `json:"base_url,omitempty"`
+	Widgets        WidgetsConfig      `json:"widgets,omitempty"`
 }
 
 type HeaderConfig struct {

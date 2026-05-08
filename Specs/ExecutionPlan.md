@@ -207,7 +207,7 @@ Dependencies: Tasks 7, 6.
 
 ---
 
-#### Task 12: Leaf widget — `project_grid` [Score:5] [Agent:medium]
+#### Task 12: Leaf widget — `project_grid` [DONE] [Score:5] [Agent:medium]
 
 **Required context**
 
@@ -221,7 +221,7 @@ Dependencies: Tasks 7, 8.
 
 ---
 
-#### Task 13 (optional): `media_swiper` widget [Score:5] [Agent:medium]
+#### Task 13 (optional): `media_swiper` widget [DONE] [Score:5] [Agent:medium]
 
 **Required context**
 
@@ -235,7 +235,7 @@ Dependencies: Task 7.
 
 ---
 
-#### Task 14: Kometa parity acceptance site bundle [Score:8] [Agent:medium]
+#### Task 14: Kometa parity acceptance site bundle [DONE] [Score:8] [Agent:medium]
 
 **Required context**
 

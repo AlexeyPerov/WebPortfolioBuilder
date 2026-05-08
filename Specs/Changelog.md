@@ -1,5 +1,15 @@
 # Specs / implementation changelog
 
+## 2026-05-08 18:20 UTC+3 — Codex 5.3 — Tasks 12–14 completed
+
+- Marked Tasks 12–14 as `[DONE]` in [ExecutionPlan.md](./ExecutionPlan.md).
+- Implemented `project_grid` leaf widget: path-aware props validation, meta string/object with stable key order, CTA URL resolution via `Routes` + `resolveInternalSlugReference`, duplicate `props.section_id` enforcement across layout nesting ([`config.go`](./../config.go)), [`Template/widgets/project_grid.html`](../Template/widgets/project_grid.html), and styles in [`Template/styles.css`](../Template/styles.css).
+- Implemented `media_swiper` using the same `data-game-swiper` / `.game-swiper__*` markup as catalog swipers so [`Template/game-swiper.js`](../Template/game-swiper.js) stays unchanged.
+- Added Kometa acceptance bundle [`sites/kometa/`](../sites/kometa/) (`site.json`, `pages/home.json`, `assets/` placeholders mirroring [`config.json`](../config.json)); optional `widgets` tuning on `SiteConfig`; injected `site-widgets-config` via [`Template/layout.html`](../Template/layout.html) and [`render.go`](./../render.go).
+- Tests: project/media widgets, duplicate `section_id` validation, `loadSiteBundle("sites/kometa")`, and full render smoke with static assets + referenced copies.
+
+---
+
 ## 2026-05-08 15:50 UTC+3 — Codex 5.3 — Task 11 completed
 
 - Marked Task 11 as `[DONE]` in [ExecutionPlan.md](./ExecutionPlan.md).

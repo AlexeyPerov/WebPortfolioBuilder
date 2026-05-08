@@ -122,3 +122,39 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 		t.Fatalf("expected rendered intro section in index.html, got: %s", string(data))
 	}
 }
+
+func TestRenderKometaSiteBundleSmoke(t *testing.T) {
+	bundle, _, err := loadSiteBundle(filepath.Join("sites", "kometa"))
+	if err != nil {
+		t.Fatalf("load kometa bundle: %v", err)
+	}
+
+	outDir := t.TempDir()
+	templateDir := filepath.Join("Template")
+	if err := copyTemplateStaticAssets(templateDir, outDir); err != nil {
+		t.Fatalf("copyTemplateStaticAssets: %v", err)
+	}
+	if err := copyReferencedSiteAssets(bundle, outDir); err != nil {
+		t.Fatalf("copyReferencedSiteAssets: %v", err)
+	}
+	if err := renderSiteBundle(bundle, outDir, templateDir); err != nil {
+		t.Fatalf("renderSiteBundle: %v", err)
+	}
+
+	htmlBytes, err := os.ReadFile(filepath.Join(outDir, "index.html"))
+	if err != nil {
+		t.Fatalf("read index.html: %v", err)
+	}
+	html := string(htmlBytes)
+	for _, needle := range []string{
+		`id="site-widgets-config"`,
+		`data-split-widget`,
+		`data-game-swiper`,
+		`id="vacancies"`,
+		`id="games"`,
+	} {
+		if !strings.Contains(html, needle) {
+			t.Fatalf("expected %q in rendered index.html", needle)
+		}
+	}
+}

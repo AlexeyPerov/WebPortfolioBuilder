@@ -100,6 +100,7 @@ var siteTopLevelKeys = keySet(
 	"header",
 	"footer",
 	"base_url",
+	"widgets",
 )
 
 var pageTopLevelKeys = keySet(
@@ -191,6 +192,10 @@ func validateSiteBundle(bundle SiteBundle) error {
 			return fmt.Errorf(`%s -> duplicate slug %q (already used in %s)`, pageFile.Path, slug, otherPath)
 		}
 		slugOwner[slug] = pageFile.Path
+
+		if err := validateDuplicateProjectGridSectionIDs(pageFile.Path, pageFile.Page.Widgets); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -212,4 +217,61 @@ func validatedOutputFolderFor(name, source string) (string, error) {
 		return "", fmt.Errorf(`%s: invalid "output_folder" %q`, source, s)
 	}
 	return s, nil
+}
+
+func validateDuplicateProjectGridSectionIDs(pagePath string, widgets []WidgetNode) error {
+	seen := make(map[string]string)
+
+	var walk func(widgetPathPrefix string, nodes []WidgetNode) error
+	walk = func(widgetPathPrefix string, nodes []WidgetNode) error {
+		for i, w := range nodes {
+			wpath := fmt.Sprintf("%s[%d]", widgetPathPrefix, i)
+			switch strings.TrimSpace(w.Type) {
+			case "project_grid":
+				if sid := projectGridSectionIDRaw(w.Props); sid != "" {
+					if prev, ok := seen[sid]; ok {
+						return fmt.Errorf(`%s -> duplicate project_grid props.section_id %q (also declared at %s)`, pagePath, sid, prev)
+					}
+					seen[sid] = fmt.Sprintf("%s (%s)", wpath, pagePath)
+				}
+			case "row", "column", "grid":
+				children, err := widgetLayoutChildren(w.Props)
+				if err != nil {
+					return fmt.Errorf("%s: %w", pagePath, err)
+				}
+				if len(children) > 0 {
+					if err := walk(wpath+".props.children", children); err != nil {
+						return err
+					}
+				}
+			}
+		}
+		return nil
+	}
+
+	return walk("widgets", widgets)
+}
+
+func widgetLayoutChildren(props map[string]json.RawMessage) ([]WidgetNode, error) {
+	raw, ok := props["children"]
+	if !ok {
+		return nil, nil
+	}
+	var children []WidgetNode
+	if err := json.Unmarshal(raw, &children); err != nil {
+		return nil, fmt.Errorf(`invalid layout children`)
+	}
+	return children, nil
+}
+
+func projectGridSectionIDRaw(props map[string]json.RawMessage) string {
+	raw, ok := props["section_id"]
+	if !ok {
+		return ""
+	}
+	var s string
+	if err := json.Unmarshal(raw, &s); err != nil {
+		return ""
+	}
+	return strings.TrimSpace(s)
 }

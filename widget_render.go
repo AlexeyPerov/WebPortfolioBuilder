@@ -7,6 +7,7 @@ import (
 	"html"
 	"html/template"
 	"os"
+	"sort"
 	"strings"
 	"unicode"
 )
@@ -33,6 +34,7 @@ type widgetRenderContext struct {
 	PagePath  string
 	Site      SiteConfig
 	Route     PageRoute
+	Routes    RouteIndex
 	WidgetTpl *template.Template
 }
 
@@ -324,7 +326,11 @@ func renderLeafWidget(ctx *widgetRenderContext, path, widgetType string, widget 
 		if id != "" && !isSafeHTMLID(id) {
 			return "", fmt.Errorf("%s.id: invalid id %q", path, id)
 		}
-		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "project_grid", struct{ ID string }{ID: id}); err != nil {
+		data, err := parseProjectGridProps(ctx, widget, path)
+		if err != nil {
+			return "", err
+		}
+		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "project_grid", data); err != nil {
 			return "", fmt.Errorf("cannot render project_grid: %w", err)
 		}
 	case "media_swiper":
@@ -332,7 +338,11 @@ func renderLeafWidget(ctx *widgetRenderContext, path, widgetType string, widget 
 		if id != "" && !isSafeHTMLID(id) {
 			return "", fmt.Errorf("%s.id: invalid id %q", path, id)
 		}
-		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "media_swiper", struct{ ID string }{ID: id}); err != nil {
+		data, err := parseMediaSwiperProps(ctx, widget, path)
+		if err != nil {
+			return "", err
+		}
+		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "media_swiper", data); err != nil {
 			return "", fmt.Errorf("cannot render media_swiper: %w", err)
 		}
 	default:
@@ -811,6 +821,266 @@ func buildAppsShowcaseSubscribeData(s GameSubscribeBlock) *appsShowcaseSubscribe
 		Title: title,
 		Links: links,
 	}
+}
+
+// --- project_grid
+
+type projectGridTemplateData struct {
+	SectionIDAttr template.HTMLAttr
+	Heading       string
+	Subheading    string
+	GridStyle     template.CSS
+	Cards         []projectGridCardTemplateData
+}
+
+type projectGridCardTemplateData struct {
+	ImageSrc     string
+	ImageAlt     string
+	Title        string
+	Description  string
+	Tags         []string
+	MetaLine     string
+	MetaPairs    []projectGridMetaPair
+	HasMetaPairs bool
+	CtaLabel     string
+	CtaURL       string
+	CtaAttrs     template.HTMLAttr
+}
+
+type projectGridMetaPair struct {
+	Key   string
+	Value string
+}
+
+func parseProjectGridProps(ctx *widgetRenderContext, widget WidgetNode, path string) (*projectGridTemplateData, error) {
+	raw, err := json.Marshal(widget.Props)
+	if err != nil {
+		return nil, fmt.Errorf("%s.props: invalid json: %w", path, err)
+	}
+	type ctaRaw struct {
+		Label string `json:"label"`
+		URL   string `json:"url"`
+	}
+	type cardRaw struct {
+		Title       string          `json:"title"`
+		Description string          `json:"description"`
+		Tags        []string        `json:"tags"`
+		Image       string          `json:"image"`
+		CTA         ctaRaw          `json:"cta"`
+		Meta        json.RawMessage `json:"meta"`
+	}
+	type topRaw struct {
+		Heading            string    `json:"heading"`
+		Subheading         string    `json:"subheading"`
+		SectionID          string    `json:"section_id"`
+		MinCardColumnWidth string    `json:"min_card_column_width"`
+		Cards              []cardRaw `json:"cards"`
+	}
+	var tr topRaw
+	if err := json.Unmarshal(raw, &tr); err != nil {
+		return nil, fmt.Errorf("%s.props: invalid shape: %w", path, err)
+	}
+	if len(tr.Cards) == 0 {
+		return nil, fmt.Errorf("%s.props.cards: required and must not be empty", path)
+	}
+
+	sectionID := strings.TrimSpace(tr.SectionID)
+	var sectionAttr template.HTMLAttr
+	if sectionID != "" {
+		if !isSafeHTMLID(sectionID) {
+			return nil, fmt.Errorf("%s.props.section_id: invalid id %q", path, sectionID)
+		}
+		sectionAttr = template.HTMLAttr(` id="` + html.EscapeString(sectionID) + `"`)
+	}
+
+	minW, err := parseMinCardColumnWidth(widget.Props, path+".props.min_card_column_width")
+	if err != nil {
+		return nil, err
+	}
+	gridStyle := template.CSS(fmt.Sprintf("--project-grid-min:%s;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%%,var(--project-grid-min)),1fr));gap:1.25rem;", minW))
+
+	out := &projectGridTemplateData{
+		SectionIDAttr: sectionAttr,
+		Heading:       strings.TrimSpace(tr.Heading),
+		Subheading:    strings.TrimSpace(tr.Subheading),
+		GridStyle:     gridStyle,
+		Cards:         make([]projectGridCardTemplateData, 0, len(tr.Cards)),
+	}
+
+	for i, c := range tr.Cards {
+		cardPath := fmt.Sprintf("%s.props.cards[%d]", path, i)
+		title := strings.TrimSpace(c.Title)
+		if title == "" {
+			return nil, fmt.Errorf("%s.title: required field missing", cardPath)
+		}
+		desc := strings.TrimSpace(c.Description)
+		if desc == "" {
+			return nil, fmt.Errorf("%s.description: required field missing", cardPath)
+		}
+		img := strings.TrimSpace(c.Image)
+		if img == "" {
+			return nil, fmt.Errorf("%s.image: required field missing", cardPath)
+		}
+		ctaURL := strings.TrimSpace(c.CTA.URL)
+		if ctaURL == "" {
+			return nil, fmt.Errorf("%s.cta.url: required field missing", cardPath)
+		}
+		ctaLabel := strings.TrimSpace(c.CTA.Label)
+		if ctaLabel == "" {
+			ctaLabel = "Learn more"
+		}
+		resolvedCTA, err := resolveProjectGridCTA(ctx, ctaURL)
+		if err != nil {
+			return nil, fmt.Errorf("%s.cta.url: %w", cardPath, err)
+		}
+		metaLine, metaPairs, err := parseProjectGridCardMeta(c.Meta, cardPath+".meta")
+		if err != nil {
+			return nil, err
+		}
+		var tags []string
+		for _, t := range c.Tags {
+			t = strings.TrimSpace(t)
+			if t != "" {
+				tags = append(tags, t)
+			}
+		}
+
+		out.Cards = append(out.Cards, projectGridCardTemplateData{
+			ImageSrc:     resolveAssetHrefForPage(img, ctx.Route),
+			ImageAlt:     title,
+			Title:        title,
+			Description:  desc,
+			Tags:         tags,
+			MetaLine:     metaLine,
+			MetaPairs:    metaPairs,
+			HasMetaPairs: len(metaPairs) > 0,
+			CtaLabel:     ctaLabel,
+			CtaURL:       resolvedCTA,
+			CtaAttrs:     template.HTMLAttr(externalLinkAttrs(resolvedCTA)),
+		})
+	}
+	return out, nil
+}
+
+func parseMinCardColumnWidth(props map[string]json.RawMessage, cfgPath string) (string, error) {
+	const defaultMin = "260px"
+	raw, ok := props["min_card_column_width"]
+	if !ok {
+		return defaultMin, nil
+	}
+	var s string
+	if err := json.Unmarshal(raw, &s); err != nil {
+		return "", fmt.Errorf(`%s: must be a string`, cfgPath)
+	}
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return defaultMin, nil
+	}
+	if strings.Contains(strings.ToLower(s), "..") {
+		return "", fmt.Errorf(`%s: invalid value %q`, cfgPath, s)
+	}
+	return sanitizeCSSGapOrLength(s, cfgPath)
+}
+
+func resolveProjectGridCTA(ctx *widgetRenderContext, raw string) (string, error) {
+	u := strings.TrimSpace(raw)
+	if u == "" {
+		return "", nil
+	}
+	if isExternalOrSpecialHref(u) || strings.HasPrefix(u, "/") {
+		return u, nil
+	}
+	return resolveInternalSlugReference(ctx.Route, u, ctx.Routes.BySlug)
+}
+
+func parseProjectGridCardMeta(raw json.RawMessage, metaPath string) (line string, pairs []projectGridMetaPair, err error) {
+	if len(raw) == 0 {
+		return "", nil, fmt.Errorf("%s: required field missing", metaPath)
+	}
+	var asString string
+	if err := json.Unmarshal(raw, &asString); err == nil {
+		s := strings.TrimSpace(asString)
+		if s == "" {
+			return "", nil, fmt.Errorf("%s: must not be empty", metaPath)
+		}
+		return s, nil, nil
+	}
+	var asObj map[string]string
+	if err := json.Unmarshal(raw, &asObj); err != nil {
+		return "", nil, fmt.Errorf("%s: must be a string or object with string values", metaPath)
+	}
+	keys := make([]string, 0, len(asObj))
+	for k := range asObj {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	if len(keys) == 0 {
+		return "", nil, fmt.Errorf("%s: object must not be empty", metaPath)
+	}
+	for _, k := range keys {
+		v := strings.TrimSpace(asObj[k])
+		if v == "" {
+			return "", nil, fmt.Errorf("%s.%s: value must not be empty", metaPath, k)
+		}
+		pairs = append(pairs, projectGridMetaPair{Key: k, Value: v})
+	}
+	return "", pairs, nil
+}
+
+// --- media_swiper (reuses game-swiper.js DOM: data-game-swiper + .game-swiper__* classes).
+
+type mediaSwiperTemplateData struct {
+	AriaLabel string
+	Slides    []mediaSwiperSlideData
+}
+
+type mediaSwiperSlideData struct {
+	Src string
+	Alt string
+}
+
+func parseMediaSwiperProps(ctx *widgetRenderContext, widget WidgetNode, path string) (*mediaSwiperTemplateData, error) {
+	imgRaw, ok := widget.Props["images"]
+	if !ok {
+		return nil, fmt.Errorf("%s.props.images: required and must not be empty", path)
+	}
+	var slides []struct {
+		Src string `json:"src"`
+		Alt string `json:"alt"`
+	}
+	if err := json.Unmarshal(imgRaw, &slides); err != nil {
+		return nil, fmt.Errorf("%s.props.images: invalid array: %w", path, err)
+	}
+	if len(slides) == 0 {
+		return nil, fmt.Errorf("%s.props.images: required and must not be empty", path)
+	}
+	type top struct {
+		AriaLabel string `json:"aria_label"`
+	}
+	var t top
+	if b, err := json.Marshal(widget.Props); err == nil {
+		_ = json.Unmarshal(b, &t)
+	}
+	aria := strings.TrimSpace(t.AriaLabel)
+	if aria == "" {
+		aria = "Image carousel"
+	}
+	out := &mediaSwiperTemplateData{AriaLabel: aria}
+	for i, s := range slides {
+		src := strings.TrimSpace(s.Src)
+		if src == "" {
+			return nil, fmt.Errorf("%s.props.images[%d].src: required field missing", path, i)
+		}
+		alt := strings.TrimSpace(s.Alt)
+		if alt == "" {
+			alt = fmt.Sprintf("slide %d", i+1)
+		}
+		out.Slides = append(out.Slides, mediaSwiperSlideData{
+			Src: resolveAssetHrefForPage(src, ctx.Route),
+			Alt: alt,
+		})
+	}
+	return out, nil
 }
 
 type careersTabsTemplateData struct {

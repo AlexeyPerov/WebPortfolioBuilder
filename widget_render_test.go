@@ -22,6 +22,7 @@ func testRenderCtx(t *testing.T, pagePath string) *widgetRenderContext {
 		PagePath:  pagePath,
 		Site:      SiteConfig{},
 		Route:     PageRoute{Slug: "", DirRelPath: ""},
+		Routes:    RouteIndex{BySlug: map[string]PageRoute{"": {Slug: "", DirRelPath: ""}}},
 		WidgetTpl: testWidgetTpl(t),
 	}
 }
@@ -333,14 +334,86 @@ func TestRenderWidgetTreeSkipsDisabledWidgets(t *testing.T) {
 func TestRenderWidgetTreeRecognizesMediaSwiper(t *testing.T) {
 	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
 	widgets := []WidgetNode{
-		{Type: "media_swiper"},
+		{
+			Type: "media_swiper",
+			Props: map[string]json.RawMessage{
+				"images": mustWidgetRawJSON(t, []map[string]string{{"src": "assets/pic1.png"}}),
+			},
+		},
 	}
 	out, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
-		t.Fatalf("expected media_swiper recognized, got error: %v", err)
+		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
-	if !strings.Contains(string(out), `data-widget-type="media_swiper"`) {
-		t.Fatalf("expected media_swiper output, got: %s", string(out))
+	html := string(out)
+	if !strings.Contains(html, `data-widget-type="media_swiper"`) {
+		t.Fatalf("expected media_swiper marker: %s", html)
+	}
+	if !strings.Contains(html, `data-game-swiper`) || !strings.Contains(html, `class="game-swiper__slide`) {
+		t.Fatalf("expected game-swiper-compatible markup: %s", html)
+	}
+}
+
+func TestProjectGridRendersCards(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	widgets := []WidgetNode{
+		{
+			Type: "project_grid",
+			Props: map[string]json.RawMessage{
+				"heading":               mustWidgetRawJSON(t, "Projects"),
+				"subheading":            mustWidgetRawJSON(t, "Selected work"),
+				"section_id":            mustWidgetRawJSON(t, "portfolio"),
+				"min_card_column_width": mustWidgetRawJSON(t, "280px"),
+				"cards": mustWidgetRawJSON(t, []map[string]any{
+					{
+						"title":       "Alpha",
+						"description": "Short description.",
+						"tags":        []string{"Go", "Web"},
+						"image":       "assets/pic1.png",
+						"meta":        map[string]string{"year": "2024", "platform": "Web"},
+						"cta":         map[string]string{"label": "Open", "url": "https://example.com/p"},
+					},
+				}),
+			},
+		},
+	}
+	out, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	html := string(out)
+	for _, needle := range []string{`data-widget-type="project_grid"`, `id="portfolio"`, `--project-grid-min:280px`, `project-card__tags`, `<dt>platform</dt>`, `<dt>year</dt>`, `project-card__cta`} {
+		if !strings.Contains(html, needle) {
+			t.Fatalf("expected %q in output, got: %s", needle, html)
+		}
+	}
+}
+
+func TestProjectGridMetaString(t *testing.T) {
+	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	widgets := []WidgetNode{
+		{
+			Type: "project_grid",
+			Props: map[string]json.RawMessage{
+				"cards": mustWidgetRawJSON(t, []map[string]any{
+					{
+						"title":       "Beta",
+						"description": "Desc",
+						"tags":        []string{},
+						"image":       "assets/pic2.png",
+						"meta":        "Highlighted release",
+						"cta":         map[string]string{"url": "#intro_title"},
+					},
+				}),
+			},
+		},
+	}
+	out, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	if !strings.Contains(string(out), "Highlighted release") {
+		t.Fatalf("expected meta line: %s", string(out))
 	}
 }
 

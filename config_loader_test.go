@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -51,6 +52,49 @@ func TestLoadSiteBundleRejectsMissingWidgetsField(t *testing.T) {
 	_, _, err := loadSiteBundle(siteDir)
 	if err == nil {
 		t.Fatal("expected widgets required error")
+	}
+}
+
+func TestLoadSiteBundleRejectsDuplicateProjectGridSectionIDs(t *testing.T) {
+	siteDir := createTestSiteDir(t)
+	writeJSONFile(t, filepath.Join(siteDir, "site.json"), `{"site_id":"kometa","output_folder":"KometaWebsite"}`)
+	writeJSONFile(t, filepath.Join(siteDir, "pages", "home.json"), `{"slug":"","widgets":[
+		{"type":"project_grid","props":{"section_id":"box","cards":[]}},
+		{"type":"project_grid","props":{"section_id":"box","cards":[]}}
+	]}`)
+
+	_, _, err := loadSiteBundle(siteDir)
+	if err == nil {
+		t.Fatal("expected duplicate section_id error")
+	}
+	if !strings.Contains(err.Error(), "duplicate project_grid") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestLoadSiteBundleRejectsNestedDuplicateProjectGridSectionIDs(t *testing.T) {
+	siteDir := createTestSiteDir(t)
+	writeJSONFile(t, filepath.Join(siteDir, "site.json"), `{"site_id":"kometa","output_folder":"KometaWebsite"}`)
+	writeJSONFile(t, filepath.Join(siteDir, "pages", "home.json"), `{"slug":"","widgets":[
+		{"type":"row","props":{"children":[
+			{"type":"project_grid","props":{"section_id":"same","cards":[]}},
+			{"type":"project_grid","props":{"section_id":"same","cards":[]}}
+		]}}
+	]}`)
+
+	_, _, err := loadSiteBundle(siteDir)
+	if err == nil {
+		t.Fatal("expected nested duplicate section_id error")
+	}
+}
+
+func TestKometaSiteBundleLoads(t *testing.T) {
+	_, warnings, err := loadSiteBundle(filepath.Join("sites", "kometa"))
+	if err != nil {
+		t.Fatalf("kometa bundle should load: %v", err)
+	}
+	if len(warnings) != 0 {
+		t.Fatalf("unexpected warnings: %v", warnings)
 	}
 }
 

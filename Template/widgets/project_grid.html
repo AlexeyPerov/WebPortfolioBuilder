@@ -1,1 +1,27 @@
-{{define "project_grid"}}<section class="widget widget-leaf widget-leaf--project_grid section section-gradient" data-widget-type="project_grid">{{if .ID}}<!-- id={{.ID}} -->{{end}}</section>{{end}}
+{{define "project_grid"}}
+<section class="project-grid section section-gradient scroll-reveal"{{.SectionIDAttr}} data-widget-type="project_grid">
+  <div class="container">
+    {{if .Heading}}<h2 class="center">{{.Heading}}</h2>{{end}}
+    {{if .Subheading}}<p class="project-grid__sub center">{{.Subheading}}</p>{{end}}
+    <div class="project-grid__grid" style="{{.GridStyle}}">
+      {{range .Cards}}
+      <article class="project-card scroll-reveal">
+        <div class="project-card__media">
+          {{if .ImageSrc}}<img src="{{.ImageSrc}}" alt="{{.ImageAlt}}" loading="lazy" decoding="async">{{end}}
+        </div>
+        <div class="project-card__body">
+          {{if .MetaLine}}<p class="project-card__meta-line">{{.MetaLine}}</p>{{end}}
+          {{if .HasMetaPairs}}
+          <dl class="project-card__meta-dl">{{range .MetaPairs}}<div class="project-card__meta-row"><dt>{{.Key}}</dt><dd>{{.Value}}</dd></div>{{end}}</dl>
+          {{end}}
+          <h3 class="project-card__title">{{.Title}}</h3>
+          <p class="project-card__desc">{{.Description}}</p>
+          {{if .Tags}}<ul class="project-card__tags">{{range .Tags}}<li>{{.}}</li>{{end}}</ul>{{end}}
+          {{if .CtaURL}}<p class="project-card__cta-wrap"><a class="project-card__cta" href="{{.CtaURL}}"{{.CtaAttrs}}>{{.CtaLabel}}</a></p>{{end}}
+        </div>
+      </article>
+      {{end}}
+    </div>
+  </div>
+</section>
+{{end}}
