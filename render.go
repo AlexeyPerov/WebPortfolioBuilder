@@ -121,7 +121,11 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	}
 	data.HeaderNav = navItems
 
-	data.MainContentHTML = template.HTML(buildWidgetStreamStub(page, route))
+	mainContent, err := renderWidgetTree(pageFile.Path, page.Widgets)
+	if err != nil {
+		return renderedPageData{}, err
+	}
+	data.MainContentHTML = mainContent
 	if data.ShowFooter {
 		data.FooterHTML = template.HTML(buildFooterOuterHTML(bundle.Site.Footer))
 	}
@@ -181,14 +185,6 @@ func buildThemeCSSVariables(theme map[string]string) string {
 		b.WriteString(";")
 	}
 	return b.String()
-}
-
-func buildWidgetStreamStub(page PageConfig, route PageRoute) string {
-	return fmt.Sprintf(
-		`<section class="section section-gradient"><div class="container"><div data-page-slug="%s" data-widgets-count="%d"></div></div></section>`,
-		template.HTMLEscapeString(route.Slug),
-		len(page.Widgets),
-	)
 }
 
 func resolvedCanonicalURL(baseURL string, route PageRoute, explicit string) string {

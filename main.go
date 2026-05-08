@@ -48,7 +48,7 @@ func main() {
 	must(prepareDestination(targetDir))
 
 	must(copyTemplateStaticAssets(templateDir, targetDir))
-	must(copyDirIfExists(filepath.Join(bundle.SiteDir, "assets"), filepath.Join(targetDir, "assets")))
+	must(copyReferencedSiteAssets(bundle, targetDir))
 	must(renderSiteBundle(bundle, targetDir, templateDir))
 
 	fmt.Println("Website generated successfully.")

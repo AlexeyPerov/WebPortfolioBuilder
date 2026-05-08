@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -88,7 +89,7 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 			Footer: FooterConfig{},
 		},
 		Pages: []SitePageFile{
-			{Path: "sites/demo/pages/home.json", Page: PageConfig{Slug: "", Widgets: []WidgetNode{}}},
+			{Path: "sites/demo/pages/home.json", Page: PageConfig{Slug: "", Widgets: []WidgetNode{{Type: "intro"}}}},
 			{Path: "sites/demo/pages/about.json", Page: PageConfig{Slug: "about", Widgets: []WidgetNode{}}},
 		},
 	}
@@ -103,5 +104,12 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(outDir, "about", "index.html")); err != nil {
 		t.Fatalf("missing about/index.html: %v", err)
+	}
+	data, err := os.ReadFile(filepath.Join(outDir, "index.html"))
+	if err != nil {
+		t.Fatalf("read generated index.html: %v", err)
+	}
+	if !strings.Contains(string(data), "widget-leaf--intro") {
+		t.Fatalf("expected rendered widget output in index.html, got: %s", string(data))
 	}
 }

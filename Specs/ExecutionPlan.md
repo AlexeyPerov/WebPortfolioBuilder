@@ -41,7 +41,7 @@ Residual uncertainties:
 
 ## Task Breakdown
 
-#### Task 1: Site bundle loader and structural validation [Score:3] [Agent:medium]
+#### Task 1: Site bundle loader and structural validation [DONE] [Score:3] [Agent:medium]
 
 **Required context**
 
@@ -58,7 +58,7 @@ Dependencies: none.
 
 ---
 
-#### Task 2: Output path routing for pages [Score:5] [Agent:medium]
+#### Task 2: Output path routing for pages [DONE] [Score:5] [Agent:medium]
 
 **Required context**
 
@@ -73,7 +73,7 @@ Dependencies: Task 1.
 
 ---
 
-#### Task 3: `html/template` page shell [Score:5] [Agent:medium]
+#### Task 3: `html/template` page shell [DONE] [Score:5] [Agent:medium]
 
 **Required context**
 
@@ -88,7 +88,7 @@ Dependencies: Task 1.
 
 ---
 
-#### Task 4: Global + page merge model [Score:3] [Agent:easy]
+#### Task 4: Global + page merge model [DONE] [Score:3] [Agent:easy]
 
 **Required context**
 
@@ -102,7 +102,7 @@ Dependencies: Task 3.
 
 ---
 
-#### Task 5: Interactive CLI — single site build [Score:3] [Agent:medium]
+#### Task 5: Interactive CLI — single site build [DONE] [Score:3] [Agent:medium]
 
 **Required context**
 
@@ -118,7 +118,7 @@ Dependencies: Tasks 2, 3 (routing + layout wired enough to emit at least one emp
 
 ---
 
-#### Task 6: Asset pipeline — site-local paths, dedupe, safety [Score:8] [Agent:heavy]
+#### Task 6: Asset pipeline — site-local paths, dedupe, safety [DONE] [Score:8] [Agent:heavy]
 
 **Required context**
 
@@ -134,7 +134,7 @@ Dependencies: Task 1.
 
 ---
 
-#### Task 7: Widget dispatcher and registry [Score:5] [Agent:medium]
+#### Task 7: Widget dispatcher and registry [DONE] [Score:5] [Agent:medium]
 
 **Required context**
 
