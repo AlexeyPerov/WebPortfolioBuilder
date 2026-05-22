@@ -197,11 +197,18 @@ func validatedOutputFolderFor(name, source string) (string, error) {
 	if s == "" {
 		return "", fmt.Errorf(`%s: "output_folder" is required and must not be empty`, source)
 	}
-	if strings.ContainsAny(s, `/\`) {
-		return "", fmt.Errorf(`%s: "output_folder" must not contain path separators (got %q)`, source, s)
+	if filepath.IsAbs(s) {
+		return "", fmt.Errorf(`%s: "output_folder" must be a relative path (got %q)`, source, s)
 	}
-	if s == "." || s == ".." || strings.Contains(s, "..") {
-		return "", fmt.Errorf(`%s: invalid "output_folder" %q`, source, s)
+
+	s = strings.Trim(filepath.ToSlash(s), "/")
+	if s == "" {
+		return "", fmt.Errorf(`%s: "output_folder" is required and must not be empty`, source)
+	}
+	for _, segment := range strings.Split(s, "/") {
+		if segment == "" || segment == "." || segment == ".." {
+			return "", fmt.Errorf(`%s: invalid "output_folder" %q`, source, name)
+		}
 	}
 	return s, nil
 }

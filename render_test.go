@@ -11,7 +11,7 @@ import (
 func TestBuildRenderedPageDataAppliesMergeModel(t *testing.T) {
 	footerEnabled := true
 	bundle := SiteBundle{
-		SitePath: "sites/demo/site.json",
+		SitePath: "content/demo/site.json",
 		Site: SiteConfig{
 			SiteID:  "demo-site",
 			BaseURL: "https://example.com/repo",
@@ -28,13 +28,13 @@ func TestBuildRenderedPageDataAppliesMergeModel(t *testing.T) {
 		},
 		Pages: []SitePageFile{
 			{
-				Path: "sites/demo/pages/home.json",
+				Path: "content/demo/pages/home.json",
 				Page: PageConfig{
 					Slug: "",
 				},
 			},
 			{
-				Path: "sites/demo/pages/about.json",
+				Path: "content/demo/pages/about.json",
 				Page: PageConfig{
 					Slug:   "about",
 					Layout: PageLayout{HideHeader: true, HideFooter: true},
@@ -81,14 +81,14 @@ func TestBuildRenderedPageDataAppliesMergeModel(t *testing.T) {
 
 func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 	bundle := SiteBundle{
-		SitePath: "sites/demo/site.json",
+		SitePath: "content/demo/site.json",
 		Site: SiteConfig{
 			SiteID: "demo-site",
 			Footer: FooterConfig{},
 		},
 		Pages: []SitePageFile{
 			{
-				Path: "sites/demo/pages/home.json",
+				Path: "content/demo/pages/home.json",
 				Page: PageConfig{
 					Slug: "",
 					Widgets: []WidgetNode{{
@@ -99,7 +99,7 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 					}},
 				},
 			},
-			{Path: "sites/demo/pages/about.json", Page: PageConfig{Slug: "about", Widgets: []WidgetNode{}}},
+			{Path: "content/demo/pages/about.json", Page: PageConfig{Slug: "about", Widgets: []WidgetNode{}}},
 		},
 	}
 
@@ -124,7 +124,7 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 }
 
 func TestRenderKometaSiteBundleSmoke(t *testing.T) {
-	bundle, _, err := loadSiteBundle(filepath.Join("sites", "kometa"))
+	bundle, _, err := loadSiteBundle(filepath.Join("content", "kometa"))
 	if err != nil {
 		t.Fatalf("load kometa bundle: %v", err)
 	}
@@ -146,6 +146,16 @@ func TestRenderKometaSiteBundleSmoke(t *testing.T) {
 		t.Fatalf("read index.html: %v", err)
 	}
 	html := string(htmlBytes)
+	if strings.Contains(html, "ZgotmplZ") {
+		t.Fatal("generated HTML must not contain html/template CSS failure marker ZgotmplZ")
+	}
+	if !strings.Contains(html, `--font-heading:`) || !strings.Contains(html, "Quicksand") {
+		snip := html
+		if len(snip) > 800 {
+			snip = snip[:800]
+		}
+		t.Fatalf("expected real font stack in <style> :root, got snippet: %s", snip)
+	}
 	for _, needle := range []string{
 		`id="site-widgets-config"`,
 		`data-split-widget`,

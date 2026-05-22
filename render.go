@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+// htmlTemplateFailureMarker is what html/template injects into CSS/script contexts when
+// a plain string is considered unsafe there (for example quoted font stacks in <style>).
+const htmlTemplateFailureMarker = "ZgotmplZ"
+
 type renderedNavItem struct {
 	Label      string
 	Href       string
@@ -22,10 +26,10 @@ type renderedPageData struct {
 	CanonicalURL              string
 	OpenGraphImage            string
 	HasSEO                    bool
-	TypographyGoogleFonts     string
-	TypographyFontHeading     string
-	TypographyFontBody        string
-	ThemeCSSVariables         string
+	TypographyGoogleFonts     template.URL
+	TypographyFontHeading     template.CSS
+	TypographyFontBody        template.CSS
+	ThemeCSSVariables         template.CSS
 	SiteIconHref              string
 	ShowHeader                bool
 	ShowFooter                bool
@@ -93,11 +97,17 @@ func renderSiteBundle(bundle SiteBundle, targetDir, templateDir string) error {
 			return fmt.Errorf("cannot render page %q: %w", route.SourcePath, err)
 		}
 
+		raw := out.Bytes()
+		if bytes.Contains(raw, []byte(htmlTemplateFailureMarker)) {
+			return fmt.Errorf("rendered HTML for page %q (%q) contains %q: unsafe substitution in html/template (use template.CSS for <style> variables and template.URL for stylesheet hrefs)",
+				route.SourcePath, route.OutputRelPath, htmlTemplateFailureMarker)
+		}
+
 		dst := filepath.Join(targetDir, route.OutputRelPath)
 		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 			return fmt.Errorf("cannot create directory for %q: %w", dst, err)
 		}
-		if err := os.WriteFile(dst, out.Bytes(), 0o644); err != nil {
+		if err := os.WriteFile(dst, raw, 0o644); err != nil {
 			return fmt.Errorf("cannot write page %q: %w", dst, err)
 		}
 	}
@@ -121,10 +131,10 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	data.HasSEO = data.MetaDescription != "" || data.CanonicalURL != "" || data.OpenGraphImage != ""
 
 	fontsHref, fontHeading, fontBody := normalizedTypography(bundle.Site.Typography)
-	data.TypographyGoogleFonts = fontsHref
-	data.TypographyFontHeading = fontHeading
-	data.TypographyFontBody = fontBody
-	data.ThemeCSSVariables = buildThemeCSSVariables(bundle.Site.Theme)
+	data.TypographyGoogleFonts = template.URL(fontsHref)
+	data.TypographyFontHeading = template.CSS(fontHeading)
+	data.TypographyFontBody = template.CSS(fontBody)
+	data.ThemeCSSVariables = template.CSS(buildThemeCSSVariables(bundle.Site.Theme))
 
 	data.ShowHeader = !page.Layout.HideHeader
 	data.ShowFooter = bundle.Site.Footer.isFooterEnabled() && !page.Layout.HideFooter

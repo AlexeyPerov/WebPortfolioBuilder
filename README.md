@@ -1,6 +1,6 @@
 # Portfolio Website Builder
 
-Static site generator in Go (**PortfolioWebsiteBuilder**). The supported workflow is a **site bundle** under `sites/<site-id>/`: metadata in `site.json`, one or more page JSON files under `pages/`, and static files under `assets/`. Running the CLI renders HTML into the configured output folder (relative to the destination you choose) using [`Template/layout.html`](Template/layout.html), widget partials in [`Template/widgets/`](Template/widgets/), and shared CSS/JS copied from [`Template/`](Template/).
+Static site generator in Go (**PortfolioWebsiteBuilder**). The supported workflow is a **content bundle** under `content/<site-id>/`: metadata in `site.json`, one or more page JSON files under `pages/`, and static files under `assets/`. Running the CLI renders HTML into the path set by `output_folder` in `site.json` (relative to the project root) using [`Template/layout.html`](Template/layout.html), widget partials in [`Template/widgets/`](Template/widgets/), and shared CSS/JS copied from [`Template/`](Template/).
 
 **Normative behavior** is documented in [Specs/ImplementationSpec.md](Specs/ImplementationSpec.md). Widget props and parity notes live in [Specs/WidgetRegistryV1.md](Specs/WidgetRegistryV1.md).
 
@@ -9,7 +9,7 @@ Static site generator in Go (**PortfolioWebsiteBuilder**). The supported workflo
 - [Go](https://go.dev/dl/) 1.20+ installed.
 - Clone this repo and work from its root (module path [`portfoliowebsitebuilder`](go.mod)).
 
-## Site bundle layout
+## Content bundle layout
 
 Each site directory contains:
 
@@ -19,7 +19,7 @@ Each site directory contains:
 | `pages/*.json` | Page configs: `slug`, `widgets` tree, optional `title`, `seo`, `hero`, `layout`. |
 | `assets/` | All local images/icons referenced from JSON (paths must start with `assets/`). |
 
-The sample Kometa bundle is [`sites/kometa/`](sites/kometa/). Regenerated demo output matching that bundle is committed under [`KometaWebsite/`](KometaWebsite/).
+The sample Kometa bundle is [`content/kometa/`](content/kometa/). Generated output goes to [`Results/`](Results/) (gitignored).
 
 ## Run the generator
 
@@ -29,24 +29,25 @@ From the repo root:
 go run .
 ```
 
-Interactive prompts ([ImplementationSpec §10](Specs/ImplementationSpec.md)):
+Interactive prompt ([ImplementationSpec §10](Specs/ImplementationSpec.md)):
 
-1. **Site bundle path** — press Enter for the default `./sites/kometa` (or enter another path relative to the project root, or an absolute path).
-2. **Destination directory** — press Enter to use the **project root** as the parent of the output folder; the program writes into `<destination>/<output_folder>/` using `output_folder` from `site.json`.
+**Content bundle path** — press Enter for the default `./content/kometa` (resolved under the **project root**). The tool picks the project root by: using the **current working directory** if `content/kometa/site.json` exists there; otherwise **the folder containing the running executable** when that folder contains `content/kometa/site.json` (so a binary placed in the repo root still works when you invoke it from `~`). You may also type another path relative to that project root, or an absolute path.
+
+The program writes to `<project-root>/<output_folder>/` using `output_folder` from `site.json` (for example `Results/KometaWebsite_2`).
 
 Each run **clears** the target output directory, copies non-HTML assets from [`Template/`](Template/) (CSS/JS/fonts, etc.), copies every referenced bundle asset, then renders all routes.
 
-Example (defaults → `./KometaWebsite/`):
+Example (default bundle → `Results/KometaWebsite_2/`):
 
 ```bash
-printf '\n\n' | go run .
+printf '\n' | go run .
 ```
 
 Open the generated `index.html` in a browser.
 
 ## Root `config.json` (legacy sample only)
 
-[`config.json`](config.json) is a **single-file legacy sample** reflecting the older monolithic schema. The supported pipeline is **`sites/`** bundles. Field names mirror the renamed catalog vocabulary (`apps`, `store_icons`, `subscribe_block`, theme `catalog_gradient`, content keys such as `apps_title` / `nav_apps`). It is handy for parity checks but **not** read by `go run .` today.
+[`config.json`](config.json) is a **single-file legacy sample** reflecting the older monolithic schema. The supported pipeline is **`content/`** bundles. Field names mirror the renamed catalog vocabulary (`apps`, `store_icons`, `subscribe_block`, theme `catalog_gradient`, content keys such as `apps_title` / `nav_apps`). It is handy for parity checks but **not** read by `go run .` today.
 
 ## Widget tuning (`widgets` in `site.json`)
 
@@ -79,4 +80,4 @@ go build ./...
 
 ## Forbidden-string check (contributors)
 
-Task **16** in [Specs/ExecutionPlan.md](Specs/ExecutionPlan.md) defines the forbidden branding substrings and a sample `rg` invocation (excluding `KometaWebsite/` preview output). Run that check after edits to docs or generator output paths.
+Task **16** in [Specs/ExecutionPlan.md](Specs/ExecutionPlan.md) defines the forbidden branding substrings and a sample `rg` invocation (excluding `Results/` preview output). Run that check after edits to docs or generator output paths.

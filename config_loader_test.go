@@ -7,6 +7,23 @@ import (
 	"testing"
 )
 
+func TestValidatedOutputFolderAllowsNestedRelativePath(t *testing.T) {
+	got, err := validatedOutputFolderFor("Results/KometaWebsite", "site.json")
+	if err != nil {
+		t.Fatalf("expected valid nested path, got error: %v", err)
+	}
+	if got != "Results/KometaWebsite" {
+		t.Fatalf("expected normalized path, got %q", got)
+	}
+}
+
+func TestValidatedOutputFolderRejectsAbsolutePath(t *testing.T) {
+	_, err := validatedOutputFolderFor("/tmp/out", "site.json")
+	if err == nil {
+		t.Fatal("expected absolute path error")
+	}
+}
+
 func TestLoadSiteBundleRejectsDuplicateSlugs(t *testing.T) {
 	siteDir := createTestSiteDir(t)
 	writeJSONFile(t, filepath.Join(siteDir, "site.json"), `{"site_id":"kometa","output_folder":"KometaWebsite"}`)
@@ -89,7 +106,7 @@ func TestLoadSiteBundleRejectsNestedDuplicateProjectGridSectionIDs(t *testing.T)
 }
 
 func TestKometaSiteBundleLoads(t *testing.T) {
-	_, warnings, err := loadSiteBundle(filepath.Join("sites", "kometa"))
+	_, warnings, err := loadSiteBundle(filepath.Join("content", "kometa"))
 	if err != nil {
 		t.Fatalf("kometa bundle should load: %v", err)
 	}
@@ -102,7 +119,7 @@ func createTestSiteDir(t *testing.T) string {
 	t.Helper()
 
 	root := t.TempDir()
-	siteDir := filepath.Join(root, "sites", "test-site")
+	siteDir := filepath.Join(root, "content", "test-site")
 	pagesDir := filepath.Join(siteDir, "pages")
 	if err := os.MkdirAll(pagesDir, 0o755); err != nil {
 		t.Fatalf("cannot create test directories: %v", err)

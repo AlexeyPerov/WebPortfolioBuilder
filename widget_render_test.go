@@ -28,7 +28,7 @@ func testRenderCtx(t *testing.T, pagePath string) *widgetRenderContext {
 }
 
 func TestRenderWidgetTreeUnknownTypeFailsWithPath(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{Type: "unknown"},
 	}
@@ -42,7 +42,7 @@ func TestRenderWidgetTreeUnknownTypeFailsWithPath(t *testing.T) {
 }
 
 func TestRenderWidgetTreeRejectsColumnsAlias(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{Type: "columns"},
 	}
@@ -56,7 +56,7 @@ func TestRenderWidgetTreeRejectsColumnsAlias(t *testing.T) {
 }
 
 func TestRenderWidgetTreeLeafChildrenFails(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "intro",
@@ -75,7 +75,7 @@ func TestRenderWidgetTreeLeafChildrenFails(t *testing.T) {
 }
 
 func TestRenderWidgetTreeLayoutNeedsChildren(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{Type: "row"},
 	}
@@ -89,7 +89,7 @@ func TestRenderWidgetTreeLayoutNeedsChildren(t *testing.T) {
 }
 
 func TestRenderWidgetTreeLayoutRecurses(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "row",
@@ -133,7 +133,7 @@ func TestRenderWidgetTreeLayoutRecurses(t *testing.T) {
 }
 
 func TestGridRendersCustomMinColumnWidth(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "grid",
@@ -161,7 +161,7 @@ func TestGridRendersCustomMinColumnWidth(t *testing.T) {
 }
 
 func TestCoverBannerRequiresSrc(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{{Type: "cover_banner", Props: map[string]json.RawMessage{}}}
 	_, err := renderWidgetTree(ctx, widgets)
 	if err == nil || !strings.Contains(err.Error(), "src") {
@@ -170,7 +170,7 @@ func TestCoverBannerRequiresSrc(t *testing.T) {
 }
 
 func TestCareersTabsEmitSplitWidget(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "careers_tabs",
@@ -202,7 +202,7 @@ func TestCareersTabsEmitSplitWidget(t *testing.T) {
 }
 
 func TestAppsShowcaseRendersCardsAndSwiperAndStores(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	ctx.Site = SiteConfig{
 		StoreIcons: StoreIcons{
 			"google_play": "assets/icons/googleplay.png",
@@ -264,7 +264,7 @@ func TestAppsShowcaseRendersCardsAndSwiperAndStores(t *testing.T) {
 }
 
 func TestAppsShowcaseRequiresApps(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type:  "apps_showcase",
@@ -281,7 +281,7 @@ func TestAppsShowcaseRequiresApps(t *testing.T) {
 }
 
 func TestAppsShowcaseAppImageRequiredPath(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "apps_showcase",
@@ -302,7 +302,7 @@ func TestAppsShowcaseAppImageRequiredPath(t *testing.T) {
 }
 
 func TestRenderWidgetTreeSkipsDisabledWidgets(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	disabled := false
 	widgets := []WidgetNode{
 		{
@@ -332,7 +332,7 @@ func TestRenderWidgetTreeSkipsDisabledWidgets(t *testing.T) {
 }
 
 func TestRenderWidgetTreeRecognizesMediaSwiper(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "media_swiper",
@@ -355,7 +355,7 @@ func TestRenderWidgetTreeRecognizesMediaSwiper(t *testing.T) {
 }
 
 func TestProjectGridRendersCards(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "project_grid",
@@ -390,7 +390,7 @@ func TestProjectGridRendersCards(t *testing.T) {
 }
 
 func TestProjectGridMetaString(t *testing.T) {
-	ctx := testRenderCtx(t, "sites/demo/pages/home.json")
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
 			Type: "project_grid",

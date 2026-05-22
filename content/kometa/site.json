@@ -1,6 +1,6 @@
 {
   "site_id": "kometa",
-  "output_folder": "KometaWebsite",
+  "output_folder": "Results/KometaWebsite_2",
   "theme": {
     "page_bg": "#ffffff",
     "surface": "#ffffff",

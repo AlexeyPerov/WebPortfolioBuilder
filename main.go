@@ -10,21 +10,24 @@ import (
 	"strings"
 )
 
+// defaultContentBundleRel is the default content dir relative to the project/install root (see resolveProjectRoot).
+const defaultContentBundleRel = "content/kometa"
+
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	rootDir, err := os.Getwd()
+	projectRoot, err := resolveProjectRoot()
 	must(err)
-	templateDir := filepath.Join(rootDir, "Template")
+	templateDir := filepath.Join(projectRoot, "Template")
 
-	fmt.Print("Enter site bundle directory path (absolute or relative; empty = ./sites/kometa): ")
+	fmt.Print("Enter content bundle directory path (absolute or relative; empty = ./content/kometa): ")
 	siteInput, err := readOptionalLine(reader)
 	must(err)
-	siteDir := filepath.Join(rootDir, "sites", "kometa")
+	siteDir := filepath.Join(projectRoot, filepath.FromSlash(defaultContentBundleRel))
 	if siteInput != "" {
 		if filepath.IsAbs(siteInput) {
 			siteDir = siteInput
 		} else {
-			siteDir = filepath.Join(rootDir, siteInput)
+			siteDir = filepath.Join(projectRoot, filepath.FromSlash(siteInput))
 		}
 	}
 
@@ -37,14 +40,7 @@ func main() {
 	outputFolder, err := validatedOutputFolderFor(bundle.Site.OutputFolder, bundle.SitePath)
 	must(err)
 
-	fmt.Printf("Enter destination directory (absolute or relative path, empty = project root).\n(Please note that website will be created in subdirectory: %q)\n", outputFolder)
-	baseLocation, err := readOptionalLine(reader)
-	must(err)
-	if baseLocation == "" {
-		baseLocation = rootDir
-	}
-
-	targetDir := filepath.Join(baseLocation, outputFolder)
+	targetDir := filepath.Join(projectRoot, filepath.FromSlash(outputFolder))
 	must(prepareDestination(targetDir))
 
 	must(copyTemplateStaticAssets(templateDir, targetDir))
@@ -53,6 +49,43 @@ func main() {
 
 	fmt.Println("Website generated successfully.")
 	fmt.Println("Output:", targetDir)
+}
+
+// resolveProjectRoot picks the directory that contains Template/ and the default content bundle when the
+// user runs the binary from another working directory (e.g. ~/ with the executable in the repo root).
+// Order: cwd if it contains content/kometa/site.json, else executable directory if it does, else cwd.
+func resolveProjectRoot() (string, error) {
+	wd, errWd := os.Getwd()
+	if errWd != nil {
+		wd = ""
+	}
+	if wd != "" && contentBundleMarkerExists(wd) {
+		return filepath.Clean(wd), nil
+	}
+	exe, err := os.Executable()
+	if err != nil {
+		if wd != "" {
+			return filepath.Clean(wd), nil
+		}
+		return "", err
+	}
+	exe, err = filepath.EvalSymlinks(exe)
+	if err != nil {
+		return "", err
+	}
+	exeDir := filepath.Dir(exe)
+	if contentBundleMarkerExists(exeDir) {
+		return filepath.Clean(exeDir), nil
+	}
+	if wd != "" {
+		return filepath.Clean(wd), nil
+	}
+	return filepath.Clean(exeDir), nil
+}
+
+func contentBundleMarkerExists(root string) bool {
+	st, err := os.Stat(filepath.Join(root, filepath.FromSlash(defaultContentBundleRel), "site.json"))
+	return err == nil && !st.IsDir()
 }
 
 func readOptionalLine(reader *bufio.Reader) (string, error) {
