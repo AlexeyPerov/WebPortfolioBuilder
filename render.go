@@ -43,6 +43,7 @@ type renderedPageData struct {
 	ScrollRevealScriptHref    string
 	CatalogCarouselScriptHref string
 	SplitWidgetScriptHref     string
+	NavScriptHref             string
 	WidgetsConfigScript       template.HTML
 }
 
@@ -175,6 +176,7 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	data.ScrollRevealScriptHref = assetPrefix + "scroll-reveal.js"
 	data.CatalogCarouselScriptHref = assetPrefix + "catalog-carousel.js"
 	data.SplitWidgetScriptHref = assetPrefix + "split-widget.js"
+	data.NavScriptHref = assetPrefix + "nav.js"
 	data.WidgetsConfigScript = template.HTML(buildWidgetsConfigScript(bundle.Site.Widgets))
 
 	return data, nil
