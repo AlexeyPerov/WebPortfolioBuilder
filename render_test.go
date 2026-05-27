@@ -60,7 +60,7 @@ func TestBuildRenderedPageDataAppliesMergeModel(t *testing.T) {
 	if err != nil {
 		t.Fatalf("loadWidgetTemplates: %v", err)
 	}
-	data, err := buildRenderedPageData(bundle, bundle.Pages[1], aboutRoute, routes, widgetTpl)
+	data, _, err := buildRenderedPageData(bundle, bundle.Pages[1], aboutRoute, routes, widgetTpl)
 	if err != nil {
 		t.Fatalf("buildRenderedPageData error: %v", err)
 	}
@@ -76,6 +76,60 @@ func TestBuildRenderedPageDataAppliesMergeModel(t *testing.T) {
 	}
 	if data.CanonicalURL != "https://example.com/repo/about/" {
 		t.Fatalf("unexpected canonical url: %q", data.CanonicalURL)
+	}
+}
+
+func TestBuildRenderedPageDataEmitsSocialMetaFields(t *testing.T) {
+	bundle := SiteBundle{
+		SitePath: "content/demo/site.json",
+		Site: SiteConfig{
+			SiteID:  "demo-site",
+			BaseURL: "https://example.com/repo",
+			Theme: map[string]string{
+				"accent": "#3296ed",
+			},
+		},
+		Pages: []SitePageFile{
+			{
+				Path: "content/demo/pages/home.json",
+				Page: PageConfig{
+					Slug:  "",
+					Title: "Demo Home",
+					SEO: PageSEO{
+						Description: "A polished demo portfolio site.",
+						OGImage:     "assets/cover.png",
+					},
+				},
+			},
+		},
+	}
+
+	routes, err := buildRouteIndex(bundle)
+	if err != nil {
+		t.Fatalf("buildRouteIndex error: %v", err)
+	}
+	widgetTpl, err := loadWidgetTemplates("Template")
+	if err != nil {
+		t.Fatalf("loadWidgetTemplates: %v", err)
+	}
+	data, _, err := buildRenderedPageData(bundle, bundle.Pages[0], routes.Ordered[0], routes, widgetTpl)
+	if err != nil {
+		t.Fatalf("buildRenderedPageData error: %v", err)
+	}
+	if data.MetaDescription != "A polished demo portfolio site." {
+		t.Fatalf("unexpected meta description: %q", data.MetaDescription)
+	}
+	if data.CanonicalURL != "https://example.com/repo/" {
+		t.Fatalf("unexpected canonical url: %q", data.CanonicalURL)
+	}
+	if data.OpenGraphImage != "https://example.com/repo/assets/cover.png" {
+		t.Fatalf("unexpected og image: %q", data.OpenGraphImage)
+	}
+	if data.ThemeColor != "#3296ed" {
+		t.Fatalf("unexpected theme color: %q", data.ThemeColor)
+	}
+	if data.TwitterCard != "summary_large_image" {
+		t.Fatalf("unexpected twitter card: %q", data.TwitterCard)
 	}
 }
 
@@ -104,7 +158,7 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 	}
 
 	outDir := t.TempDir()
-	if err := renderSiteBundle(bundle, outDir, "Template"); err != nil {
+	if _, err := renderSiteBundle(bundle, outDir, "Template"); err != nil {
 		t.Fatalf("renderSiteBundle failed: %v", err)
 	}
 
@@ -137,7 +191,7 @@ func TestRenderKometaSiteBundleSmoke(t *testing.T) {
 	if err := copyReferencedSiteAssets(bundle, outDir); err != nil {
 		t.Fatalf("copyReferencedSiteAssets: %v", err)
 	}
-	if err := renderSiteBundle(bundle, outDir, templateDir); err != nil {
+	if _, err := renderSiteBundle(bundle, outDir, templateDir); err != nil {
 		t.Fatalf("renderSiteBundle: %v", err)
 	}
 
@@ -162,6 +216,12 @@ func TestRenderKometaSiteBundleSmoke(t *testing.T) {
 		`data-catalog-carousel`,
 		`id="vacancies"`,
 		`id="apps"`,
+		`<meta name="description" content="Kometa.Games is a mobile game studio`,
+		`<meta property="og:title" content="Kometa.Games">`,
+		`<meta property="og:url" content="https://YOUR-GITHUB-USER.github.io/YOUR-REPO-NAME/">`,
+		`<meta name="theme-color" content="#3296ed">`,
+		`data-image-lightbox`,
+		`alt="Alec Monopoly pop art print in the Kometa office"`,
 	} {
 		if !strings.Contains(html, needle) {
 			t.Fatalf("expected %q in rendered index.html", needle)

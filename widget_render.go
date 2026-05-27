@@ -38,14 +38,16 @@ type widgetRenderContext struct {
 	WidgetTpl *template.Template
 }
 
-func renderWidgetTree(ctx *widgetRenderContext, widgets []WidgetNode) (template.HTML, error) {
+func renderWidgetTree(ctx *widgetRenderContext, widgets []WidgetNode) (template.HTML, []ConfigWarning, error) {
 	var b strings.Builder
+	var warnings []ConfigWarning
 	for i, widget := range widgets {
 		path := fmt.Sprintf("%s -> widgets[%d]", ctx.PagePath, i)
-		htmlStr, err := renderWidget(ctx, path, widget)
+		htmlStr, widgetWarnings, err := renderWidget(ctx, path, widget)
 		if err != nil {
-			return "", err
+			return "", warnings, err
 		}
+		warnings = append(warnings, widgetWarnings...)
 		if htmlStr == "" {
 			continue
 		}
@@ -54,54 +56,56 @@ func renderWidgetTree(ctx *widgetRenderContext, widgets []WidgetNode) (template.
 		}
 		b.WriteString(htmlStr)
 	}
-	return template.HTML(b.String()), nil
+	return template.HTML(b.String()), warnings, nil
 }
 
-func renderWidget(ctx *widgetRenderContext, path string, widget WidgetNode) (string, error) {
+func renderWidget(ctx *widgetRenderContext, path string, widget WidgetNode) (string, []ConfigWarning, error) {
 	if widget.Enabled != nil && !*widget.Enabled {
-		return "", nil
+		return "", nil, nil
 	}
 
 	widgetType := strings.TrimSpace(widget.Type)
 	if widgetType == "" {
-		return "", fmt.Errorf("%s.type: required field missing", path)
+		return "", nil, fmt.Errorf("%s.type: required field missing", path)
 	}
 	if widgetType == "columns" {
-		return "", fmt.Errorf("%s.type: unknown widget type %q", path, widgetType)
+		return "", nil, fmt.Errorf("%s.type: unknown widget type %q", path, widgetType)
 	}
 	if _, ok := layoutWidgetTypes[widgetType]; ok {
 		return renderLayoutWidget(ctx, path, widgetType, widget)
 	}
 	if _, ok := leafWidgetTypes[widgetType]; ok {
 		if _, hasChildren := widget.Props["children"]; hasChildren {
-			return "", fmt.Errorf("%s.props.children: only layout widgets (row, column, grid) may define children", path)
+			return "", nil, fmt.Errorf("%s.props.children: only layout widgets (row, column, grid) may define children", path)
 		}
 		return renderLeafWidget(ctx, path, widgetType, widget)
 	}
 
-	return "", fmt.Errorf("%s.type: unknown widget type %q", path, widgetType)
+	return "", nil, fmt.Errorf("%s.type: unknown widget type %q", path, widgetType)
 }
 
-func renderLayoutWidget(ctx *widgetRenderContext, path, widgetType string, widget WidgetNode) (string, error) {
+func renderLayoutWidget(ctx *widgetRenderContext, path, widgetType string, widget WidgetNode) (string, []ConfigWarning, error) {
 	childrenRaw, ok := widget.Props["children"]
 	if !ok {
-		return "", fmt.Errorf("%s.props.children: required for layout widget %q", path, widgetType)
+		return "", nil, fmt.Errorf("%s.props.children: required for layout widget %q", path, widgetType)
 	}
 	var children []WidgetNode
 	if err := json.Unmarshal(childrenRaw, &children); err != nil {
-		return "", fmt.Errorf("%s.props.children: invalid children array: %w", path, err)
+		return "", nil, fmt.Errorf("%s.props.children: invalid children array: %w", path, err)
 	}
 	if len(children) == 0 {
-		return "", fmt.Errorf("%s.props.children: must not be empty for layout widget %q", path, widgetType)
+		return "", nil, fmt.Errorf("%s.props.children: must not be empty for layout widget %q", path, widgetType)
 	}
 
 	var childHTML strings.Builder
+	var warnings []ConfigWarning
 	for i, child := range children {
 		childPath := fmt.Sprintf("%s.props.children[%d]", path, i)
-		rendered, err := renderWidget(ctx, childPath, child)
+		rendered, childWarnings, err := renderWidget(ctx, childPath, child)
 		if err != nil {
-			return "", err
+			return "", warnings, err
 		}
+		warnings = append(warnings, childWarnings...)
 		if rendered == "" {
 			continue
 		}
@@ -111,67 +115,70 @@ func renderLayoutWidget(ctx *widgetRenderContext, path, widgetType string, widge
 		childHTML.WriteString(rendered)
 	}
 	if childHTML.Len() == 0 {
-		return "", fmt.Errorf("%s.props.children: rendered content must not be empty for layout widget %q", path, widgetType)
+		return "", warnings, fmt.Errorf("%s.props.children: rendered content must not be empty for layout widget %q", path, widgetType)
 	}
 
 	childrenOut := template.HTML(childHTML.String())
 	widgetID := strings.TrimSpace(widget.ID)
 	if widgetID != "" && !isSafeHTMLID(widgetID) {
-		return "", fmt.Errorf("%s.id: invalid id %q", path, widgetID)
+		return "", warnings, fmt.Errorf("%s.id: invalid id %q", path, widgetID)
 	}
 
 	switch widgetType {
 	case "row":
 		gapRaw, gapErr := readOptionalGap(widget.Props, path+".props.gap")
 		if gapErr != nil {
-			return "", gapErr
+			return "", warnings, gapErr
 		}
 		var rowStyle template.CSS
 		if gapRaw != "" {
 			rowStyle = template.CSS(fmt.Sprintf("gap:%s;", gapRaw))
 		}
-		return executeLayoutTemplate(ctx.WidgetTpl, "row", map[string]any{
+		out, err := executeLayoutTemplate(ctx.WidgetTpl, "row", map[string]any{
 			"ID":       widgetID,
 			"Children": childrenOut,
 			"Style":    rowStyle,
 		})
+		return out, warnings, err
 
 	case "column":
 		gapRaw, gapErr := readOptionalGap(widget.Props, path+".props.gap")
 		if gapErr != nil {
-			return "", gapErr
+			return "", warnings, gapErr
 		}
 		var colStyle template.CSS
 		if gapRaw != "" {
 			colStyle = template.CSS(fmt.Sprintf("gap:%s;", gapRaw))
 		}
-		return executeLayoutTemplate(ctx.WidgetTpl, "column", map[string]any{
+		out, err := executeLayoutTemplate(ctx.WidgetTpl, "column", map[string]any{
 			"ID":       widgetID,
 			"Children": childrenOut,
 			"Style":    colStyle,
 		})
+		return out, warnings, err
 
 	case "grid":
 		minCW, err := parseGridMinColumnWidth(widget.Props, path+".props.min_column_width")
 		if err != nil {
-			return "", err
+			return "", warnings, err
 		}
 		gapRaw, gapErr := readOptionalGap(widget.Props, path+".props.gap")
 		if gapErr != nil {
-			return "", gapErr
+			return "", warnings, gapErr
 		}
 		gridGap := "1.25rem"
 		if gapRaw != "" {
 			gridGap = gapRaw
 		}
 		innerCSS := template.CSS(fmt.Sprintf("--widget-grid-min: %s; gap: %s;", minCW, gridGap))
-		return executeLayoutTemplate(ctx.WidgetTpl, "grid", map[string]any{
+		out, err := executeLayoutTemplate(ctx.WidgetTpl, "grid", map[string]any{
 			"ID":         widgetID,
 			"Children":   childrenOut,
 			"InnerStyle": innerCSS,
 		})
+		return out, warnings, err
 	default:
-		return "", fmt.Errorf("%s.type: unsupported layout widget %q", path, widgetType)
+		return "", warnings, fmt.Errorf("%s.type: unsupported layout widget %q", path, widgetType)
 	}
 }
 
@@ -252,103 +259,105 @@ func isSafeHTMLID(id string) bool {
 	return true
 }
 
-func renderLeafWidget(ctx *widgetRenderContext, path, widgetType string, widget WidgetNode) (string, error) {
+func renderLeafWidget(ctx *widgetRenderContext, path, widgetType string, widget WidgetNode) (string, []ConfigWarning, error) {
 	var buf bytes.Buffer
+	var warnings []ConfigWarning
 	switch widgetType {
 	case "intro":
 		data, err := parseIntroProps(ctx, widget, path)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if data == nil {
-			return "", nil
+			return "", nil, nil
 		}
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "intro", data); err != nil {
-			return "", fmt.Errorf("cannot render intro: %w", err)
+			return "", nil, fmt.Errorf("cannot render intro: %w", err)
 		}
 	case "cover_banner":
 		data, err := parseCoverBannerProps(ctx, widget, path)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "cover_banner", data); err != nil {
-			return "", fmt.Errorf("cannot render cover_banner: %w", err)
+			return "", nil, fmt.Errorf("cannot render cover_banner: %w", err)
 		}
 	case "follow_us":
 		data, err := buildFollowUsData(ctx, widget, path)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if data == nil {
-			return "", nil
+			return "", nil, nil
 		}
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "follow_us", data); err != nil {
-			return "", fmt.Errorf("cannot render follow_us: %w", err)
+			return "", nil, fmt.Errorf("cannot render follow_us: %w", err)
 		}
 	case "info_grid":
 		data, err := parseInfoGridProps(ctx, widget, path)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "info_grid", data); err != nil {
-			return "", fmt.Errorf("cannot render info_grid: %w", err)
+			return "", nil, fmt.Errorf("cannot render info_grid: %w", err)
 		}
 	case "images_grid":
-		data, err := parseImagesGridProps(ctx, widget, path)
+		data, imageWarnings, err := parseImagesGridProps(ctx, widget, path)
 		if err != nil {
-			return "", err
+			return "", imageWarnings, err
 		}
+		warnings = append(warnings, imageWarnings...)
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "images_grid", data); err != nil {
-			return "", fmt.Errorf("cannot render images_grid: %w", err)
+			return "", warnings, fmt.Errorf("cannot render images_grid: %w", err)
 		}
 	case "careers_tabs":
 		data, err := parseCareersTabsProps(ctx, widget, path)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "careers_tabs", data); err != nil {
-			return "", fmt.Errorf("cannot render careers_tabs: %w", err)
+			return "", nil, fmt.Errorf("cannot render careers_tabs: %w", err)
 		}
 	case "apps_showcase":
 		id := strings.TrimSpace(widget.ID)
 		if id != "" && !isSafeHTMLID(id) {
-			return "", fmt.Errorf("%s.id: invalid id %q", path, id)
+			return "", nil, fmt.Errorf("%s.id: invalid id %q", path, id)
 		}
 		data, err := parseAppsShowcaseProps(ctx, widget, path, id)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "apps_showcase", data); err != nil {
-			return "", fmt.Errorf("cannot render apps_showcase: %w", err)
+			return "", nil, fmt.Errorf("cannot render apps_showcase: %w", err)
 		}
 	case "project_grid":
 		id := strings.TrimSpace(widget.ID)
 		if id != "" && !isSafeHTMLID(id) {
-			return "", fmt.Errorf("%s.id: invalid id %q", path, id)
+			return "", nil, fmt.Errorf("%s.id: invalid id %q", path, id)
 		}
 		data, err := parseProjectGridProps(ctx, widget, path)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "project_grid", data); err != nil {
-			return "", fmt.Errorf("cannot render project_grid: %w", err)
+			return "", nil, fmt.Errorf("cannot render project_grid: %w", err)
 		}
 	case "media_swiper":
 		id := strings.TrimSpace(widget.ID)
 		if id != "" && !isSafeHTMLID(id) {
-			return "", fmt.Errorf("%s.id: invalid id %q", path, id)
+			return "", nil, fmt.Errorf("%s.id: invalid id %q", path, id)
 		}
 		data, err := parseMediaSwiperProps(ctx, widget, path)
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "media_swiper", data); err != nil {
-			return "", fmt.Errorf("cannot render media_swiper: %w", err)
+			return "", nil, fmt.Errorf("cannot render media_swiper: %w", err)
 		}
 	default:
-		return "", fmt.Errorf("%s.type: unsupported leaf widget %q", path, widgetType)
+		return "", nil, fmt.Errorf("%s.type: unsupported leaf widget %q", path, widgetType)
 	}
-	return buf.String(), nil
+	return buf.String(), warnings, nil
 }
 
 // --- Intro
@@ -563,17 +572,17 @@ type imagesGridTemplateData struct {
 	Images []imagesGridEntry
 }
 
-func parseImagesGridProps(ctx *widgetRenderContext, widget WidgetNode, path string) (*imagesGridTemplateData, error) {
+func parseImagesGridProps(ctx *widgetRenderContext, widget WidgetNode, path string) (*imagesGridTemplateData, []ConfigWarning, error) {
 	raw, ok := widget.Props["images"]
 	if !ok {
-		return nil, fmt.Errorf("%s.props.images: required and must not be empty", path)
+		return nil, nil, fmt.Errorf("%s.props.images: required and must not be empty", path)
 	}
-	entries, err := normalizeImagesGridRaw(raw, path+".props.images")
+	entries, warnings, err := normalizeImagesGridRaw(ctx.PagePath, raw, path+".props.images")
 	if err != nil {
-		return nil, err
+		return nil, warnings, err
 	}
 	if len(entries) == 0 {
-		return nil, fmt.Errorf("%s.props.images: required and must not be empty", path)
+		return nil, warnings, fmt.Errorf("%s.props.images: required and must not be empty", path)
 	}
 	for i := range entries {
 		entries[i].Src = resolveAssetHrefForPage(entries[i].Src, ctx.Route)
@@ -585,42 +594,59 @@ func parseImagesGridProps(ctx *widgetRenderContext, widget WidgetNode, path stri
 	if b, err := json.Marshal(widget.Props); err == nil {
 		_ = json.Unmarshal(b, &top)
 	}
-	return &imagesGridTemplateData{Title: strings.TrimSpace(top.Title), Images: entries}, nil
+	return &imagesGridTemplateData{Title: strings.TrimSpace(top.Title), Images: entries}, warnings, nil
 }
 
-func normalizeImagesGridRaw(raw json.RawMessage, cfgPath string) ([]imagesGridEntry, error) {
+func isGenericImagesGridAlt(alt string, index int) bool {
+	alt = strings.TrimSpace(alt)
+	if alt == "" {
+		return true
+	}
+	return alt == fmt.Sprintf("photo %d", index+1)
+}
+
+func normalizeImagesGridRaw(pagePath string, raw json.RawMessage, cfgPath string) ([]imagesGridEntry, []ConfigWarning, error) {
 	var asStrings []string
 	if err := json.Unmarshal(raw, &asStrings); err == nil {
 		var out []imagesGridEntry
+		var warnings []ConfigWarning
 		for i, s := range asStrings {
 			s = strings.TrimSpace(s)
 			if s == "" {
-				return nil, fmt.Errorf("%s[%d]: empty string not allowed", cfgPath, i)
+				return nil, warnings, fmt.Errorf("%s[%d]: empty string not allowed", cfgPath, i)
 			}
-			out = append(out, imagesGridEntry{Src: s, Alt: fmt.Sprintf("photo %d", i+1)})
+			alt := fmt.Sprintf("photo %d", i+1)
+			out = append(out, imagesGridEntry{Src: s, Alt: alt})
+			warnings = append(warnings, contentWarning(pagePath,
+				fmt.Sprintf("%s[%d]: missing descriptive alt text (using generic fallback %q)", cfgPath, i, alt)))
 		}
-		return out, nil
+		return out, warnings, nil
 	}
 	var asObjs []struct {
 		Src string `json:"src"`
 		Alt string `json:"alt"`
 	}
 	if err := json.Unmarshal(raw, &asObjs); err != nil {
-		return nil, fmt.Errorf("%s: must be an array of strings or objects with src", cfgPath)
+		return nil, nil, fmt.Errorf("%s: must be an array of strings or objects with src", cfgPath)
 	}
 	var out []imagesGridEntry
+	var warnings []ConfigWarning
 	for i, o := range asObjs {
 		src := strings.TrimSpace(o.Src)
 		if src == "" {
-			return nil, fmt.Errorf("%s[%d].src: required", cfgPath, i)
+			return nil, warnings, fmt.Errorf("%s[%d].src: required", cfgPath, i)
 		}
 		alt := strings.TrimSpace(o.Alt)
-		if alt == "" {
-			alt = fmt.Sprintf("photo %d", i+1)
+		if isGenericImagesGridAlt(alt, i) {
+			if alt == "" {
+				alt = fmt.Sprintf("photo %d", i+1)
+			}
+			warnings = append(warnings, contentWarning(pagePath,
+				fmt.Sprintf("%s[%d].alt: missing descriptive alt text (using generic fallback %q)", cfgPath, i, alt)))
 		}
 		out = append(out, imagesGridEntry{Src: src, Alt: alt})
 	}
-	return out, nil
+	return out, warnings, nil
 }
 
 type appsShowcaseTemplateData struct {

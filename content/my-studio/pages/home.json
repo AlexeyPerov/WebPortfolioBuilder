@@ -1,6 +1,10 @@
 {
   "slug": "",
   "title": "My-Studio.Games",
+  "seo": {
+    "description": "My-Studio.Games is a mobile game studio creating polished casual games including Age of Coins and Magic Archer.",
+    "og_image": "assets/logo.png"
+  },
   "widgets": [
     {
       "type": "cover_banner",
@@ -106,12 +110,30 @@
       "props": {
         "title": "",
         "images": [
-          "assets/pic1.png",
-          "assets/pic2.png",
-          "assets/pic3.png",
-          "assets/pic4.png",
-          "assets/pic5.png",
-          "assets/pic6.png"
+          {
+            "src": "assets/pic1.png",
+            "alt": "Alec Monopoly pop art print in the My Studio office"
+          },
+          {
+            "src": "assets/pic2.png",
+            "alt": "Office shelf with Assassin's Creed figurines, awards, and designer collectibles"
+          },
+          {
+            "src": "assets/pic3.png",
+            "alt": "Colorful Alec Monopoly artwork celebrating luxury and champagne in the studio"
+          },
+          {
+            "src": "assets/pic4.png",
+            "alt": "My Studio open-plan office with dual monitors, blue beanbag, and pop art on the walls"
+          },
+          {
+            "src": "assets/pic5.png",
+            "alt": "My Studio lounge area with collectibles shelf, beanbags, and dual-monitor workstations"
+          },
+          {
+            "src": "assets/pic6.png",
+            "alt": "KAWS Companion and BAPE Be@rbrick figures on a windowsill overlooking the city"
+          }
         ]
       }
     },

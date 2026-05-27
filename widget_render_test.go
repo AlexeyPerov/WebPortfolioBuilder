@@ -32,7 +32,7 @@ func TestRenderWidgetTreeUnknownTypeFailsWithPath(t *testing.T) {
 	widgets := []WidgetNode{
 		{Type: "unknown"},
 	}
-	_, err := renderWidgetTree(ctx, widgets)
+	_, _, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected unknown type error")
 	}
@@ -46,7 +46,7 @@ func TestRenderWidgetTreeRejectsColumnsAlias(t *testing.T) {
 	widgets := []WidgetNode{
 		{Type: "columns"},
 	}
-	_, err := renderWidgetTree(ctx, widgets)
+	_, _, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected columns alias rejection")
 	}
@@ -65,7 +65,7 @@ func TestRenderWidgetTreeLeafChildrenFails(t *testing.T) {
 			},
 		},
 	}
-	_, err := renderWidgetTree(ctx, widgets)
+	_, _, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected leaf children error")
 	}
@@ -79,7 +79,7 @@ func TestRenderWidgetTreeLayoutNeedsChildren(t *testing.T) {
 	widgets := []WidgetNode{
 		{Type: "row"},
 	}
-	_, err := renderWidgetTree(ctx, widgets)
+	_, _, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected missing children error")
 	}
@@ -113,7 +113,7 @@ func TestRenderWidgetTreeLayoutRecurses(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree(ctx, widgets)
+	out, _, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
@@ -150,7 +150,7 @@ func TestGridRendersCustomMinColumnWidth(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree(ctx, widgets)
+	out, _, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
@@ -163,7 +163,7 @@ func TestGridRendersCustomMinColumnWidth(t *testing.T) {
 func TestCoverBannerRequiresSrc(t *testing.T) {
 	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{{Type: "cover_banner", Props: map[string]json.RawMessage{}}}
-	_, err := renderWidgetTree(ctx, widgets)
+	_, _, err := renderWidgetTree(ctx, widgets)
 	if err == nil || !strings.Contains(err.Error(), "src") {
 		t.Fatalf("expected src required error, got: %v", err)
 	}
@@ -188,7 +188,7 @@ func TestCareersTabsSingleVacancyNoTabs(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree(ctx, widgets)
+	out, _, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
@@ -230,7 +230,7 @@ func TestCareersTabsMultiVacancyHasTabs(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree(ctx, widgets)
+	out, _, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
@@ -289,7 +289,7 @@ func TestAppsShowcaseRendersCardsAndSwiperAndStores(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree(ctx, widgets)
+	out, _, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
@@ -316,7 +316,7 @@ func TestAppsShowcaseRequiresApps(t *testing.T) {
 			Props: map[string]json.RawMessage{},
 		},
 	}
-	_, err := renderWidgetTree(ctx, widgets)
+	_, _, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected apps_showcase apps validation error")
 	}
@@ -337,7 +337,7 @@ func TestAppsShowcaseAppImageRequiredPath(t *testing.T) {
 			},
 		},
 	}
-	_, err := renderWidgetTree(ctx, widgets)
+	_, _, err := renderWidgetTree(ctx, widgets)
 	if err == nil {
 		t.Fatal("expected apps_showcase image validation error")
 	}
@@ -364,7 +364,7 @@ func TestRenderWidgetTreeSkipsDisabledWidgets(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree(ctx, widgets)
+	out, _, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
@@ -386,7 +386,7 @@ func TestRenderWidgetTreeRecognizesMediaSwiper(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree(ctx, widgets)
+	out, _, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
@@ -422,7 +422,7 @@ func TestProjectGridRendersCards(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree(ctx, widgets)
+	out, _, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
@@ -453,12 +453,34 @@ func TestProjectGridMetaString(t *testing.T) {
 			},
 		},
 	}
-	out, err := renderWidgetTree(ctx, widgets)
+	out, _, err := renderWidgetTree(ctx, widgets)
 	if err != nil {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
 	if !strings.Contains(string(out), "Highlighted release") {
 		t.Fatalf("expected meta line: %s", string(out))
+	}
+}
+
+func TestImagesGridWarnsOnGenericAltFallback(t *testing.T) {
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
+	widgets := []WidgetNode{
+		{
+			Type: "images_grid",
+			Props: map[string]json.RawMessage{
+				"images": mustWidgetRawJSON(t, []string{"assets/pic1.png"}),
+			},
+		},
+	}
+	_, warnings, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	if len(warnings) != 1 {
+		t.Fatalf("expected 1 warning, got %d: %v", len(warnings), warnings)
+	}
+	if !strings.Contains(warnings[0].String(), "missing descriptive alt text") {
+		t.Fatalf("unexpected warning: %s", warnings[0].String())
 	}
 }
 

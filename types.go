@@ -22,10 +22,18 @@ type SitePageFile struct {
 type ConfigWarning struct {
 	FilePath string
 	Key      string
+	Detail   string
 }
 
 func (w ConfigWarning) String() string {
+	if w.Detail != "" {
+		return w.FilePath + " -> " + w.Detail
+	}
 	return w.FilePath + " -> unknown key: " + w.Key
+}
+
+func contentWarning(filePath, message string) ConfigWarning {
+	return ConfigWarning{FilePath: filePath, Detail: message}
 }
 
 type SiteConfig struct {

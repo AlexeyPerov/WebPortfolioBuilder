@@ -25,6 +25,8 @@ type renderedPageData struct {
 	MetaDescription           string
 	CanonicalURL              string
 	OpenGraphImage            string
+	ThemeColor                string
+	TwitterCard               string
 	HasSEO                    bool
 	TypographyGoogleFonts     template.URL
 	TypographyFontHeading     template.CSS
@@ -44,6 +46,7 @@ type renderedPageData struct {
 	CatalogCarouselScriptHref string
 	SplitWidgetScriptHref     string
 	NavScriptHref             string
+	ImageLightboxScriptHref   string
 	WidgetsConfigScript       template.HTML
 }
 
@@ -64,21 +67,21 @@ func loadWidgetTemplates(templateDir string) (*template.Template, error) {
 	return tpl, nil
 }
 
-func renderSiteBundle(bundle SiteBundle, targetDir, templateDir string) error {
+func renderSiteBundle(bundle SiteBundle, targetDir, templateDir string) ([]ConfigWarning, error) {
 	routes, err := buildRouteIndex(bundle)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	widgetTpl, err := loadWidgetTemplates(templateDir)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	layoutPath := filepath.Join(templateDir, "layout.html")
 	layoutTpl, err := template.ParseFiles(layoutPath)
 	if err != nil {
-		return fmt.Errorf("cannot parse layout template %q: %w", layoutPath, err)
+		return nil, fmt.Errorf("cannot parse layout template %q: %w", layoutPath, err)
 	}
 
 	pageByPath := make(map[string]SitePageFile, len(bundle.Pages))
@@ -86,37 +89,39 @@ func renderSiteBundle(bundle SiteBundle, targetDir, templateDir string) error {
 		pageByPath[page.Path] = page
 	}
 
+	var warnings []ConfigWarning
 	for _, route := range routes.Ordered {
 		pageFile := pageByPath[route.SourcePath]
-		data, err := buildRenderedPageData(bundle, pageFile, route, routes, widgetTpl)
+		data, pageWarnings, err := buildRenderedPageData(bundle, pageFile, route, routes, widgetTpl)
 		if err != nil {
-			return err
+			return warnings, err
 		}
+		warnings = append(warnings, pageWarnings...)
 
 		var out bytes.Buffer
 		if err := layoutTpl.Execute(&out, data); err != nil {
-			return fmt.Errorf("cannot render page %q: %w", route.SourcePath, err)
+			return warnings, fmt.Errorf("cannot render page %q: %w", route.SourcePath, err)
 		}
 
 		raw := out.Bytes()
 		if bytes.Contains(raw, []byte(htmlTemplateFailureMarker)) {
-			return fmt.Errorf("rendered HTML for page %q (%q) contains %q: unsafe substitution in html/template (use template.CSS for <style> variables and template.URL for stylesheet hrefs)",
+			return warnings, fmt.Errorf("rendered HTML for page %q (%q) contains %q: unsafe substitution in html/template (use template.CSS for <style> variables and template.URL for stylesheet hrefs)",
 				route.SourcePath, route.OutputRelPath, htmlTemplateFailureMarker)
 		}
 
 		dst := filepath.Join(targetDir, route.OutputRelPath)
 		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-			return fmt.Errorf("cannot create directory for %q: %w", dst, err)
+			return warnings, fmt.Errorf("cannot create directory for %q: %w", dst, err)
 		}
 		if err := os.WriteFile(dst, raw, 0o644); err != nil {
-			return fmt.Errorf("cannot write page %q: %w", dst, err)
+			return warnings, fmt.Errorf("cannot write page %q: %w", dst, err)
 		}
 	}
 
-	return nil
+	return warnings, nil
 }
 
-func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageRoute, routes RouteIndex, widgetTpl *template.Template) (renderedPageData, error) {
+func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageRoute, routes RouteIndex, widgetTpl *template.Template) (renderedPageData, []ConfigWarning, error) {
 	page := pageFile.Page
 	data := renderedPageData{}
 
@@ -129,6 +134,8 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	data.MetaDescription = strings.TrimSpace(page.SEO.Description)
 	data.CanonicalURL = resolvedCanonicalURL(bundle.Site.BaseURL, route, strings.TrimSpace(page.SEO.CanonicalURL))
 	data.OpenGraphImage = resolvedOpenGraphImage(bundle.Site.BaseURL, strings.TrimSpace(page.SEO.OGImage))
+	data.ThemeColor = resolvedThemeColor(bundle.Site.Theme)
+	data.TwitterCard = resolvedTwitterCard(data.OpenGraphImage)
 	data.HasSEO = data.MetaDescription != "" || data.CanonicalURL != "" || data.OpenGraphImage != ""
 
 	fontsHref, fontHeading, fontBody := normalizedTypography(bundle.Site.Typography)
@@ -142,7 +149,7 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 
 	brandHref, err := resolveInternalSlugReference(route, "", routes.BySlug)
 	if err != nil {
-		return renderedPageData{}, fmt.Errorf("%s -> header.brand: %w", bundle.SitePath, err)
+		return renderedPageData{}, nil, fmt.Errorf("%s -> header.brand: %w", bundle.SitePath, err)
 	}
 	data.HeaderBrandHref = brandHref
 	data.HeaderBrandLogo = resolveAssetHrefForPage(bundle.Site.Header.Brand.Logo, route)
@@ -151,7 +158,7 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 
 	navItems, err := renderHeaderNavForPage(bundle, route, routes)
 	if err != nil {
-		return renderedPageData{}, err
+		return renderedPageData{}, nil, err
 	}
 	data.HeaderNav = navItems
 
@@ -162,9 +169,9 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 		Routes:    routes,
 		WidgetTpl: widgetTpl,
 	}
-	mainContent, err := renderWidgetTree(ctx, page.Widgets)
+	mainContent, widgetWarnings, err := renderWidgetTree(ctx, page.Widgets)
 	if err != nil {
-		return renderedPageData{}, err
+		return renderedPageData{}, widgetWarnings, err
 	}
 	data.MainContentHTML = mainContent
 	if data.ShowFooter {
@@ -177,9 +184,27 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	data.CatalogCarouselScriptHref = assetPrefix + "catalog-carousel.js"
 	data.SplitWidgetScriptHref = assetPrefix + "split-widget.js"
 	data.NavScriptHref = assetPrefix + "nav.js"
+	data.ImageLightboxScriptHref = assetPrefix + "image-lightbox.js"
 	data.WidgetsConfigScript = template.HTML(buildWidgetsConfigScript(bundle.Site.Widgets))
 
-	return data, nil
+	return data, widgetWarnings, nil
+}
+
+func resolvedThemeColor(theme map[string]string) string {
+	if theme == nil {
+		return ""
+	}
+	if accent := strings.TrimSpace(theme["accent"]); accent != "" {
+		return accent
+	}
+	return strings.TrimSpace(theme["page_bg"])
+}
+
+func resolvedTwitterCard(openGraphImage string) string {
+	if strings.TrimSpace(openGraphImage) != "" {
+		return "summary_large_image"
+	}
+	return "summary"
 }
 
 func renderHeaderNavForPage(bundle SiteBundle, route PageRoute, routes RouteIndex) ([]renderedNavItem, error) {

@@ -45,7 +45,11 @@ func main() {
 
 	must(copyTemplateStaticAssets(templateDir, targetDir))
 	must(copyReferencedSiteAssets(bundle, targetDir))
-	must(renderSiteBundle(bundle, targetDir, templateDir))
+	renderWarnings, err := renderSiteBundle(bundle, targetDir, templateDir)
+	must(err)
+	for _, warning := range renderWarnings {
+		fmt.Fprintln(os.Stderr, "Warning:", warning.String())
+	}
 
 	fmt.Println("Website generated successfully.")
 	fmt.Println("Output:", targetDir)

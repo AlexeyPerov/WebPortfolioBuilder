@@ -10,7 +10,16 @@
   <link href="{{.TypographyGoogleFonts}}" rel="stylesheet">
   {{if .MetaDescription}}<meta name="description" content="{{.MetaDescription}}">{{end}}
   {{if .CanonicalURL}}<link rel="canonical" href="{{.CanonicalURL}}">{{end}}
+  {{if .Title}}<meta property="og:title" content="{{.Title}}">{{end}}
+  {{if .MetaDescription}}<meta property="og:description" content="{{.MetaDescription}}">{{end}}
+  {{if .CanonicalURL}}<meta property="og:url" content="{{.CanonicalURL}}">{{end}}
+  {{if or .Title .MetaDescription .CanonicalURL .OpenGraphImage}}<meta property="og:type" content="website">{{end}}
   {{if .OpenGraphImage}}<meta property="og:image" content="{{.OpenGraphImage}}">{{end}}
+  {{if .ThemeColor}}<meta name="theme-color" content="{{.ThemeColor}}">{{end}}
+  {{if or .Title .MetaDescription .OpenGraphImage}}<meta name="twitter:card" content="{{.TwitterCard}}">{{end}}
+  {{if .Title}}<meta name="twitter:title" content="{{.Title}}">{{end}}
+  {{if .MetaDescription}}<meta name="twitter:description" content="{{.MetaDescription}}">{{end}}
+  {{if .OpenGraphImage}}<meta name="twitter:image" content="{{.OpenGraphImage}}">{{end}}
   <style>
     :root {
       --font-heading: {{.TypographyFontHeading}};
@@ -67,6 +76,7 @@
   <script src="{{.ScrollRevealScriptHref}}" defer></script>
   <script src="{{.CatalogCarouselScriptHref}}" defer></script>
   <script src="{{.SplitWidgetScriptHref}}" defer></script>
+  <script src="{{.ImageLightboxScriptHref}}" defer></script>
   {{if .HeaderNav}}<script src="{{.NavScriptHref}}" defer></script>{{end}}
 </body>
 </html>

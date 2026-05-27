@@ -651,6 +651,16 @@ p {
   gap: 12px;
 }
 
+.photos-grid__item {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
+  border-radius: 12px;
+}
+
 .photos-grid img {
   width: 100%;
   aspect-ratio: 4 / 3;
@@ -658,6 +668,72 @@ p {
   border-radius: 12px;
   background: var(--widget-gradient);
   border: none;
+  display: block;
+}
+
+.photos-grid__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.image-lightbox[hidden] {
+  display: none;
+}
+
+.image-lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 16, 28, 0.88);
+}
+
+.image-lightbox__dialog {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.image-lightbox__image {
+  max-width: min(100%, 1200px);
+  max-height: calc(100vh - 96px);
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+}
+
+.image-lightbox__close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.image-lightbox__close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+body.image-lightbox-open {
+  overflow: hidden;
 }
 
 .vacancy-card ul,

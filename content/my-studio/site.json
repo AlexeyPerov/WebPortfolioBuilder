@@ -1,6 +1,7 @@
 {
   "site_id": "my-studio",
   "output_folder": "Results/My-StudioWebsite",
+  "base_url": "https://YOUR-GITHUB-USER.github.io/YOUR-REPO-NAME",
   "theme": {
     "page_bg": "#ffffff",
     "surface": "#ffffff",
@@ -61,5 +62,9 @@
     "copyright": "© 2019–2026 Yadarko Trading Ltd",
     "cookie_notice": "This website does not use cookies"
   },
-  "widgets": {}
+  "widgets": {
+    "split_widget": {
+      "keyboard_navigation": true
+    }
+  }
 }
