@@ -15,12 +15,53 @@ body {
   line-height: 1.6;
 }
 
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 0 0 8px 8px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(28, 30, 46, 0.15);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+.skip-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.brand-home:focus-visible,
+.site-nav__link:focus-visible,
+.site-nav-toggle:focus-visible,
+.catalog-carousel__arrow:focus-visible,
+.split-widget__tab:focus-visible,
+.catalog-store-btn:focus-visible,
+.follow-us__btn:focus-visible,
+.project-card__cta:focus-visible,
+.footer-contact-row__email:focus-visible,
+.footer-legal-links__left:focus-visible,
+.footer-legal-links__right:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 #intro_title,
 #apps_title,
 #offers_title,
 #photos_title,
 #vacancies_title,
-#follow_us_title {
+#follow_us_title,
+#footer {
   scroll-margin-top: 84px;
 }
 
@@ -132,6 +173,12 @@ p {
   color: var(--accent);
   filter: brightness(1.03);
   box-shadow: 0 4px 14px rgba(28, 30, 46, 0.08);
+}
+
+.site-nav__link--active,
+.site-nav__link--active:hover {
+  color: var(--accent);
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
 .site-nav-toggle {

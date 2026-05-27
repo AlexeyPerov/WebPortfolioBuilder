@@ -44,7 +44,7 @@
       { "label": "Our Games", "href": "#apps", "open_in_new_tab": false },
       { "label": "Why join us", "href": "#offers", "open_in_new_tab": false },
       { "label": "Careers", "href": "#vacancies", "open_in_new_tab": false },
-      { "label": "Contacts", "href": "#contact", "open_in_new_tab": false }
+      { "label": "Contacts", "href": "#footer", "open_in_new_tab": false }
     ]
   },
   "footer": {
