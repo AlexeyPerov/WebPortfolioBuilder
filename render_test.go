@@ -158,7 +158,7 @@ func TestRenderKometaSiteBundleSmoke(t *testing.T) {
 	}
 	for _, needle := range []string{
 		`id="site-widgets-config"`,
-		`data-split-widget`,
+		`split-widget--single`,
 		`data-catalog-carousel`,
 		`id="vacancies"`,
 		`id="apps"`,

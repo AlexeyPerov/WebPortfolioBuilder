@@ -145,7 +145,8 @@ type ScrollRevealWidgetConfig struct {
 }
 
 type CarouselWidgetConfig struct {
-	SwipeThresholdPx *int `json:"swipe_threshold_px,omitempty"`
+	SwipeThresholdPx   *int  `json:"swipe_threshold_px,omitempty"`
+	KeyboardNavigation *bool `json:"keyboard_navigation,omitempty"`
 }
 
 type SplitWidgetConfig struct {

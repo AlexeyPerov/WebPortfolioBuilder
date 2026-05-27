@@ -1147,6 +1147,12 @@ func buildCareersSplitWidget(ariaLabel, idPrefix string, entries []widgetSplitEn
 	if len(entries) == 0 {
 		return ""
 	}
+	if len(entries) == 1 {
+		return fmt.Sprintf(
+			`<div class="split-widget split-widget--single"><div class="split-widget__panels"><div class="split-widget__panel is-active">%s</div></div></div>`,
+			entries[0].Body,
+		)
+	}
 
 	var list strings.Builder
 	var panels strings.Builder

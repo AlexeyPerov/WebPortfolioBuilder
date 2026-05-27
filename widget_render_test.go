@@ -169,7 +169,7 @@ func TestCoverBannerRequiresSrc(t *testing.T) {
 	}
 }
 
-func TestCareersTabsEmitSplitWidget(t *testing.T) {
+func TestCareersTabsSingleVacancyNoTabs(t *testing.T) {
 	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{
 		{
@@ -193,11 +193,56 @@ func TestCareersTabsEmitSplitWidget(t *testing.T) {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
 	html := string(out)
+	if strings.Contains(html, `data-split-widget`) {
+		t.Fatalf("single vacancy should not emit data-split-widget: %s", html)
+	}
+	if strings.Contains(html, `split-widget__tab`) {
+		t.Fatalf("single vacancy should not render tab buttons: %s", html)
+	}
+	if !strings.Contains(html, `split-widget--single`) || !strings.Contains(html, `vacancy-detail`) {
+		t.Fatalf("expected single-vacancy panel markup: %s", html)
+	}
+}
+
+func TestCareersTabsMultiVacancyHasTabs(t *testing.T) {
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
+	widgets := []WidgetNode{
+		{
+			Type: "careers_tabs",
+			Props: map[string]json.RawMessage{
+				"title": mustWidgetRawJSON(t, "Careers"),
+				"vacancies": mustWidgetRawJSON(t, []Vacancy{
+					{
+						Role:             "Designer",
+						Requirements:     []string{"Portfolio"},
+						Responsibilities: []string{"UI work"},
+						Advantages:       []string{"Remote"},
+						ApplyURL:         "https://example.com/apply",
+					},
+					{
+						Role:             "Engineer",
+						Requirements:     []string{"Go experience"},
+						Responsibilities: []string{"Backend work"},
+						Advantages:       []string{"Flexible hours"},
+						ApplyURL:         "https://example.com/apply2",
+					},
+				}),
+			},
+		},
+	}
+	out, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	html := string(out)
 	if !strings.Contains(html, `data-split-widget`) {
 		t.Fatalf("expected split widget marker: %s", html)
 	}
 	if !strings.Contains(html, `data-target="vacancy-0"`) || !strings.Contains(html, `id="vacancy-0"`) {
 		t.Fatalf("expected vacancy tab wiring: %s", html)
+	}
+	if !strings.Contains(html, `data-target="vacancy-1"`) {
+		t.Fatalf("expected second vacancy tab: %s", html)
 	}
 }
 

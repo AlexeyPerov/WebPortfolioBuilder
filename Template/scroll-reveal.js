@@ -37,7 +37,11 @@
     return;
   }
 
-  var nodes = document.querySelectorAll(".scroll-reveal");
+  var nodes = document.querySelectorAll(".scroll-reveal:not(.scroll-reveal--immediate)");
+  var immediate = document.querySelectorAll(".scroll-reveal--immediate");
+  for (var k = 0; k < immediate.length; k++) {
+    immediate[k].classList.add("scroll-reveal--visible");
+  }
   if (!nodes.length) {
     return;
   }

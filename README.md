@@ -53,8 +53,8 @@ Open the generated `index.html` in a browser.
 
 Optional; omitted branches keep built-in defaults. Values are injected as JSON in the page (`site-widgets-config`):
 
-- **`scroll_reveal`** — `respect_reduced_motion`, `root_margin`, `threshold` (IntersectionObserver).
-- **`carousel`** — **`swipe_threshold_px`** minimum horizontal swipe to advance screenshot carousels (used by [`Template/catalog-carousel.js`](Template/catalog-carousel.js)).
+- **`scroll_reveal`** — `respect_reduced_motion` (default `true`; when enabled and the user prefers reduced motion, sections stay visible with no animation), `root_margin`, `threshold` (IntersectionObserver). Add **`scroll-reveal--immediate`** on a section class list (e.g. intro hero) to keep above-the-fold content visible on first paint without waiting for the observer. With JavaScript disabled, [`Template/layout.html`](Template/layout.html) noscript styles force all `.scroll-reveal` sections visible.
+- **`carousel`** — **`swipe_threshold_px`** minimum horizontal swipe to advance screenshot carousels; **`keyboard_navigation`** (default `true`) enables Left/Right arrow keys when the carousel is focused, a visible slide counter (e.g. `2 / 5`), and an `aria-live` announcement on slide change (used by [`Template/catalog-carousel.js`](Template/catalog-carousel.js)).
 - **`split_widget`** — `keyboard_navigation` for tabbed vacancy UI.
 
 See [Specs/ImplementationSpec.md](Specs/ImplementationSpec.md) for full semantics.

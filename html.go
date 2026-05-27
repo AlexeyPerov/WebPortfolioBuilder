@@ -40,7 +40,8 @@ type widgetsExportJSON struct {
 		Threshold            float64 `json:"threshold"`
 	} `json:"scroll_reveal"`
 	Carousel struct {
-		SwipeThresholdPx int `json:"swipe_threshold_px"`
+		SwipeThresholdPx   int  `json:"swipe_threshold_px"`
+		KeyboardNavigation bool `json:"keyboard_navigation"`
 	} `json:"carousel"`
 	SplitWidget struct {
 		KeyboardNavigation bool `json:"keyboard_navigation"`
@@ -64,6 +65,10 @@ func buildWidgetsConfigScript(w WidgetsConfig) string {
 	j.Carousel.SwipeThresholdPx = 30
 	if w.Carousel.SwipeThresholdPx != nil && *w.Carousel.SwipeThresholdPx > 0 {
 		j.Carousel.SwipeThresholdPx = *w.Carousel.SwipeThresholdPx
+	}
+	j.Carousel.KeyboardNavigation = true
+	if w.Carousel.KeyboardNavigation != nil {
+		j.Carousel.KeyboardNavigation = *w.Carousel.KeyboardNavigation
 	}
 	j.SplitWidget.KeyboardNavigation = false
 	if w.SplitWidget.KeyboardNavigation != nil {
