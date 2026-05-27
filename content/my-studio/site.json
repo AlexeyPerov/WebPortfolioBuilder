@@ -1,6 +1,6 @@
 {
-  "site_id": "kometa",
-  "output_folder": "Results/KometaWebsite_2",
+  "site_id": "my-studio",
+  "output_folder": "Results/My-StudioWebsite",
   "theme": {
     "page_bg": "#ffffff",
     "surface": "#ffffff",
@@ -30,9 +30,9 @@
     "links": []
   },
   "social": {
-    "github_url": "https://github.com/orgs/Kometa-Developer/repositories",
-    "linkedin_url": "https://www.linkedin.com/company/kometagames/?originalSubdomain=cy",
-    "facebook_url": "https://www.facebook.com/p/KometaGames-100057502747171/"
+    "github_url": "https://github.com/orgs/My-Studio-Developer/repositories",
+    "linkedin_url": "https://www.linkedin.com/company/my-studiogames/?originalSubdomain=cy",
+    "facebook_url": "https://www.facebook.com/p/My-StudioGames-100057502747171/"
   },
   "header": {
     "brand": {
@@ -52,9 +52,9 @@
     "section_title": "Contacts",
     "contact": {
       "paragraphs": ["Gr.Xenopoulou 17, 3106, Limassol, Cyprus"],
-      "email": "support@kometadevs.com"
+      "email": "support@my-studiodevs.com"
     },
-    "privacy_url": "https://kometa.games/privacy-aoc.html",
+    "privacy_url": "https://my-studio.games/privacy-aoc.html",
     "privacy_label": "Privacy Policy",
     "terms_url": "",
     "terms_label": "Terms of Service",

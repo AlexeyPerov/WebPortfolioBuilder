@@ -1,21 +1,21 @@
 {
   "slug": "",
-  "title": "Kometa.Games",
+  "title": "My-Studio.Games",
   "widgets": [
     {
       "type": "cover_banner",
       "props": {
         "src": "assets/logo.png",
-        "alt": "Kometa.Games"
+        "alt": "My-Studio.Games"
       }
     },
     {
       "type": "intro",
       "props": {
-        "title": "Kometa.Games",
+        "title": "My-Studio.Games",
         "paragraphs": [
-          "We are Kometa.Games, a mobile game studio focused on creating engaging and highly polished casual experiences. The team specializes in addictive core loops and player-driven progression. With a strong emphasis on gameplay feel and retention, Kometa.Games builds games that are easy to pick up and hard to put down.",
-          "Kometa.Games is a trademark of © Yadarko Trading Ltd"
+          "We are My-Studio.Games, a mobile game studio focused on creating engaging and highly polished casual experiences. The team specializes in addictive core loops and player-driven progression. With a strong emphasis on gameplay feel and retention, My-Studio.Games builds games that are easy to pick up and hard to put down.",
+          "My-Studio.Games is a trademark of © Yadarko Trading Ltd"
         ]
       }
     },
@@ -45,7 +45,7 @@
             "google_play_url": "https://play.google.com/store/apps/details?id=com.casualgamesonline.coinslotsgame",
             "app_store_url": "https://apps.apple.com/us/app/age-of-coins-master-of-spins/id1540246787",
             "amazon_store_url": "https://www.amazon.com/Yadairgo-Trading-Limited-Age-Coins/dp/B0CRTP4KBS",
-            "galaxy_store_url": "https://galaxystore.samsung.com/detail/com.kometagames.coinslotsgame?langCd=nl"
+            "galaxy_store_url": "https://galaxystore.samsung.com/detail/com.my-studiogames.coinslotsgame?langCd=nl"
           },
           {
             "image": "assets/ma_icon.png",
@@ -141,7 +141,7 @@
               "An experienced team with a strong track record of successful releases;",
               "Remote work with a flexible schedule."
             ],
-            "apply_url": "mailto:alena@kometadevs.com",
+            "apply_url": "mailto:alena@my-studiodevs.com",
             "apply_label": "Apply"
           }
         ]
