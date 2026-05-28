@@ -44,6 +44,10 @@ func loadSiteBundle(siteDir string) (SiteBundle, []ConfigWarning, error) {
 		return SiteBundle{}, warnings, err
 	}
 
+	for _, pageFile := range bundle.Pages {
+		warnings = append(warnings, unknownWidgetPropKeyWarnings(pageFile.Path, pageFile.Page.Widgets)...)
+	}
+
 	return bundle, warnings, nil
 }
 

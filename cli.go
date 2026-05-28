@@ -29,14 +29,16 @@ func buildSiteBundle(projectRoot, siteInput string) (SiteBundle, []ConfigWarning
 	return loadSiteBundle(siteDir)
 }
 
-func generateSite(projectRoot, siteInput string, stdout, stderr io.Writer) (string, error) {
+func generateSite(projectRoot, siteInput string, strict bool, stdout, stderr io.Writer) (string, error) {
 	templateDir := filepath.Join(projectRoot, "Template")
 
 	bundle, warnings, err := buildSiteBundle(projectRoot, siteInput)
 	if err != nil {
 		return "", err
 	}
-	printConfigWarnings(stderr, warnings)
+	if err := handleConfigWarnings(stderr, warnings, strict); err != nil {
+		return "", err
+	}
 
 	outputFolder, err := validatedOutputFolderFor(bundle.Site.OutputFolder, bundle.SitePath)
 	if err != nil {
@@ -59,25 +61,31 @@ func generateSite(projectRoot, siteInput string, stdout, stderr io.Writer) (stri
 	if err != nil {
 		return "", err
 	}
-	printConfigWarnings(stderr, renderWarnings)
+	if err := handleConfigWarnings(stderr, renderWarnings, strict); err != nil {
+		return "", err
+	}
 
 	fmt.Fprintln(stdout, "Website generated successfully.")
 	fmt.Fprintln(stdout, "Output:", targetDir)
 	return targetDir, nil
 }
 
-func validateSite(projectRoot, siteInput, templateDir string, stdout, stderr io.Writer) error {
+func validateSite(projectRoot, siteInput, templateDir string, strict bool, stdout, stderr io.Writer) error {
 	bundle, warnings, err := buildSiteBundle(projectRoot, siteInput)
 	if err != nil {
 		return err
 	}
-	printConfigWarnings(stderr, warnings)
+	if err := handleConfigWarnings(stderr, warnings, strict); err != nil {
+		return err
+	}
 
 	renderWarnings, err := validateSiteBundleOnly(bundle, templateDir)
 	if err != nil {
 		return err
 	}
-	printConfigWarnings(stderr, renderWarnings)
+	if err := handleConfigWarnings(stderr, renderWarnings, strict); err != nil {
+		return err
+	}
 
 	fmt.Fprintln(stdout, "Validation passed:", bundle.SiteDir)
 	return nil
@@ -175,11 +183,13 @@ func runCLI(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	fs.SetOutput(stderr)
 
 	var validate bool
+	var strict bool
 	var listSites bool
 	var serve bool
 	var siteFlag string
 	var servePort int
 	fs.BoolVar(&validate, "validate", false, "validate content bundle without writing output")
+	fs.BoolVar(&strict, "strict", false, "treat unknown top-level keys and unknown widget props keys as errors")
 	fs.BoolVar(&listSites, "list-sites", false, "list content bundles under content/ and exit")
 	fs.BoolVar(&serve, "serve", false, "after build, serve the output directory over HTTP on localhost")
 	fs.IntVar(&servePort, "port", defaultServePort, "port for --serve (default 8080)")
@@ -224,14 +234,14 @@ func runCLI(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, "Error: cannot use --serve with --validate")
 			return 2
 		}
-		if err := validateSite(projectRoot, siteInput, templateDir, stdout, stderr); err != nil {
+		if err := validateSite(projectRoot, siteInput, templateDir, strict, stdout, stderr); err != nil {
 			fmt.Fprintln(stderr, "Error:", err)
 			return 1
 		}
 		return 0
 	}
 
-	targetDir, err := generateSite(projectRoot, siteInput, stdout, stderr)
+	targetDir, err := generateSite(projectRoot, siteInput, strict, stdout, stderr)
 	if err != nil {
 		fmt.Fprintln(stderr, "Error:", err)
 		return 1

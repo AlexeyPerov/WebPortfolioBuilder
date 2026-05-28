@@ -35,6 +35,7 @@ go run .
 |------|-------------|
 | `--site <path>` | Content bundle path (relative to project root or absolute). Skips the interactive bundle prompt. |
 | `--validate` | Load and validate the bundle (JSON schema, asset references, render dry-run). Prints warnings; exits non-zero on error. Does **not** write or wipe output. |
+| `--strict` | Treat unknown top-level JSON keys and unknown widget `props` keys as errors (default is warn-only). Works with `--validate` and normal builds. |
 | `--list-sites` | Print one content bundle path per line (directories under `content/` with a valid `site.json`) and exit. |
 | `--serve` | After build, serve the output directory over HTTP on localhost (see [Preview locally](#preview-locally)). |
 | `--port <n>` | Port for `--serve` (default `8080`). |
@@ -50,6 +51,9 @@ go run . --site content/demo
 
 # Validate without generating output
 go run . --validate --site content/kometa
+
+# Strict validation (fail on typos in JSON keys)
+go run . --validate --strict --site content/kometa
 
 # Build and preview over HTTP
 go run . --site content/kometa --serve
