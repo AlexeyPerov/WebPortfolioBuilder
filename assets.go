@@ -169,18 +169,38 @@ func normalizeAssetReference(value, configPath string) (bundleAssetReference, bo
 	}, true, nil
 }
 
-func copyReferencedSiteAssets(bundle SiteBundle, targetDir string) error {
-	refs, err := collectBundleAssetReferences(bundle)
+func checkReferencedSiteAssets(bundle SiteBundle) error {
+	seen, err := dedupeBundleAssetReferences(bundle)
 	if err != nil {
 		return err
 	}
 
-	seen := map[string]string{}
-	for _, ref := range refs {
-		if _, ok := seen[ref.WebPath]; ok {
-			continue
+	paths := make([]string, 0, len(seen))
+	for webPath := range seen {
+		paths = append(paths, webPath)
+	}
+	sort.Strings(paths)
+
+	for _, webPath := range paths {
+		configPath := seen[webPath]
+		srcAbs, _, err := resolveAssetUnderSiteBundle(bundle.SiteDir, webPath)
+		if err != nil {
+			return fmt.Errorf("%s: %w", configPath, err)
 		}
-		seen[ref.WebPath] = ref.ConfigPath
+		if _, err := os.Stat(srcAbs); err != nil {
+			if os.IsNotExist(err) {
+				return fmt.Errorf("%s: referenced asset does not exist: %q", configPath, webPath)
+			}
+			return fmt.Errorf("%s: cannot access referenced asset %q: %w", configPath, webPath, err)
+		}
+	}
+	return nil
+}
+
+func copyReferencedSiteAssets(bundle SiteBundle, targetDir string) error {
+	seen, err := dedupeBundleAssetReferences(bundle)
+	if err != nil {
+		return err
 	}
 
 	paths := make([]string, 0, len(seen))
@@ -208,6 +228,22 @@ func copyReferencedSiteAssets(bundle SiteBundle, targetDir string) error {
 	}
 
 	return nil
+}
+
+func dedupeBundleAssetReferences(bundle SiteBundle) (map[string]string, error) {
+	refs, err := collectBundleAssetReferences(bundle)
+	if err != nil {
+		return nil, err
+	}
+
+	seen := map[string]string{}
+	for _, ref := range refs {
+		if _, ok := seen[ref.WebPath]; ok {
+			continue
+		}
+		seen[ref.WebPath] = ref.ConfigPath
+	}
+	return seen, nil
 }
 
 func resolveAssetUnderSiteBundle(siteDir, webPath string) (srcAbs string, relOut string, err error) {

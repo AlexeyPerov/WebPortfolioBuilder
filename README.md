@@ -29,19 +29,48 @@ From the repo root:
 go run .
 ```
 
-Interactive prompt ([ImplementationSpec §10](Specs/ImplementationSpec.md)):
+### CLI flags
 
-**Content bundle path** — press Enter for the default `./content/kometa` (resolved under the **project root**). The tool picks the project root by: using the **current working directory** if `content/kometa/site.json` exists there; otherwise **the folder containing the running executable** when that folder contains `content/kometa/site.json` (so a binary placed in the repo root still works when you invoke it from `~`). You may also type another path relative to that project root, or an absolute path.
+| Flag | Description |
+|------|-------------|
+| `--site <path>` | Content bundle path (relative to project root or absolute). Skips the interactive bundle prompt. |
+| `--validate` | Load and validate the bundle (JSON schema, asset references, render dry-run). Prints warnings; exits non-zero on error. Does **not** write or wipe output. |
+| `--list-sites` | Print one content bundle path per line (directories under `content/` with a valid `site.json`) and exit. |
 
-The program writes to `<project-root>/<output_folder>/` using `output_folder` from `site.json` (for example `Results/KometaWebsite_2`).
+Examples:
 
-Each run **clears** the target output directory, copies non-HTML assets from [`Template/`](Template/) (CSS/JS/fonts, etc.), copies every referenced bundle asset, then renders all routes.
+```bash
+# Non-interactive build (CI-friendly)
+go run . --site content/kometa
 
-Example (default bundle → `Results/KometaWebsite_2/`):
+# Validate without generating output
+go run . --validate --site content/kometa
+
+# List available bundles
+go run . --list-sites
+```
+
+### Interactive mode
+
+When no flags are passed, the generator prompts for a bundle path:
+
+**Content bundle path** — press Enter for the default `./content/kometa` when only one bundle exists; when multiple bundles exist under `content/`, an empty line shows a numbered list to pick from. Type `?` at any time to list bundles. Paths are resolved under the **project root** (see below). You may also type another path relative to that project root, or an absolute path.
+
+The tool picks the project root by: using the **current working directory** if `content/kometa/site.json` exists there; otherwise **the folder containing the running executable** when that folder contains `content/kometa/site.json` (so a binary placed in the repo root still works when you invoke it from `~`).
+
+Example (default bundle → `Results/KometaWebsite/`):
+
+```bash
+go run . --site content/kometa
+```
+
+Or with the interactive prompt:
 
 ```bash
 printf '\n' | go run .
 ```
+
+The program writes to `<project-root>/<output_folder>/` using `output_folder` from `site.json`. Each run **clears** the target output directory, copies non-HTML assets from [`Template/`](Template/) (CSS/JS/fonts, etc.), copies every referenced bundle asset, then renders all routes.
 
 Open the generated `index.html` in a browser.
 

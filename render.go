@@ -67,7 +67,15 @@ func loadWidgetTemplates(templateDir string) (*template.Template, error) {
 	return tpl, nil
 }
 
+func validateRenderSiteBundle(bundle SiteBundle, templateDir string) ([]ConfigWarning, error) {
+	return renderSiteBundleInternal(bundle, templateDir, "")
+}
+
 func renderSiteBundle(bundle SiteBundle, targetDir, templateDir string) ([]ConfigWarning, error) {
+	return renderSiteBundleInternal(bundle, templateDir, targetDir)
+}
+
+func renderSiteBundleInternal(bundle SiteBundle, templateDir, targetDir string) ([]ConfigWarning, error) {
 	routes, err := buildRouteIndex(bundle)
 	if err != nil {
 		return nil, err
@@ -107,6 +115,10 @@ func renderSiteBundle(bundle SiteBundle, targetDir, templateDir string) ([]Confi
 		if bytes.Contains(raw, []byte(htmlTemplateFailureMarker)) {
 			return warnings, fmt.Errorf("rendered HTML for page %q (%q) contains %q: unsafe substitution in html/template (use template.CSS for <style> variables and template.URL for stylesheet hrefs)",
 				route.SourcePath, route.OutputRelPath, htmlTemplateFailureMarker)
+		}
+
+		if targetDir == "" {
+			continue
 		}
 
 		dst := filepath.Join(targetDir, route.OutputRelPath)
