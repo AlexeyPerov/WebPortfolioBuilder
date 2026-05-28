@@ -29,41 +29,41 @@ func buildSiteBundle(projectRoot, siteInput string) (SiteBundle, []ConfigWarning
 	return loadSiteBundle(siteDir)
 }
 
-func generateSite(projectRoot, siteInput string, stdout, stderr io.Writer) error {
+func generateSite(projectRoot, siteInput string, stdout, stderr io.Writer) (string, error) {
 	templateDir := filepath.Join(projectRoot, "Template")
 
 	bundle, warnings, err := buildSiteBundle(projectRoot, siteInput)
 	if err != nil {
-		return err
+		return "", err
 	}
 	printConfigWarnings(stderr, warnings)
 
 	outputFolder, err := validatedOutputFolderFor(bundle.Site.OutputFolder, bundle.SitePath)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	targetDir := filepath.Join(projectRoot, filepath.FromSlash(outputFolder))
 	if err := prepareDestination(targetDir); err != nil {
-		return err
+		return "", err
 	}
 
 	if err := copyTemplateStaticAssets(templateDir, targetDir); err != nil {
-		return err
+		return "", err
 	}
 	if err := copyReferencedSiteAssets(bundle, targetDir); err != nil {
-		return err
+		return "", err
 	}
 
 	renderWarnings, err := renderSiteBundle(bundle, targetDir, templateDir)
 	if err != nil {
-		return err
+		return "", err
 	}
 	printConfigWarnings(stderr, renderWarnings)
 
 	fmt.Fprintln(stdout, "Website generated successfully.")
 	fmt.Fprintln(stdout, "Output:", targetDir)
-	return nil
+	return targetDir, nil
 }
 
 func validateSite(projectRoot, siteInput, templateDir string, stdout, stderr io.Writer) error {
@@ -176,9 +176,13 @@ func runCLI(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 
 	var validate bool
 	var listSites bool
+	var serve bool
 	var siteFlag string
+	var servePort int
 	fs.BoolVar(&validate, "validate", false, "validate content bundle without writing output")
 	fs.BoolVar(&listSites, "list-sites", false, "list content bundles under content/ and exit")
+	fs.BoolVar(&serve, "serve", false, "after build, serve the output directory over HTTP on localhost")
+	fs.IntVar(&servePort, "port", defaultServePort, "port for --serve (default 8080)")
 	fs.StringVar(&siteFlag, "site", "", "content bundle path (relative to project root or absolute); skips interactive prompt")
 
 	if err := fs.Parse(args); err != nil {
@@ -216,6 +220,10 @@ func runCLI(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	}
 
 	if validate {
+		if serve {
+			fmt.Fprintln(stderr, "Error: cannot use --serve with --validate")
+			return 2
+		}
 		if err := validateSite(projectRoot, siteInput, templateDir, stdout, stderr); err != nil {
 			fmt.Fprintln(stderr, "Error:", err)
 			return 1
@@ -223,9 +231,21 @@ func runCLI(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 0
 	}
 
-	if err := generateSite(projectRoot, siteInput, stdout, stderr); err != nil {
+	targetDir, err := generateSite(projectRoot, siteInput, stdout, stderr)
+	if err != nil {
 		fmt.Fprintln(stderr, "Error:", err)
 		return 1
+	}
+
+	if serve {
+		if servePort < 1 || servePort > 65535 {
+			fmt.Fprintf(stderr, "Error: invalid --port %d\n", servePort)
+			return 2
+		}
+		if err := serveStaticDir(targetDir, servePort, stdout); err != nil {
+			fmt.Fprintln(stderr, "Error:", err)
+			return 1
+		}
 	}
 	return 0
 }
