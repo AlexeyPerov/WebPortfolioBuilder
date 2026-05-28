@@ -47,6 +47,23 @@ func TestLoadSiteBundleRejectsInvalidOutputFolder(t *testing.T) {
 	}
 }
 
+func TestLoadSiteBundleWarnsOnLegacyHeroKey(t *testing.T) {
+	siteDir := createTestSiteDir(t)
+	writeJSONFile(t, filepath.Join(siteDir, "site.json"), `{"site_id":"kometa","output_folder":"KometaWebsite"}`)
+	writeJSONFile(t, filepath.Join(siteDir, "pages", "home.json"), `{"slug":"","widgets":[],"hero":{"image":"assets/cover.png"}}`)
+
+	_, warnings, err := loadSiteBundle(siteDir)
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if len(warnings) != 1 {
+		t.Fatalf("expected 1 warning, got %d: %v", len(warnings), warnings)
+	}
+	if !strings.Contains(warnings[0].String(), `legacy key "hero"`) {
+		t.Fatalf("expected legacy hero warning, got %q", warnings[0].String())
+	}
+}
+
 func TestLoadSiteBundleWarnsOnUnknownTopLevelKeys(t *testing.T) {
 	siteDir := createTestSiteDir(t)
 	writeJSONFile(t, filepath.Join(siteDir, "site.json"), `{"site_id":"kometa","output_folder":"KometaWebsite","mystery":"x"}`)

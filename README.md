@@ -16,7 +16,7 @@ Each site directory contains:
 | Path | Purpose |
 |------|---------|
 | `site.json` | `site_id`, `output_folder`, `theme`, `typography`, `store_icons`, `subscribe_block`, `social`, `header`, `footer`, optional `widgets` tuning (`scroll_reveal` / **`carousel`** / `split_widget`). |
-| `pages/*.json` | Page configs: `slug`, `widgets` tree, optional `title`, `seo`, `hero`, `layout`. |
+| `pages/*.json` | Page configs: `slug`, `widgets` tree, optional `title`, `seo`, `layout`. Page heroes belong in the widget tree (e.g. `intro`, `cover_banner`). |
 | `assets/` | All local images/icons referenced from JSON (paths must start with `assets/`). |
 
 The sample Kometa bundle is [`content/kometa/`](content/kometa/). Generated output goes to [`Results/`](Results/) (gitignored).

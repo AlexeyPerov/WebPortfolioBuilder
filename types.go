@@ -63,10 +63,9 @@ type HeaderBrand struct {
 type PageConfig struct {
 	Slug    string          `json:"slug"`
 	Widgets []WidgetNode    `json:"widgets"`
-	Title   string          `json:"title,omitempty"`
-	SEO     PageSEO         `json:"seo,omitempty"`
-	Hero    json.RawMessage `json:"hero,omitempty"`
-	Layout  PageLayout      `json:"layout,omitempty"`
+	Title  string       `json:"title,omitempty"`
+	SEO    PageSEO      `json:"seo,omitempty"`
+	Layout PageLayout   `json:"layout,omitempty"`
 }
 
 type PageSEO struct {

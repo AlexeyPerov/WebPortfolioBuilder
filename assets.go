@@ -48,16 +48,6 @@ func collectBundleAssetReferences(bundle SiteBundle) ([]bundleAssetReference, er
 			return nil, err
 		}
 
-		if len(pageFile.Page.Hero) > 0 {
-			var hero any
-			if err := json.Unmarshal(pageFile.Page.Hero, &hero); err != nil {
-				return nil, fmt.Errorf("%s -> hero: invalid json: %w", pagePath, err)
-			}
-			if err := collectAssetRefsFromAny(hero, pagePath+" -> hero", "hero", &refs); err != nil {
-				return nil, err
-			}
-		}
-
 		if err := collectAssetRefsFromWidgets(pageFile.Page.Widgets, pagePath+" -> widgets", &refs); err != nil {
 			return nil, err
 		}

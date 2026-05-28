@@ -72,7 +72,8 @@ func loadPageConfig(path string) (SitePageFile, []ConfigWarning, error) {
 		HasWidgets: hasTopLevelKey(rawKeys, "widgets"),
 	}
 
-	warnings := unknownTopLevelKeyWarnings(path, rawKeys, pageTopLevelKeys)
+	warnings := legacyPageKeyWarnings(path, rawKeys)
+	warnings = append(warnings, unknownTopLevelKeyWarnings(path, rawKeys, pageTopLevelKeys)...)
 	return pageFile, warnings, nil
 }
 
@@ -95,9 +96,20 @@ var pageTopLevelKeys = keySet(
 	"widgets",
 	"title",
 	"seo",
-	"hero",
 	"layout",
 )
+
+var legacyPageTopLevelKeys = keySet(
+	"hero",
+)
+
+func legacyPageKeyWarnings(path string, rawKeys map[string]json.RawMessage) []ConfigWarning {
+	var warnings []ConfigWarning
+	if hasTopLevelKey(rawKeys, "hero") {
+		warnings = append(warnings, contentWarning(path, `legacy key "hero" is not supported; use widgets (e.g. intro, cover_banner) for page heroes`))
+	}
+	return warnings
+}
 
 func decodeJSONObjectFile(path string, target any) (map[string]json.RawMessage, error) {
 	data, err := os.ReadFile(path)
@@ -125,6 +137,9 @@ func unknownTopLevelKeyWarnings(path string, rawKeys map[string]json.RawMessage,
 	unknown := make([]string, 0)
 	for key := range rawKeys {
 		if _, ok := allowed[key]; ok {
+			continue
+		}
+		if _, ok := legacyPageTopLevelKeys[key]; ok {
 			continue
 		}
 		unknown = append(unknown, key)
