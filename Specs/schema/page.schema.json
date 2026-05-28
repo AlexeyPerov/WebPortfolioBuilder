@@ -1,0 +1,405 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://portfoliowebsitebuilder/schema/page.schema.json",
+  "title": "Portfolio site bundle — pages/*.json",
+  "description": "Page configuration for Portfolio Website Builder. Widget types match the closed v1 registry in Specs/WidgetRegistryV1.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["slug", "widgets"],
+  "properties": {
+    "slug": {
+      "type": "string",
+      "description": "URL path segment; empty string maps to index.html at the site root."
+    },
+    "title": {
+      "type": "string",
+      "description": "Document title and default Open Graph title."
+    },
+    "seo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "og_image": {
+          "type": "string",
+          "description": "Asset path for Open Graph / Twitter card image."
+        },
+        "canonical_url": { "type": "string" }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hide_header": { "type": "boolean" },
+        "hide_footer": { "type": "boolean" }
+      }
+    },
+    "widgets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/widgetNode" }
+    }
+  },
+  "$defs": {
+    "widgetType": {
+      "type": "string",
+      "description": "Closed v1 widget registry. The alias columns is rejected by the generator; use column.",
+      "enum": [
+        "intro",
+        "apps_showcase",
+        "info_grid",
+        "images_grid",
+        "careers_tabs",
+        "follow_us",
+        "cover_banner",
+        "project_grid",
+        "media_swiper",
+        "row",
+        "column",
+        "grid"
+      ]
+    },
+    "widgetNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "$ref": "#/$defs/widgetType" },
+        "id": {
+          "type": "string",
+          "description": "Optional DOM id / anchor for the widget root."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "When false, the widget is skipped during render."
+        },
+        "props": {
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "intro" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/introProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "cover_banner" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/coverBannerProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "follow_us" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/followUsProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "info_grid" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/infoGridProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "images_grid" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/imagesGridProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "careers_tabs" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/careersTabsProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "apps_showcase" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/appsShowcaseProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "project_grid" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/projectGridProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "media_swiper" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/mediaSwiperProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "row" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/rowProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "column" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/columnProps" } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "grid" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/gridProps" } } }
+        }
+      ]
+    },
+    "introProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "title": { "type": "string" },
+        "paragraphs": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "coverBannerProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["src"],
+      "properties": {
+        "src": { "type": "string" },
+        "alt": { "type": "string" }
+      }
+    },
+    "followUsProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "title": {
+          "type": "string",
+          "default": "Follow us"
+        }
+      }
+    },
+    "infoGridProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["items"],
+      "properties": {
+        "title": { "type": "string" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/infoGridItem" }
+        }
+      }
+    },
+    "infoGridItem": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "image": { "type": "string" },
+        "title": { "type": "string" },
+        "text": { "type": "string" }
+      }
+    },
+    "imagesGridProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["images"],
+      "properties": {
+        "title": { "type": "string" },
+        "images": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/imageWithAlt" }
+            ]
+          }
+        }
+      }
+    },
+    "imageWithAlt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["src"],
+      "properties": {
+        "src": { "type": "string" },
+        "alt": { "type": "string" }
+      }
+    },
+    "careersTabsProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["vacancies"],
+      "properties": {
+        "title": { "type": "string" },
+        "vacancies": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/vacancy" }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "requirements_title": { "type": "string" },
+            "responsibilities_title": { "type": "string" },
+            "advantages_title": { "type": "string" }
+          }
+        }
+      }
+    },
+    "vacancy": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["role"],
+      "properties": {
+        "role": { "type": "string" },
+        "requirements": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "advantages": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "apply_url": { "type": "string" },
+        "apply_label": { "type": "string" }
+      }
+    },
+    "appsShowcaseProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["apps"],
+      "properties": {
+        "section_title": { "type": "string" },
+        "apps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/catalogApp" }
+        }
+      }
+    },
+    "catalogApp": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["image"],
+      "properties": {
+        "image": { "type": "string" },
+        "header_image": { "type": "string" },
+        "swiper_images": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "card_background": { "type": "string" },
+        "title": { "type": "string" },
+        "text_1": { "type": "string" },
+        "text_2": { "type": "string" },
+        "stat_left_line_1": { "type": "string" },
+        "stat_left_line_2": { "type": "string" },
+        "stat_right_line_1": { "type": "string" },
+        "stat_right_line_2": { "type": "string" },
+        "google_play_url": { "type": "string" },
+        "app_store_url": { "type": "string" },
+        "amazon_store_url": { "type": "string" },
+        "galaxy_store_url": { "type": "string" },
+        "store_links": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/storeLink" }
+        }
+      }
+    },
+    "storeLink": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "url": { "type": "string" },
+        "aria_label": { "type": "string" },
+        "icon": {
+          "type": "string",
+          "enum": ["google_play", "app_store", "amazon", "galaxy"]
+        },
+        "icon_image": { "type": "string" }
+      }
+    },
+    "projectGridProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["cards"],
+      "properties": {
+        "heading": { "type": "string" },
+        "subheading": { "type": "string" },
+        "section_id": { "type": "string" },
+        "min_card_column_width": { "type": "string" },
+        "cards": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/projectGridCard" }
+        }
+      }
+    },
+    "projectGridCard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "description", "tags", "image", "meta", "cta"],
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "image": { "type": "string" },
+        "meta": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "additionalProperties": { "type": "string" },
+              "minProperties": 1
+            }
+          ]
+        },
+        "cta": { "$ref": "#/$defs/projectGridCta" }
+      }
+    },
+    "projectGridCta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "properties": {
+        "label": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    },
+    "mediaSwiperProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["images"],
+      "properties": {
+        "aria_label": { "type": "string" },
+        "images": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/imageWithAlt" }
+        }
+      }
+    },
+    "rowProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["children"],
+      "properties": {
+        "gap": { "type": "string" },
+        "children": { "$ref": "#/$defs/widgetChildren" }
+      }
+    },
+    "columnProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["children"],
+      "properties": {
+        "children": { "$ref": "#/$defs/widgetChildren" }
+      }
+    },
+    "gridProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["children"],
+      "properties": {
+        "min_column_width": { "type": "string" },
+        "gap": { "type": "string" },
+        "children": { "$ref": "#/$defs/widgetChildren" }
+      }
+    },
+    "widgetChildren": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/widgetNode" }
+    }
+  }
+}

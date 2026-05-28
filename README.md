@@ -152,6 +152,43 @@ go test ./...
 go build ./...
 ```
 
+## JSON Schema (author configs)
+
+JSON Schemas in [`Specs/schema/`](Specs/schema/) document `site.json` and `pages/*.json` for IDE autocomplete and offline checks. **Go validation remains the source of truth** (see `go run . --validate`).
+
+| Schema | Applies to |
+|--------|------------|
+| [`Specs/schema/site.schema.json`](Specs/schema/site.schema.json) | `content/<site-id>/site.json` |
+| [`Specs/schema/page.schema.json`](Specs/schema/page.schema.json) | `content/<site-id>/pages/*.json` |
+
+Widget `type` values in the page schema match the closed v1 registry in [Specs/WidgetRegistryV1.md](Specs/WidgetRegistryV1.md).
+
+### VS Code / Cursor
+
+The repo includes [`.vscode/settings.json`](.vscode/settings.json) mapping those schemas to content paths. For a user-level setup, add to `settings.json`:
+
+```json
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["content/*/site.json"],
+      "url": "./Specs/schema/site.schema.json"
+    },
+    {
+      "fileMatch": ["content/*/pages/*.json"],
+      "url": "./Specs/schema/page.schema.json"
+    }
+  ]
+}
+```
+
+Validate from the CLI (requires Node.js):
+
+```bash
+npx ajv-cli validate -s Specs/schema/site.schema.json -d content/kometa/site.json
+npx ajv-cli validate -s Specs/schema/page.schema.json -d content/kometa/pages/home.json
+```
+
 ## Forbidden-string check (contributors)
 
 Task **16** in [Specs/ExecutionPlan.md](Specs/ExecutionPlan.md) defines the forbidden branding substrings and a sample `rg` invocation (excluding `Results/` preview output). Run that check after edits to docs or generator output paths.

@@ -1,0 +1,224 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://portfoliowebsitebuilder/schema/site.schema.json",
+  "title": "Portfolio site bundle — site.json",
+  "description": "Site-level configuration for Portfolio Website Builder content bundles. Go validation remains the source of truth; this schema supports IDE autocomplete and offline checks.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["site_id", "output_folder"],
+  "properties": {
+    "site_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable identifier for the content bundle directory (e.g. kometa)."
+    },
+    "output_folder": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Relative path from the project root where generated HTML is written (e.g. Results/KometaWebsite)."
+    },
+    "base_url": {
+      "type": "string",
+      "description": "Canonical site URL for Open Graph and absolute links. Placeholder values are fine until deployment."
+    },
+    "theme": {
+      "type": "object",
+      "description": "CSS custom property tokens injected into :root (keys become --kebab-case variables).",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "properties": {
+        "page_bg": { "type": "string" },
+        "surface": { "type": "string" },
+        "surface_strong": { "type": "string" },
+        "text_primary": { "type": "string" },
+        "text_secondary": { "type": "string" },
+        "accent": { "type": "string" },
+        "line": { "type": "string" },
+        "widget_gradient": { "type": "string" },
+        "cover_background": { "type": "string" },
+        "intro_gradient": { "type": "string" },
+        "catalog_gradient": { "type": "string" },
+        "offers_gradient": { "type": "string" },
+        "photos_gradient": { "type": "string" },
+        "vacancies_gradient": { "type": "string" },
+        "follow_us_gradient": { "type": "string" },
+        "footer_gradient": { "type": "string" }
+      }
+    },
+    "typography": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "google_fonts_stylesheet_href": {
+          "type": "string",
+          "description": "Full Google Fonts CSS URL."
+        },
+        "font_family_heading": { "type": "string" },
+        "font_family_body": { "type": "string" }
+      }
+    },
+    "store_icons": {
+      "type": "object",
+      "description": "Preset store badge images keyed by platform id.",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Asset path (typically under assets/)."
+      },
+      "properties": {
+        "google_play": { "type": "string" },
+        "app_store": { "type": "string" },
+        "galaxy": { "type": "string" },
+        "amazon": { "type": "string" }
+      }
+    },
+    "subscribe_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "links"],
+      "properties": {
+        "title": { "type": "string" },
+        "links": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/subscribeLink" }
+        }
+      }
+    },
+    "social": {
+      "type": "object",
+      "description": "Legacy flat URLs and/or explicit links array for follow_us.",
+      "additionalProperties": false,
+      "properties": {
+        "github_url": { "type": "string" },
+        "linkedin_url": { "type": "string" },
+        "facebook_url": { "type": "string" },
+        "links": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/socialLink" }
+        }
+      }
+    },
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "brand": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "logo": {
+              "type": "string",
+              "description": "Logo image path under assets/."
+            },
+            "text": {
+              "type": "string",
+              "description": "Optional text beside the logo."
+            }
+          }
+        },
+        "nav": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/navItem" }
+        }
+      }
+    },
+    "footer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "section_title": { "type": "string" },
+        "contact": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "paragraphs": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "email": { "type": "string" }
+          }
+        },
+        "privacy_url": { "type": "string" },
+        "privacy_label": { "type": "string" },
+        "terms_url": { "type": "string" },
+        "terms_label": { "type": "string" },
+        "copyright": { "type": "string" },
+        "cookie_notice": { "type": "string" }
+      }
+    },
+    "widgets": {
+      "type": "object",
+      "description": "Front-end script tuning injected as JSON in the page.",
+      "additionalProperties": false,
+      "properties": {
+        "scroll_reveal": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "respect_reduced_motion": { "type": "boolean" },
+            "root_margin": { "type": "string" },
+            "threshold": { "type": "number" }
+          }
+        },
+        "carousel": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "swipe_threshold_px": { "type": "integer", "minimum": 0 },
+            "keyboard_navigation": { "type": "boolean" }
+          }
+        },
+        "split_widget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "keyboard_navigation": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "navItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "href", "open_in_new_tab"],
+      "properties": {
+        "label": { "type": "string" },
+        "href": {
+          "type": "string",
+          "description": "Hash fragment (#section), empty string for home route, slug for internal pages, or absolute URL."
+        },
+        "open_in_new_tab": { "type": "boolean" }
+      }
+    },
+    "subscribeLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    },
+    "socialLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "properties": {
+        "url": { "type": "string" },
+        "aria_label": { "type": "string" },
+        "icon": {
+          "type": "string",
+          "enum": ["github", "linkedin", "facebook"],
+          "description": "Built-in icon preset when icon_image is omitted."
+        },
+        "icon_image": {
+          "type": "string",
+          "description": "Custom icon image path under assets/."
+        }
+      }
+    }
+  }
+}

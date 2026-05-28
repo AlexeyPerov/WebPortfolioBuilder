@@ -1,3 +1,5 @@
 Results/
-Specs/
+Specs/**
+!Specs/schema/
+!Specs/schema/**
 content/kometa/
