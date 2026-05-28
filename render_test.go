@@ -177,6 +177,50 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 	}
 }
 
+func TestRenderDemoSiteBundleSmoke(t *testing.T) {
+	bundle, _, err := loadSiteBundle(filepath.Join("content", "demo"))
+	if err != nil {
+		t.Fatalf("load demo bundle: %v", err)
+	}
+
+	outDir := t.TempDir()
+	templateDir := filepath.Join("Template")
+	if err := copyTemplateStaticAssets(templateDir, outDir); err != nil {
+		t.Fatalf("copyTemplateStaticAssets: %v", err)
+	}
+	if err := copyReferencedSiteAssets(bundle, outDir); err != nil {
+		t.Fatalf("copyReferencedSiteAssets: %v", err)
+	}
+	if _, err := renderSiteBundle(bundle, outDir, templateDir); err != nil {
+		t.Fatalf("renderSiteBundle: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(outDir, "index.html")); err != nil {
+		t.Fatalf("missing index.html: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(outDir, "about", "index.html")); err != nil {
+		t.Fatalf("missing about/index.html: %v", err)
+	}
+
+	htmlBytes, err := os.ReadFile(filepath.Join(outDir, "index.html"))
+	if err != nil {
+		t.Fatalf("read index.html: %v", err)
+	}
+	html := string(htmlBytes)
+	for _, needle := range []string{
+		`data-widget-type="project_grid"`,
+		`href="about/"`,
+		`project-card__cta`,
+		`data-widget-type="apps_showcase"`,
+		`data-widget-type="media_swiper"`,
+		`id="vacancies"`,
+	} {
+		if !strings.Contains(html, needle) {
+			t.Fatalf("expected %q in demo index.html", needle)
+		}
+	}
+}
+
 func TestRenderKometaSiteBundleSmoke(t *testing.T) {
 	bundle, _, err := loadSiteBundle(filepath.Join("content", "kometa"))
 	if err != nil {

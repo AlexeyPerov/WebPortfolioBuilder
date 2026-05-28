@@ -1,0 +1,71 @@
+{
+  "site_id": "demo",
+  "output_folder": "Results/DemoWebsite",
+  "base_url": "https://example.com/demo-site",
+  "theme": {
+    "page_bg": "#f8fafc",
+    "surface": "#ffffff",
+    "surface_strong": "#eef2f7",
+    "text_primary": "#1a1d2e",
+    "text_secondary": "#4a5070",
+    "accent": "#5b6cff",
+    "line": "#d8deea",
+    "widget_gradient": "linear-gradient(to bottom, #eef2f7, #ffffff)",
+    "cover_background": "#5b6cff",
+    "intro_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 70%)",
+    "catalog_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 70%)",
+    "offers_gradient": "linear-gradient(to bottom, #ffffff 0, #eef2f7 70%)",
+    "photos_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 70%)",
+    "vacancies_gradient": "linear-gradient(to bottom, #ffffff 0, #eef2f7 70%)",
+    "follow_us_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 70%)",
+    "footer_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 85%)"
+  },
+  "store_icons": {
+    "google_play": "assets/gp-store-icon.png",
+    "app_store": "assets/appstore-store-icon.png",
+    "galaxy": "assets/galaxy-store-icon.png",
+    "amazon": "assets/amazon-store-icon.png"
+  },
+  "subscribe_block": {
+    "title": "Subscribe for updates",
+    "links": [
+      { "label": "Newsletter", "url": "https://example.com/newsletter" }
+    ]
+  },
+  "social": {
+    "github_url": "https://github.com/example",
+    "linkedin_url": "https://www.linkedin.com/company/example"
+  },
+  "header": {
+    "brand": {
+      "logo": "assets/logo-3.png",
+      "text": "Widget Demo"
+    },
+    "nav": [
+      { "label": "Home", "href": "", "open_in_new_tab": false },
+      { "label": "Intro", "href": "#intro_title", "open_in_new_tab": false },
+      { "label": "Portfolio", "href": "#portfolio", "open_in_new_tab": false },
+      { "label": "Apps", "href": "#apps", "open_in_new_tab": false },
+      { "label": "About", "href": "about", "open_in_new_tab": false }
+    ]
+  },
+  "footer": {
+    "enabled": true,
+    "section_title": "Contact",
+    "contact": {
+      "paragraphs": ["Multi-page widget showcase for Portfolio Website Builder."],
+      "email": "demo@example.com"
+    },
+    "privacy_url": "",
+    "privacy_label": "Privacy Policy",
+    "terms_url": "",
+    "terms_label": "Terms of Service",
+    "copyright": "© Demo bundle",
+    "cookie_notice": "This demo site does not use cookies"
+  },
+  "widgets": {
+    "split_widget": {
+      "keyboard_navigation": true
+    }
+  }
+}

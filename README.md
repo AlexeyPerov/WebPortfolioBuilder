@@ -19,7 +19,7 @@ Each site directory contains:
 | `pages/*.json` | Page configs: `slug`, `widgets` tree, optional `title`, `seo`, `layout`. Page heroes belong in the widget tree (e.g. `intro`, `cover_banner`). |
 | `assets/` | All local images/icons referenced from JSON (paths must start with `assets/`). |
 
-The sample Kometa bundle is [`content/kometa/`](content/kometa/). Generated output goes to [`Results/`](Results/) (gitignored).
+The sample Kometa bundle is [`content/kometa/`](content/kometa/). The [`content/demo/`](content/demo/) bundle is a **multi-page widget showcase** (home + about, all v1 widgets including `project_grid`). Generated output goes to [`Results/`](Results/) (gitignored).
 
 ## Run the generator
 
@@ -44,6 +44,9 @@ Examples:
 ```bash
 # Non-interactive build (CI-friendly)
 go run . --site content/kometa
+
+# Widget showcase + multi-page demo
+go run . --site content/demo
 
 # Validate without generating output
 go run . --validate --site content/kometa

@@ -1,0 +1,37 @@
+{
+  "slug": "about",
+  "title": "About this demo",
+  "seo": {
+    "description": "Second page in the demo bundle — cross-page navigation and relative asset URLs from nested depth."
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "About this demo",
+        "paragraphs": [
+          "This page is served at about/index.html. Header links from here use relative paths (../ for home, ./ for this page).",
+          "The home page showcases all v1 widgets including project_grid, apps_showcase, layout containers, and media_swiper."
+        ]
+      }
+    },
+    {
+      "type": "info_grid",
+      "props": {
+        "title": "Multi-page routing",
+        "items": [
+          {
+            "image": "assets/emoji_joy.png",
+            "title": "Home route",
+            "text": "Empty slug maps to index.html at the site root."
+          },
+          {
+            "image": "assets/emoji_Medal.png",
+            "title": "About route",
+            "text": "Slug about maps to about/index.html with ../-prefixed assets."
+          }
+        ]
+      }
+    }
+  ]
+}
