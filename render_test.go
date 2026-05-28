@@ -213,6 +213,11 @@ func TestRenderDemoSiteBundleSmoke(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(outDir, "about", "index.html")); err != nil {
 		t.Fatalf("missing about/index.html: %v", err)
 	}
+	for _, page := range []string{"layouts", "gallery", "apps", "careers"} {
+		if _, err := os.Stat(filepath.Join(outDir, page, "index.html")); err != nil {
+			t.Fatalf("missing %s/index.html: %v", page, err)
+		}
+	}
 
 	htmlBytes, err := os.ReadFile(filepath.Join(outDir, "index.html"))
 	if err != nil {
@@ -222,14 +227,50 @@ func TestRenderDemoSiteBundleSmoke(t *testing.T) {
 	for _, needle := range []string{
 		`data-widget-type="project_grid"`,
 		`href="about/"`,
+		`href="layouts/"`,
 		`project-card__cta`,
-		`data-widget-type="apps_showcase"`,
-		`data-widget-type="media_swiper"`,
-		`id="vacancies"`,
+		`id="offers"`,
+		`class="photos section section-gradient scroll-reveal"`,
 	} {
 		if !strings.Contains(html, needle) {
 			t.Fatalf("expected %q in demo index.html", needle)
 		}
+	}
+
+	appsHTML, err := os.ReadFile(filepath.Join(outDir, "apps", "index.html"))
+	if err != nil {
+		t.Fatalf("read apps/index.html: %v", err)
+	}
+	apps := string(appsHTML)
+	for _, needle := range []string{
+		`data-widget-type="apps_showcase"`,
+		`data-widget-type="project_grid"`,
+	} {
+		if !strings.Contains(apps, needle) {
+			t.Fatalf("expected %q in demo apps/index.html", needle)
+		}
+	}
+
+	galleryHTML, err := os.ReadFile(filepath.Join(outDir, "gallery", "index.html"))
+	if err != nil {
+		t.Fatalf("read gallery/index.html: %v", err)
+	}
+	gallery := string(galleryHTML)
+	for _, needle := range []string{
+		`data-widget-type="media_swiper"`,
+		`class="photos section section-gradient scroll-reveal"`,
+	} {
+		if !strings.Contains(gallery, needle) {
+			t.Fatalf("expected %q in demo gallery/index.html", needle)
+		}
+	}
+
+	careersHTML, err := os.ReadFile(filepath.Join(outDir, "careers", "index.html"))
+	if err != nil {
+		t.Fatalf("read careers/index.html: %v", err)
+	}
+	if !strings.Contains(string(careersHTML), `id="vacancies"`) {
+		t.Fatal(`expected id="vacancies" in demo careers/index.html`)
 	}
 }
 

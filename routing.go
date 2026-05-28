@@ -81,6 +81,24 @@ func normalizedSlug(slug string) (string, error) {
 	return filepath.ToSlash(s), nil
 }
 
+func resolveNavHref(current PageRoute, rawHref string, routesBySlug map[string]PageRoute) (string, error) {
+	href := strings.TrimSpace(rawHref)
+	if href == "" {
+		return resolveInternalSlugReference(current, "", routesBySlug)
+	}
+	if strings.HasPrefix(href, "#") {
+		if current.Slug == "" {
+			return href, nil
+		}
+		homePrefix, err := resolveInternalSlugReference(current, "", routesBySlug)
+		if err != nil {
+			return "", err
+		}
+		return homePrefix + href, nil
+	}
+	return resolveInternalSlugReference(current, href, routesBySlug)
+}
+
 func resolveInternalSlugReference(current PageRoute, rawHref string, routesBySlug map[string]PageRoute) (string, error) {
 	href := strings.TrimSpace(rawHref)
 	if isExternalOrSpecialHref(href) {

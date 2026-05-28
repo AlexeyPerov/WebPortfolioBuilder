@@ -1,36 +1,70 @@
 {
   "slug": "about",
-  "title": "About this demo",
+  "title": "About",
   "seo": {
-    "description": "Second page in the demo bundle — cross-page navigation and relative asset URLs from nested depth."
+    "description": "About the demo bundle — a multi-page showcase for Portfolio Website Builder."
   },
   "widgets": [
     {
+      "type": "cover_banner",
+      "props": {
+        "src": "assets/logo.png",
+        "alt": "Cover placeholder"
+      }
+    },
+    {
       "type": "intro",
       "props": {
-        "title": "About this demo",
+        "title": "",
         "paragraphs": [
-          "This page is served at about/index.html. Header links from here use relative paths (../ for home, ./ for this page).",
-          "The home page showcases all v1 widgets including project_grid, apps_showcase, layout containers, and media_swiper."
+          "This site demonstrates every v1 widget type across six pages. It is a reference bundle for authors learning the content format.",
+          "Rebuild anytime with: go run . --site content/demo"
         ]
       }
     },
     {
       "type": "info_grid",
       "props": {
-        "title": "Multi-page routing",
+        "title": "What you can explore",
         "items": [
           {
             "image": "assets/emoji_joy.png",
-            "title": "Home route",
-            "text": "Empty slug maps to index.html at the site root."
+            "title": "Layout containers",
+            "text": "Row, column, and grid widgets with nested children on the Layouts page."
           },
           {
             "image": "assets/emoji_Medal.png",
-            "title": "About route",
-            "text": "Slug about maps to about/index.html with ../-prefixed assets."
+            "title": "Portfolio cards",
+            "text": "Project grid with tags, meta, images, and internal page links."
+          },
+          {
+            "image": "assets/emoji_salute.png",
+            "title": "Rich app cards",
+            "text": "Apps showcase with carousels, stats, and store download badges."
+          },
+          {
+            "image": "assets/emoji_playful.png",
+            "title": "Media widgets",
+            "text": "Photo walls, lightbox grids, and swipeable carousels on the Gallery page."
           }
         ]
+      }
+    },
+    {
+      "type": "images_grid",
+      "props": {
+        "title": "Photos",
+        "images": [
+          { "src": "assets/pic1.png", "alt": "Placeholder photo 1" },
+          { "src": "assets/pic2.png", "alt": "Placeholder photo 2" },
+          { "src": "assets/pic3.png", "alt": "Placeholder photo 3" }
+        ]
+      }
+    },
+    {
+      "type": "follow_us",
+      "props": {
+        "title": "Follow us"
       }
     }
   ]

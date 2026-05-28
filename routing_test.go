@@ -49,6 +49,44 @@ func TestResolveInternalSlugReferenceUsesRelativePaths(t *testing.T) {
 	}
 }
 
+func TestResolveNavHrefPrefixesHashLinksFromNestedPage(t *testing.T) {
+	routes := map[string]PageRoute{
+		"":      {Slug: "", DirRelPath: ""},
+		"about": {Slug: "about", DirRelPath: "about"},
+	}
+
+	fromHome, err := resolveNavHref(routes[""], "#intro_title", routes)
+	if err != nil {
+		t.Fatalf("unexpected error from home: %v", err)
+	}
+	if fromHome != "#intro_title" {
+		t.Fatalf("expected home hash to stay %q, got %q", "#intro_title", fromHome)
+	}
+
+	fromAbout, err := resolveNavHref(routes["about"], "#intro_title", routes)
+	if err != nil {
+		t.Fatalf("unexpected error from about: %v", err)
+	}
+	if fromAbout != "../#intro_title" {
+		t.Fatalf("expected about hash to be ../#intro_title, got %q", fromAbout)
+	}
+}
+
+func TestResolveNavHrefEmptyHrefIsHome(t *testing.T) {
+	routes := map[string]PageRoute{
+		"":      {Slug: "", DirRelPath: ""},
+		"about": {Slug: "about", DirRelPath: "about"},
+	}
+
+	fromAbout, err := resolveNavHref(routes["about"], "", routes)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if fromAbout != "../" {
+		t.Fatalf("expected empty href from about to be ../, got %q", fromAbout)
+	}
+}
+
 func TestResolveInternalSlugReferenceRejectsUnknownSlug(t *testing.T) {
 	routes := map[string]PageRoute{
 		"": {Slug: "", DirRelPath: ""},

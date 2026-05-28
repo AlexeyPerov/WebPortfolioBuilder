@@ -1,0 +1,115 @@
+{
+  "slug": "careers",
+  "title": "Careers",
+  "seo": {
+    "description": "Careers tabs widget with sample vacancies and apply links."
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "Careers",
+        "paragraphs": [
+          "Tabbed vacancy panels with requirements, responsibilities, advantages, and apply CTAs."
+        ]
+      }
+    },
+    {
+      "type": "info_grid",
+      "props": {
+        "title": "Why join us",
+        "items": [
+          {
+            "image": "assets/emoji_joy.png",
+            "title": "Adaptable schedule",
+            "text": "Flexible hours that fit your timezone and workflow."
+          },
+          {
+            "image": "assets/emoji_Medal.png",
+            "title": "Professional growth",
+            "text": "Competitive compensation with regular reviews and development plans."
+          },
+          {
+            "image": "assets/emoji_salute.png",
+            "title": "Work from anywhere",
+            "text": "Remote-first team spread across multiple countries."
+          },
+          {
+            "image": "assets/emoji_playful.png",
+            "title": "Supportive team",
+            "text": "Transparent leadership and open communication."
+          }
+        ]
+      }
+    },
+    {
+      "type": "careers_tabs",
+      "props": {
+        "title": "Open roles",
+        "vacancies": [
+          {
+            "role": "UI Designer",
+            "requirements": [
+              "2+ years of UI experience for casual games;",
+              "Portfolio with mobile game UI work;",
+              "Proficiency in Figma and Photoshop."
+            ],
+            "responsibilities": [
+              "Creating UI for mobile game projects;",
+              "Designing layouts and state previews;",
+              "Maintaining a library of UI elements."
+            ],
+            "advantages": [
+              "Remote work with flexible schedule;",
+              "Experienced team with successful releases."
+            ],
+            "apply_url": "mailto:demo@example.com?subject=UI%20Designer",
+            "apply_label": "Apply"
+          },
+          {
+            "role": "Go Engineer",
+            "requirements": [
+              "Experience with Go and static site generation;",
+              "Comfort with html/template and CSS;",
+              "Attention to accessibility and responsive design."
+            ],
+            "responsibilities": [
+              "Building and maintaining the site generator;",
+              "Adding widgets and validation rules;",
+              "Writing tests for render output."
+            ],
+            "advantages": [
+              "Open-source portfolio tooling;",
+              "Small, focused codebase."
+            ],
+            "apply_url": "mailto:demo@example.com?subject=Go%20Engineer",
+            "apply_label": "Apply"
+          },
+          {
+            "role": "Content Author",
+            "requirements": [
+              "JSON authoring for site bundles;",
+              "Basic understanding of asset paths and slugs."
+            ],
+            "responsibilities": [
+              "Creating demo pages and sample content;",
+              "Verifying widget props against the registry."
+            ],
+            "advantages": [
+              "JSON Schema autocomplete in VS Code;",
+              "No backend deployment required."
+            ],
+            "apply_url": "mailto:demo@example.com?subject=Content%20Author",
+            "apply_label": "Apply"
+          }
+        ]
+      }
+    },
+    {
+      "type": "follow_us",
+      "props": {
+        "title": "Follow us"
+      }
+    }
+  ]
+}

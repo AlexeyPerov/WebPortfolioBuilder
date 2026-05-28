@@ -1,1 +1,1 @@
-{{define "row"}}<section class="widget-row"{{if .ID}} id="{{.ID}}"{{end}}{{if .Style}} style="{{.Style}}"{{end}} data-widget-type="row">{{.Children}}</section>{{end}}
+{{define "row"}}<section class="widget-row section"{{if .ID}} id="{{.ID}}"{{end}} data-widget-type="row"><div class="container widget-row-inner"{{if .Style}} style="{{.Style}}"{{end}}>{{.Children}}</div></section>{{end}}

@@ -39,13 +39,14 @@
   "header": {
     "brand": {
       "logo": "assets/logo-3.png",
-      "text": "Widget Demo"
+      "text": ""
     },
     "nav": [
       { "label": "Home", "href": "", "open_in_new_tab": false },
-      { "label": "Intro", "href": "#intro_title", "open_in_new_tab": false },
-      { "label": "Portfolio", "href": "#portfolio", "open_in_new_tab": false },
-      { "label": "Apps", "href": "#apps", "open_in_new_tab": false },
+      { "label": "Layouts", "href": "layouts", "open_in_new_tab": false },
+      { "label": "Gallery", "href": "gallery", "open_in_new_tab": false },
+      { "label": "Apps", "href": "apps", "open_in_new_tab": false },
+      { "label": "Careers", "href": "careers", "open_in_new_tab": false },
       { "label": "About", "href": "about", "open_in_new_tab": false }
     ]
   },

@@ -1,0 +1,136 @@
+{
+  "slug": "layouts",
+  "title": "Layout widgets",
+  "seo": {
+    "description": "Demo page for row, column, and grid layout containers with nested widgets."
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "Layout widgets",
+        "paragraphs": [
+          "Layout containers group other widgets. Grid cells below render as square cards with extra spacing; row and column stacks stretch to the page container width."
+        ]
+      }
+    },
+    {
+      "type": "grid",
+      "id": "layout-grid",
+      "props": {
+        "min_column_width": "220px",
+        "gap": "2.5rem",
+        "children": [
+          {
+            "type": "intro",
+            "props": {
+              "title": "Layout: grid (1)",
+              "paragraphs": ["First cell in a responsive CSS grid."]
+            }
+          },
+          {
+            "type": "intro",
+            "props": {
+              "title": "Layout: grid (2)",
+              "paragraphs": ["Second cell with matching square proportions."]
+            }
+          },
+          {
+            "type": "intro",
+            "props": {
+              "title": "Layout: grid (3)",
+              "paragraphs": ["Third cell — wraps on smaller viewports."]
+            }
+          },
+          {
+            "type": "intro",
+            "props": {
+              "title": "Layout: grid (4)",
+              "paragraphs": ["Fourth cell with generous gap spacing."]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "row",
+      "id": "layout-row",
+      "props": {
+        "gap": "2rem",
+        "children": [
+          {
+            "type": "column",
+            "props": {
+              "children": [
+                {
+                  "type": "intro",
+                  "props": {
+                    "title": "Layout: row → column (left)",
+                    "paragraphs": ["Nested row and column containers center within the page container."]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "column",
+            "props": {
+              "children": [
+                {
+                  "type": "intro",
+                  "props": {
+                    "title": "Layout: row → column (right)",
+                    "paragraphs": ["Sibling column in the same horizontal row."]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "grid",
+      "props": {
+        "min_column_width": "280px",
+        "gap": "2rem",
+        "children": [
+          {
+            "type": "info_grid",
+            "props": {
+              "title": "Info grid inside grid",
+              "items": [
+                {
+                  "image": "assets/emoji_joy.png",
+                  "title": "Nested widget",
+                  "text": "Leaf widgets can live inside layout containers."
+                },
+                {
+                  "image": "assets/emoji_Medal.png",
+                  "title": "Auto-fit columns",
+                  "text": "Grid min column width controls when cells wrap."
+                }
+              ]
+            }
+          },
+          {
+            "type": "images_grid",
+            "props": {
+              "title": "Images inside grid",
+              "images": [
+                { "src": "assets/pic1.png", "alt": "Placeholder photo one" },
+                { "src": "assets/pic2.png", "alt": "Placeholder photo two" }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "follow_us",
+      "props": {
+        "title": "Follow us"
+      }
+    }
+  ]
+}

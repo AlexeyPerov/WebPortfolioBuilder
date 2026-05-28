@@ -1029,15 +1029,16 @@ body.image-lightbox-open {
   }
 }
 
-.widget-row {
+.widget-row-inner {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: stretch;
   gap: var(--widget-row-gap, 1.25rem);
 }
 
 .widget-column {
+  flex: 1 1 280px;
   display: flex;
   flex-direction: column;
   gap: var(--widget-column-gap, 1.25rem);
@@ -1047,6 +1048,38 @@ body.image-lightbox-open {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--widget-grid-min, 260px), 1fr));
   gap: var(--widget-grid-gap, 1.25rem);
+}
+
+.widget-row-inner .intro.section,
+.widget-column .intro.section {
+  padding: 2rem 0;
+}
+
+.widget-grid-inner > .intro.section {
+  margin: 0;
+  padding: 1.75rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(26, 29, 46, 0.06);
+}
+
+.widget-grid-inner > .intro.section .container {
+  width: 100%;
+}
+
+.widget-grid-inner > .intro.section h1 {
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  margin-bottom: 0.5rem;
+}
+
+.widget-grid-inner > .intro.section p {
+  font-size: 0.95rem;
+  margin: 0;
 }
 
 /* --- project_grid (Task 12) --- */

@@ -1,0 +1,98 @@
+{
+  "slug": "apps",
+  "title": "Apps",
+  "seo": {
+    "description": "Apps showcase widget with catalog cards, store badges, and screenshot carousels."
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "",
+        "paragraphs": [
+          "Large product cards with header bands, stats, screenshot swipers, and store download badges."
+        ]
+      }
+    },
+    {
+      "type": "apps_showcase",
+      "props": {
+        "section_title": "Catalog",
+        "apps": [
+          {
+            "image": "assets/aoc-icon.png",
+            "header_image": "assets/aoc_logo.png",
+            "swiper_images": [
+              "assets/aoc_c_1.jpg",
+              "assets/aoc_c_2.jpeg",
+              "assets/aoc_c_3.jpeg",
+              "assets/aoc_c_4.jpeg",
+              "assets/aoc_c_5.jpeg"
+            ],
+            "card_background": "linear-gradient(to bottom, #e7bdff 0, #d9ebfa 70%)",
+            "title": "Project 1",
+            "text_1": "First catalog card with icon row, stats, body copy, screenshot swiper, and store badges.",
+            "text_2": "Subscribe block appears when site.json defines subscribe links.",
+            "stat_left_line_1": "1M+",
+            "stat_left_line_2": "Downloads",
+            "stat_right_line_1": "4.8",
+            "stat_right_line_2": "rating",
+            "google_play_url": "https://play.google.com/store/apps/details?id=example.demo",
+            "app_store_url": "https://apps.apple.com/app/example-demo/id0000000000"
+          },
+          {
+            "image": "assets/ma_icon.png",
+            "header_image": "assets/ma_logo.png",
+            "swiper_images": [
+              "assets/ma_c_1.jpg",
+              "assets/ma_c_2.jpg",
+              "assets/ma_c_3.jpg",
+              "assets/ma_c_4.jpg",
+              "assets/ma_c_5.jpeg"
+            ],
+            "card_background": "linear-gradient(to bottom, #ffbdd6 0, #d9ebfa 70%)",
+            "title": "Project 2",
+            "text_1": "Second catalog card with the same widget shape and a different gradient background.",
+            "text_2": "Swipe or use arrow keys to browse screenshot slides.",
+            "stat_left_line_1": "500k+",
+            "stat_left_line_2": "Downloads",
+            "stat_right_line_1": "4.4",
+            "stat_right_line_2": "rating",
+            "google_play_url": "https://play.google.com/store/apps/details?id=example.demo2",
+            "app_store_url": "https://apps.apple.com/app/example-demo2/id0000000001"
+          }
+        ]
+      }
+    },
+    {
+      "type": "project_grid",
+      "props": {
+        "heading": "More to explore",
+        "cards": [
+          {
+            "title": "Gallery",
+            "description": "Images grid and media swiper with the same placeholder photos.",
+            "tags": ["Media"],
+            "image": "assets/pic1.png",
+            "meta": "6 photos",
+            "cta": { "label": "View gallery", "url": "gallery" }
+          },
+          {
+            "title": "Careers",
+            "description": "Tabbed vacancies widget with apply mailto links.",
+            "tags": ["Jobs"],
+            "image": "assets/pic2.png",
+            "meta": "2 roles",
+            "cta": { "label": "See careers", "url": "careers" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "follow_us",
+      "props": {
+        "title": "Follow us"
+      }
+    }
+  ]
+}

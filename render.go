@@ -238,11 +238,11 @@ func renderHeaderNavForPage(bundle SiteBundle, route PageRoute, routes RouteInde
 	for i, item := range bundle.Site.Header.Nav {
 		label := strings.TrimSpace(item.Label)
 		href := strings.TrimSpace(item.Href)
-		if label == "" || href == "" {
+		if label == "" {
 			continue
 		}
 
-		resolved, err := resolveInternalSlugReference(route, href, routes.BySlug)
+		resolved, err := resolveNavHref(route, href, routes.BySlug)
 		if err != nil {
 			return nil, fmt.Errorf(`%s -> header.nav[%d].href: %w`, bundle.SitePath, i, err)
 		}

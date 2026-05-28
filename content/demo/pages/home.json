@@ -1,6 +1,6 @@
 {
   "slug": "",
-  "title": "Widget Showcase",
+  "title": "Demo",
   "seo": {
     "description": "A polished demo portfolio site showcasing every v1 widget and multi-page navigation.",
     "og_image": "assets/logo.png"
@@ -10,110 +10,58 @@
       "type": "cover_banner",
       "props": {
         "src": "assets/logo.png",
-        "alt": "Portfolio Website Builder widget demo"
+        "alt": "Cover placeholder"
       }
     },
     {
       "type": "intro",
       "props": {
-        "title": "Widget Showcase",
+        "title": "",
         "paragraphs": [
-          "This bundle demonstrates every registered v1 widget type, layout containers, and cross-page header navigation. Hash links scroll sections on this page; the About link opens a second route.",
+          "Explore every registered v1 widget across six demo pages — layouts, gallery, apps, careers, and about. All images are generic placeholders.",
           "Rebuild with: go run . --site content/demo"
-        ]
-      }
-    },
-    {
-      "type": "grid",
-      "id": "layout-grid",
-      "props": {
-        "min_column_width": "280px",
-        "children": [
-          {
-            "type": "intro",
-            "props": {
-              "title": "Layout: grid",
-              "paragraphs": ["This intro sits inside a CSS grid layout widget."]
-            }
-          },
-          {
-            "type": "intro",
-            "props": {
-              "title": "Layout: grid (2)",
-              "paragraphs": ["Sibling column in the same grid row."]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "row",
-      "id": "layout-row",
-      "props": {
-        "children": [
-          {
-            "type": "column",
-            "props": {
-              "children": [
-                {
-                  "type": "intro",
-                  "props": {
-                    "title": "Layout: row → column",
-                    "paragraphs": ["Nested row and column containers wrap this intro."]
-                  }
-                }
-              ]
-            }
-          }
         ]
       }
     },
     {
       "type": "project_grid",
       "props": {
-        "heading": "Project grid",
+        "heading": "Featured work",
         "subheading": "Portfolio-style cards with tags, meta, and CTAs",
         "section_id": "portfolio",
         "min_card_column_width": "260px",
         "cards": [
           {
-            "title": "Alpha Toolkit",
-            "description": "A sample project card with object meta and an external CTA.",
-            "tags": ["Go", "Static"],
+            "title": "Layout containers",
+            "description": "Row, column, and grid layout widgets with nested intro blocks.",
+            "tags": ["Layout", "CSS"],
             "image": "assets/pic1.png",
-            "meta": { "year": "2025", "platform": "Web" },
-            "cta": { "label": "View repo", "url": "https://github.com/example/alpha" }
+            "meta": { "year": "2026", "type": "Demo" },
+            "cta": { "label": "View layouts", "url": "layouts" }
           },
           {
-            "title": "Beta Release",
-            "description": "Second card linking to the About page via internal slug reference.",
-            "tags": ["Demo"],
+            "title": "Photo gallery",
+            "description": "Images grid and media swiper carousel on a dedicated page.",
+            "tags": ["Media"],
             "image": "assets/pic2.png",
-            "meta": "Highlighted sample",
-            "cta": { "label": "About this demo", "url": "about" }
-          }
-        ]
-      }
-    },
-    {
-      "type": "apps_showcase",
-      "props": {
-        "section_title": "Apps showcase",
-        "apps": [
+            "meta": "Six placeholder photos",
+            "cta": { "label": "Open gallery", "url": "gallery" }
+          },
           {
+            "title": "App catalog",
+            "description": "Rich product cards with store badges and screenshot carousels.",
+            "tags": ["Mobile", "Showcase"],
             "image": "assets/aoc-icon.png",
-            "header_image": "assets/aoc_logo.png",
-            "swiper_images": ["assets/aoc_c_1.jpg", "assets/aoc_c_2.jpeg"],
-            "card_background": "linear-gradient(to bottom, #e7bdff 0, #d9ebfa 70%)",
-            "title": "Sample App",
-            "text_1": "Compact catalog card with store badges and screenshot carousel.",
-            "text_2": "Subscribe block appears when site.json defines subscribe links.",
-            "stat_left_line_1": "10k+",
-            "stat_left_line_2": "Downloads",
-            "stat_right_line_1": "4.5",
-            "stat_right_line_2": "rating",
-            "google_play_url": "https://play.google.com/store/apps/details?id=example.demo",
-            "app_store_url": "https://apps.apple.com/app/example-demo/id0000000000"
+            "meta": { "platform": "iOS & Android" },
+            "cta": { "label": "Browse apps", "url": "apps" }
+          },
+          {
+            "title": "Open roles",
+            "description": "Tabbed careers section with requirements and apply links.",
+            "tags": ["Careers"],
+            "image": "assets/pic3.png",
+            "meta": "Two sample vacancies",
+            "cta": { "label": "See careers", "url": "careers" }
           }
         ]
       }
@@ -121,17 +69,27 @@
     {
       "type": "info_grid",
       "props": {
-        "title": "Info grid",
+        "title": "Why this demo exists",
         "items": [
           {
             "image": "assets/emoji_joy.png",
-            "title": "Feature one",
-            "text": "Small cards in a responsive info grid."
+            "title": "Every widget",
+            "text": "Cover banner, intro, project grid, info grid, images grid, apps showcase, careers tabs, follow us, and media swiper."
           },
           {
             "image": "assets/emoji_Medal.png",
-            "title": "Feature two",
-            "text": "Useful for perks, values, or highlights."
+            "title": "Multi-page nav",
+            "text": "Header links resolve relative paths from any page depth — home, layouts, gallery, apps, careers, and about."
+          },
+          {
+            "image": "assets/emoji_salute.png",
+            "title": "Layout nesting",
+            "text": "Row, column, and grid containers can wrap any leaf widget, including other layout widgets."
+          },
+          {
+            "image": "assets/emoji_playful.png",
+            "title": "Placeholder assets",
+            "text": "Generic placeholder images and icons — no real product or studio branding."
           }
         ]
       }
@@ -139,45 +97,11 @@
     {
       "type": "images_grid",
       "props": {
-        "title": "Images grid",
+        "title": "Sample photos",
         "images": [
-          { "src": "assets/pic1.png", "alt": "Demo photo one" },
-          { "src": "assets/pic2.png", "alt": "Demo photo two" },
-          { "src": "assets/pic3.png", "alt": "Demo photo three" }
-        ]
-      }
-    },
-    {
-      "type": "media_swiper",
-      "props": {
-        "aria_label": "Demo media carousel",
-        "images": [
-          { "src": "assets/pic2.png", "alt": "Carousel slide one" },
-          { "src": "assets/pic3.png", "alt": "Carousel slide two" }
-        ]
-      }
-    },
-    {
-      "type": "careers_tabs",
-      "props": {
-        "title": "Careers tabs",
-        "vacancies": [
-          {
-            "role": "Designer",
-            "requirements": ["Portfolio", "Figma"],
-            "responsibilities": ["UI for demo pages"],
-            "advantages": ["Remote"],
-            "apply_url": "mailto:demo@example.com",
-            "apply_label": "Apply"
-          },
-          {
-            "role": "Engineer",
-            "requirements": ["Go experience"],
-            "responsibilities": ["Generator features"],
-            "advantages": ["Open source"],
-            "apply_url": "mailto:demo@example.com?subject=Engineer",
-            "apply_label": "Apply"
-          }
+          { "src": "assets/pic4.png", "alt": "Placeholder photo 4" },
+          { "src": "assets/pic5.png", "alt": "Placeholder photo 5" },
+          { "src": "assets/pic6.png", "alt": "Placeholder photo 6" }
         ]
       }
     },

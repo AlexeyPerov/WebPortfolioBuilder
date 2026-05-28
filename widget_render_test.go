@@ -118,8 +118,11 @@ func TestRenderWidgetTreeLayoutRecurses(t *testing.T) {
 		t.Fatalf("renderWidgetTree failed: %v", err)
 	}
 	html := string(out)
-	if !strings.Contains(html, `class="widget-row"`) {
+	if !strings.Contains(html, `class="widget-row section"`) {
 		t.Fatalf("expected widget-row wrapper, got: %s", html)
+	}
+	if !strings.Contains(html, `class="container widget-row-inner"`) {
+		t.Fatalf("expected widget-row-inner container, got: %s", html)
 	}
 	if !strings.Contains(html, `class="widget-column"`) {
 		t.Fatalf("expected widget-column wrapper, got: %s", html)

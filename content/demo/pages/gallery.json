@@ -1,0 +1,68 @@
+{
+  "slug": "gallery",
+  "title": "Gallery",
+  "seo": {
+    "description": "Photo wall and media carousel widgets using placeholder images."
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "",
+        "paragraphs": [
+          "Images grid and media swiper widgets share the same generic placeholder photos."
+        ]
+      }
+    },
+    {
+      "type": "images_grid",
+      "props": {
+        "title": "Photos",
+        "images": [
+          { "src": "assets/pic1.png", "alt": "Placeholder photo 1" },
+          { "src": "assets/pic2.png", "alt": "Placeholder photo 2" },
+          { "src": "assets/pic3.png", "alt": "Placeholder photo 3" },
+          { "src": "assets/pic4.png", "alt": "Placeholder photo 4" },
+          { "src": "assets/pic5.png", "alt": "Placeholder photo 5" },
+          { "src": "assets/pic6.png", "alt": "Placeholder photo 6" }
+        ]
+      }
+    },
+    {
+      "type": "media_swiper",
+      "props": {
+        "aria_label": "Photo carousel",
+        "images": [
+          { "src": "assets/pic2.png", "alt": "Carousel slide one" },
+          { "src": "assets/pic3.png", "alt": "Carousel slide two" },
+          { "src": "assets/pic4.png", "alt": "Carousel slide three" },
+          { "src": "assets/pic5.png", "alt": "Carousel slide four" }
+        ]
+      }
+    },
+    {
+      "type": "info_grid",
+      "props": {
+        "title": "Also on other pages",
+        "items": [
+          {
+            "image": "assets/emoji_playful.png",
+            "title": "Home",
+            "text": "A smaller images grid appears on the home page too."
+          },
+          {
+            "image": "assets/emoji_salute.png",
+            "title": "Layouts",
+            "text": "Images grid nested inside a layout grid container."
+          }
+        ]
+      }
+    },
+    {
+      "type": "follow_us",
+      "props": {
+        "title": "Follow us"
+      }
+    }
+  ]
+}
