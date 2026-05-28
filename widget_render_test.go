@@ -308,6 +308,80 @@ func TestAppsShowcaseRendersCardsAndSwiperAndStores(t *testing.T) {
 	}
 }
 
+func TestAppsShowcaseHidesSubscribeWhenNoLinks(t *testing.T) {
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
+	ctx.Site = SiteConfig{
+		StoreIcons: StoreIcons{"google_play": "assets/icons/googleplay.png"},
+		SubscribeBlock: SubscribeBlock{
+			Title: "Subscribe for news",
+			Links: nil,
+		},
+	}
+	widgets := []WidgetNode{
+		{
+			Type: "apps_showcase",
+			Props: map[string]json.RawMessage{
+				"apps": mustWidgetRawJSON(t, []CatalogApp{
+					{
+						Image:         "assets/icons/app.png",
+						SwiperImages:  []string{"assets/swiper/1.png"},
+						GooglePlayURL: "https://play.google.com/store/apps/details?id=example",
+					},
+				}),
+			},
+		},
+	}
+	out, _, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	if strings.Contains(string(out), `class="catalog-app-card__subscribe"`) {
+		t.Fatalf("expected no subscribe block when links empty, got: %s", out)
+	}
+}
+
+func TestAppsShowcaseEmptyStoreURLWarnsAndSkips(t *testing.T) {
+	ctx := testRenderCtx(t, "content/kometa/pages/home.json")
+	ctx.Site = SiteConfig{
+		StoreIcons: StoreIcons{
+			"google_play": "assets/gp-store-icon.png",
+			"app_store":   "assets/appstore-store-icon.png",
+			"amazon":      "assets/amazon-store-icon.png",
+			"galaxy":      "assets/galaxy-store-icon.png",
+		},
+	}
+	widgets := []WidgetNode{
+		{
+			Type: "apps_showcase",
+			Props: map[string]json.RawMessage{
+				"apps": json.RawMessage(`[{
+		"image": "assets/icon.png",
+		"swiper_images": ["assets/slide.png"],
+		"google_play_url": "https://play.google.com/store/apps/details?id=one",
+		"amazon_store_url": "",
+		"galaxy_store_url": ""
+	}]`),
+			},
+		},
+	}
+	out, warnings, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	html := string(out)
+	if strings.Contains(html, `catalog-store-btn--amazon`) || strings.Contains(html, `catalog-store-btn--galaxy`) {
+		t.Fatalf("expected no amazon/galaxy badges for empty URLs, got: %s", html)
+	}
+	if len(warnings) != 2 {
+		t.Fatalf("expected 2 store URL warnings, got %d: %v", len(warnings), warnings)
+	}
+	for _, w := range warnings {
+		if !strings.Contains(w.String(), "referenced but URL is empty") {
+			t.Fatalf("unexpected warning: %s", w.String())
+		}
+	}
+}
+
 func TestAppsShowcaseRequiresApps(t *testing.T) {
 	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{

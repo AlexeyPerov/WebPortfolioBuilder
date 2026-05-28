@@ -323,10 +323,11 @@ func renderLeafWidget(ctx *widgetRenderContext, path, widgetType string, widget 
 		if id != "" && !isSafeHTMLID(id) {
 			return "", nil, fmt.Errorf("%s.id: invalid id %q", path, id)
 		}
-		data, err := parseAppsShowcaseProps(ctx, widget, path, id)
+		data, storeWarnings, err := parseAppsShowcaseProps(ctx, widget, path, id)
 		if err != nil {
 			return "", nil, err
 		}
+		warnings = append(warnings, storeWarnings...)
 		if err := ctx.WidgetTpl.ExecuteTemplate(&buf, "apps_showcase", data); err != nil {
 			return "", nil, fmt.Errorf("cannot render apps_showcase: %w", err)
 		}
@@ -699,30 +700,37 @@ type appsShowcaseSubscribeLinkData struct {
 	Label string
 }
 
-func parseAppsShowcaseProps(ctx *widgetRenderContext, widget WidgetNode, path, widgetID string) (*appsShowcaseTemplateData, error) {
+func parseAppsShowcaseProps(ctx *widgetRenderContext, widget WidgetNode, path, widgetID string) (*appsShowcaseTemplateData, []ConfigWarning, error) {
 	type raw struct {
-		SectionTitle string       `json:"section_title"`
-		Apps         []CatalogApp `json:"apps"`
+		SectionTitle string            `json:"section_title"`
+		Apps         []json.RawMessage `json:"apps"`
 	}
 	var p raw
 	b, err := json.Marshal(widget.Props)
 	if err != nil {
-		return nil, fmt.Errorf("%s.props: invalid json: %w", path, err)
+		return nil, nil, fmt.Errorf("%s.props: invalid json: %w", path, err)
 	}
 	if err := json.Unmarshal(b, &p); err != nil {
-		return nil, fmt.Errorf("%s.props: invalid shape: %w", path, err)
+		return nil, nil, fmt.Errorf("%s.props: invalid shape: %w", path, err)
 	}
 	if len(p.Apps) == 0 {
-		return nil, fmt.Errorf("%s.props.apps: required and must not be empty", path)
+		return nil, nil, fmt.Errorf("%s.props.apps: required and must not be empty", path)
 	}
 
 	icons := ctx.Site.StoreIcons
 	subscribe := buildAppsShowcaseSubscribeData(ctx.Site.SubscribeBlock)
 	cards := make([]appsShowcaseCardData, 0, len(p.Apps))
-	for i, app := range p.Apps {
-		card, err := buildAppsShowcaseCardData(ctx, app, fmt.Sprintf("%s.props.apps[%d]", path, i), icons, subscribe)
+	var warnings []ConfigWarning
+	for i, appRaw := range p.Apps {
+		appPath := fmt.Sprintf("%s.props.apps[%d]", path, i)
+		var app CatalogApp
+		if err := json.Unmarshal(appRaw, &app); err != nil {
+			return nil, warnings, fmt.Errorf("%s: invalid app entry: %w", appPath, err)
+		}
+		warnings = append(warnings, catalogStoreURLWarnings(ctx.PagePath, appPath, appRaw)...)
+		card, err := buildAppsShowcaseCardData(ctx, app, appPath, icons, subscribe)
 		if err != nil {
-			return nil, err
+			return nil, warnings, err
 		}
 		cards = append(cards, card)
 	}
@@ -731,7 +739,7 @@ func parseAppsShowcaseProps(ctx *widgetRenderContext, widget WidgetNode, path, w
 		ID:           widgetID,
 		SectionTitle: strings.TrimSpace(p.SectionTitle),
 		Cards:        cards,
-	}, nil
+	}, warnings, nil
 }
 
 func buildAppsShowcaseCardData(
@@ -789,6 +797,9 @@ func buildAppsShowcaseCardData(
 	resolvedStores := resolveCatalogStoreEntries(app, icons)
 	stores := make([]appsShowcaseStoreData, 0, len(resolvedStores))
 	for _, store := range resolvedStores {
+		if strings.TrimSpace(store.URL) == "" {
+			continue
+		}
 		stores = append(stores, appsShowcaseStoreData{
 			ClassSuffix: store.ClassSuffix,
 			URL:         store.URL,

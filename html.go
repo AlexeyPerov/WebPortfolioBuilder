@@ -30,7 +30,7 @@ func buildFooterOuterHTML(f FooterConfig) string {
 		return ""
 	}
 	inner := buildFooterSection(f)
-	return `<footer class="footer section section-gradient scroll-reveal" id="footer"><div class="container">` + inner + `</div></footer>`
+	return `<footer class="footer section section-gradient" id="footer"><div class="container">` + inner + `</div></footer>`
 }
 
 type widgetsExportJSON struct {
@@ -156,6 +156,68 @@ func defaultAriaForStoreIconKey(iconKey string) string {
 	}
 }
 
+type legacyStoreURLField struct {
+	jsonKey   string
+	presetKey string
+}
+
+var legacyStoreURLFields = []legacyStoreURLField{
+	{jsonKey: "google_play_url", presetKey: "google_play"},
+	{jsonKey: "app_store_url", presetKey: "app_store"},
+	{jsonKey: "amazon_store_url", presetKey: "amazon"},
+	{jsonKey: "galaxy_store_url", presetKey: "galaxy"},
+}
+
+// catalogStoreURLWarnings reports presets referenced in JSON with an empty URL after trim.
+func catalogStoreURLWarnings(pagePath string, appPath string, appRaw json.RawMessage) []ConfigWarning {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(appRaw, &obj); err != nil {
+		return nil
+	}
+	var warnings []ConfigWarning
+	for _, field := range legacyStoreURLFields {
+		raw, ok := obj[field.jsonKey]
+		if !ok {
+			continue
+		}
+		var url string
+		if err := json.Unmarshal(raw, &url); err != nil {
+			continue
+		}
+		if strings.TrimSpace(url) != "" {
+			continue
+		}
+		warnings = append(warnings, contentWarning(pagePath,
+			fmt.Sprintf("%s.%s: store preset %q referenced but URL is empty", appPath, field.jsonKey, field.presetKey)))
+	}
+	rawLinks, ok := obj["store_links"]
+	if !ok {
+		return warnings
+	}
+	var links []StoreLink
+	if err := json.Unmarshal(rawLinks, &links); err != nil {
+		return warnings
+	}
+	for i, link := range links {
+		url := strings.TrimSpace(link.URL)
+		iconKey := normalizeStoreIconKey(link.Icon)
+		iconImage := strings.TrimSpace(link.IconImage)
+		if url != "" {
+			continue
+		}
+		if iconKey == "" && iconImage == "" {
+			continue
+		}
+		preset := iconKey
+		if preset == "" {
+			preset = "custom"
+		}
+		warnings = append(warnings, contentWarning(pagePath,
+			fmt.Sprintf("%s.store_links[%d]: store preset %q referenced but URL is empty", appPath, i, preset)))
+	}
+	return warnings
+}
+
 func resolveCatalogStoreEntries(app CatalogApp, icons StoreIcons) []resolvedStoreEntry {
 	if len(app.StoreLinks) > 0 {
 		var out []resolvedStoreEntry
@@ -224,6 +286,9 @@ func buildCatalogStoreRow(app CatalogApp, icons StoreIcons) string {
 	}
 	var b strings.Builder
 	for _, e := range entries {
+		if strings.TrimSpace(e.URL) == "" {
+			continue
+		}
 		b.WriteString(fmt.Sprintf(
 			`<a class="catalog-store-btn catalog-store-btn--%s" href="%s"%s aria-label="%s">%s</a>`,
 			html.EscapeString(e.ClassSuffix),
@@ -250,7 +315,7 @@ func buildFooterContactRow(c FooterContact) string {
 	}
 
 	var b strings.Builder
-	b.WriteString(`<div class="footer-contact-row">`)
+	b.WriteString(`<div class="footer-contact-row" id="footer-contact">`)
 	b.WriteString(`<div class="footer-contact-row__text">`)
 	b.WriteString(textJoined)
 	b.WriteString(`</div>`)
