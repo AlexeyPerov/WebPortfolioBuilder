@@ -42,6 +42,11 @@ type renderedPageData struct {
 	MainContentHTML           template.HTML
 	FooterHTML                template.HTML
 	StylesHref                string
+	LoadScrollRevealScript    bool
+	LoadCatalogCarouselScript bool
+	LoadSplitWidgetScript     bool
+	LoadImageLightboxScript   bool
+	LoadWidgetsConfig         bool
 	ScrollRevealScriptHref    string
 	CatalogCarouselScriptHref string
 	SplitWidgetScriptHref     string
@@ -190,6 +195,13 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 		data.FooterHTML = template.HTML(buildFooterOuterHTML(bundle.Site.Footer))
 	}
 
+	scriptNeeds := collectPageScriptNeeds(page.Widgets)
+	data.LoadScrollRevealScript = scriptNeeds.ScrollReveal
+	data.LoadCatalogCarouselScript = scriptNeeds.CatalogCarousel
+	data.LoadSplitWidgetScript = scriptNeeds.SplitWidget
+	data.LoadImageLightboxScript = scriptNeeds.ImageLightbox
+	data.LoadWidgetsConfig = scriptNeeds.needsWidgetsConfig()
+
 	assetPrefix := assetPrefixForDepth(route.DirRelPath)
 	data.StylesHref = assetPrefix + "styles.css"
 	data.ScrollRevealScriptHref = assetPrefix + "scroll-reveal.js"
@@ -197,7 +209,9 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	data.SplitWidgetScriptHref = assetPrefix + "split-widget.js"
 	data.NavScriptHref = assetPrefix + "nav.js"
 	data.ImageLightboxScriptHref = assetPrefix + "image-lightbox.js"
-	data.WidgetsConfigScript = template.HTML(buildWidgetsConfigScript(bundle.Site.Widgets))
+	if data.LoadWidgetsConfig {
+		data.WidgetsConfigScript = template.HTML(buildWidgetsConfigScript(bundle.Site.Widgets))
+	}
 
 	return data, widgetWarnings, nil
 }

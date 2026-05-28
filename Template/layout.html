@@ -72,11 +72,11 @@
   </main>
 
   {{if .ShowFooter}}{{.FooterHTML}}{{end}}
-  {{.WidgetsConfigScript}}
-  <script src="{{.ScrollRevealScriptHref}}" defer></script>
-  <script src="{{.CatalogCarouselScriptHref}}" defer></script>
-  <script src="{{.SplitWidgetScriptHref}}" defer></script>
-  <script src="{{.ImageLightboxScriptHref}}" defer></script>
+  {{if .LoadWidgetsConfig}}{{.WidgetsConfigScript}}{{end}}
+  {{if .LoadScrollRevealScript}}<script src="{{.ScrollRevealScriptHref}}" defer></script>{{end}}
+  {{if .LoadCatalogCarouselScript}}<script src="{{.CatalogCarouselScriptHref}}" defer></script>{{end}}
+  {{if .LoadSplitWidgetScript}}<script src="{{.SplitWidgetScriptHref}}" defer></script>{{end}}
+  {{if .LoadImageLightboxScript}}<script src="{{.ImageLightboxScriptHref}}" defer></script>{{end}}
   {{if .HeaderNav}}<script src="{{.NavScriptHref}}" defer></script>{{end}}
 </body>
 </html>

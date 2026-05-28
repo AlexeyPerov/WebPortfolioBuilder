@@ -175,6 +175,18 @@ func TestRenderSiteBundleWritesOneHtmlPerRoute(t *testing.T) {
 	if !strings.Contains(string(data), `class="intro section`) {
 		t.Fatalf("expected rendered intro section in index.html, got: %s", string(data))
 	}
+	if strings.Contains(string(data), `catalog-carousel.js`) {
+		t.Fatal("intro-only page must not load catalog-carousel.js")
+	}
+	if strings.Contains(string(data), `split-widget.js`) {
+		t.Fatal("intro-only page must not load split-widget.js")
+	}
+	if strings.Contains(string(data), `image-lightbox.js`) {
+		t.Fatal("intro-only page must not load image-lightbox.js")
+	}
+	if !strings.Contains(string(data), `scroll-reveal.js`) {
+		t.Fatal("intro-only page must load scroll-reveal.js")
+	}
 }
 
 func TestRenderDemoSiteBundleSmoke(t *testing.T) {
@@ -256,6 +268,9 @@ func TestRenderKometaSiteBundleSmoke(t *testing.T) {
 	}
 	for _, needle := range []string{
 		`id="site-widgets-config"`,
+		`scroll-reveal.js`,
+		`catalog-carousel.js`,
+		`split-widget.js`,
 		`split-widget--single`,
 		`data-catalog-carousel`,
 		`id="vacancies"`,
@@ -265,6 +280,7 @@ func TestRenderKometaSiteBundleSmoke(t *testing.T) {
 		`<meta property="og:url" content="https://YOUR-GITHUB-USER.github.io/YOUR-REPO-NAME/">`,
 		`<meta name="theme-color" content="#3296ed">`,
 		`data-image-lightbox`,
+		`image-lightbox.js`,
 		`alt="Alec Monopoly pop art print in the Kometa office"`,
 	} {
 		if !strings.Contains(html, needle) {

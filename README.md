@@ -123,6 +123,79 @@ npx --yes serve Results/KometaWebsite
 
 Then open `http://localhost:8080/` in a browser.
 
+## Deploy to GitHub Pages
+
+Generated sites are **static HTML/CSS/JS** only — no server-side code or rewrite rules. GitHub Pages is a supported target.
+
+### Source vs output (do not edit `Results/` by hand)
+
+| Layer | Location | Role |
+|-------|----------|------|
+| **Source** | [`Template/`](Template/) + [`content/<site-id>/`](content/) | Edit CSS, JS, widget partials, and JSON here. |
+| **Output** | `<project-root>/<output_folder>/` (default under [`Results/`](Results/), gitignored) | **Regenerated on every build.** Do not patch HTML/CSS/JS here for UX fixes — change sources and rebuild. |
+
+Example output paths from live bundles:
+
+| Bundle | `output_folder` in `site.json` |
+|--------|--------------------------------|
+| [`content/kometa/`](content/kometa/) | `Results/KometaWebsite` |
+| [`content/my-studio/`](content/my-studio/) | `Results/My-StudioWebsite` |
+| [`content/demo/`](content/demo/) | `Results/DemoWebsite` |
+
+Build locally:
+
+```bash
+go run . --site content/kometa
+```
+
+The CLI wipes the target output directory, copies shared assets from `Template/`, copies referenced bundle assets, then renders every page route.
+
+### User site vs project site
+
+GitHub Pages serves two URL shapes:
+
+| Site type | Example URL | Notes |
+|-----------|-------------|-------|
+| **User/org site** | `https://YOUR-USER.github.io/` | Publish from a repo named `YOUR-USER.github.io`. Site lives at the domain root (`/`). |
+| **Project site** | `https://YOUR-USER.github.io/YOUR-REPO/` | Publish from any other repo. Site lives under `/YOUR-REPO/`. |
+
+This generator keeps **internal links and asset paths relative** (e.g. `about/`, `../styles.css`) so the same build works at `/` or under `/repo/` without reconfiguration. See [Specs/ImplementationSpec.md](Specs/ImplementationSpec.md) §12.
+
+### Setting `base_url`
+
+`base_url` in `site.json` is **optional**. When set, it feeds absolute **canonical** and **Open Graph** meta tags only — it does not rewrite in-page links or asset URLs.
+
+Replace the placeholder in [`content/kometa/site.json`](content/kometa/site.json):
+
+```json
+"base_url": "https://YOUR-GITHUB-USER.github.io/YOUR-REPO-NAME"
+```
+
+Use your real GitHub Pages URL (no trailing slash required; the generator normalizes it). For a **user site** at the domain root, use `https://YOUR-USER.github.io`. For a **project site**, include the repo segment: `https://YOUR-USER.github.io/YOUR-REPO`.
+
+Per-page `seo.canonical_url` overrides the auto-derived canonical when you need a one-off absolute URL.
+
+### Choosing `output_folder` for Pages
+
+By default, bundles write to `Results/<SiteName>` for local preview. For GitHub Pages you typically publish the **contents** of the build output, not the generator sources.
+
+Common patterns:
+
+1. **Local preview path (default)** — keep `output_folder` as `Results/KometaWebsite`, build locally, then upload or CI-deploy that folder’s contents.
+2. **Publish from `/docs` on `main`** — set `"output_folder": "docs"` in `site.json`, run the generator, commit the generated `docs/` tree (only if you intentionally version the built site).
+3. **GitHub Actions artifact** — build in CI with any `output_folder`, upload the directory as a Pages artifact (no need to commit output).
+
+The generator accepts a single path segment or nested path like `Results/KometaWebsite`; avoid `..` and absolute paths.
+
+### Relative link rules for authors
+
+- **In-page anchors** (nav, CTAs): use hash targets such as `#intro_title` or `#apps` — they resolve on the current page.
+- **Cross-page routes**: use slug paths without a leading slash, e.g. `about` → renders as `about/index.html` and links as `about/`.
+- **External URLs**: full `https://…` links are passed through unchanged.
+- **Assets in JSON**: paths must start with `assets/` and are copied into the output tree with correct relative prefixes per page depth.
+
+After changing `base_url`, theme, or widgets, rebuild and verify meta tags in the generated `index.html` before pushing.
+
 ## Root `config.json` (legacy sample only)
 
 [`config.json`](config.json) is a **single-file legacy sample** reflecting the older monolithic schema. The supported pipeline is **`content/`** bundles. Field names mirror the renamed catalog vocabulary (`apps`, `store_icons`, `subscribe_block`, theme `catalog_gradient`, content keys such as `apps_title` / `nav_apps`). It is handy for parity checks but **not** read by `go run .` today.

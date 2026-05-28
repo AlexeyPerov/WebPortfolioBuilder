@@ -38,6 +38,70 @@ type widgetRenderContext struct {
 	WidgetTpl *template.Template
 }
 
+// pageScriptNeeds tracks which shared Template/*.js modules a page's widget tree requires.
+//
+// Widget → script matrix:
+//   - scroll-reveal.js: intro, cover_banner, follow_us, info_grid, images_grid, careers_tabs,
+//     apps_showcase (cards), project_grid, media_swiper
+//   - catalog-carousel.js: apps_showcase, media_swiper
+//   - split-widget.js: careers_tabs
+//   - image-lightbox.js: images_grid
+type pageScriptNeeds struct {
+	ScrollReveal    bool
+	CatalogCarousel bool
+	SplitWidget     bool
+	ImageLightbox   bool
+}
+
+func (n pageScriptNeeds) needsWidgetsConfig() bool {
+	return n.ScrollReveal || n.CatalogCarousel || n.SplitWidget
+}
+
+func collectPageScriptNeeds(widgets []WidgetNode) pageScriptNeeds {
+	var needs pageScriptNeeds
+	for _, widget := range widgets {
+		accumulateWidgetScriptNeeds(widget, &needs)
+	}
+	return needs
+}
+
+func accumulateWidgetScriptNeeds(widget WidgetNode, needs *pageScriptNeeds) {
+	if widget.Enabled != nil && !*widget.Enabled {
+		return
+	}
+	widgetType := strings.TrimSpace(widget.Type)
+	if _, ok := layoutWidgetTypes[widgetType]; ok {
+		childrenRaw, ok := widget.Props["children"]
+		if !ok {
+			return
+		}
+		var children []WidgetNode
+		if err := json.Unmarshal(childrenRaw, &children); err != nil {
+			return
+		}
+		for _, child := range children {
+			accumulateWidgetScriptNeeds(child, needs)
+		}
+		return
+	}
+	switch widgetType {
+	case "intro", "cover_banner", "follow_us", "info_grid", "project_grid":
+		needs.ScrollReveal = true
+	case "images_grid":
+		needs.ScrollReveal = true
+		needs.ImageLightbox = true
+	case "careers_tabs":
+		needs.ScrollReveal = true
+		needs.SplitWidget = true
+	case "apps_showcase":
+		needs.ScrollReveal = true
+		needs.CatalogCarousel = true
+	case "media_swiper":
+		needs.ScrollReveal = true
+		needs.CatalogCarousel = true
+	}
+}
+
 func renderWidgetTree(ctx *widgetRenderContext, widgets []WidgetNode) (template.HTML, []ConfigWarning, error) {
 	var b strings.Builder
 	var warnings []ConfigWarning
