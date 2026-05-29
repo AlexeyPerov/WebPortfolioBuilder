@@ -1,5 +1,13 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 3 Task 1: debounced watch rebuild
+
+- Marked **Task 1** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md).
+- Rust: `content_watcher` module (`notify` + `notify-debouncer-mini`, **500 ms** debounce) watches `content/<site>/`; on trigger runs `build_site`, restarts preview, emits `watch-rebuild-complete`. New command `set_auto_rebuild`; build logic extracted to `site_ops.rs`.
+- Studio: **Auto-rebuild** toolbar toggle (default off); debounced auto-save when enabled; Problems/log/preview update from watcher events. Documented in [studio/README.md](../studio/README.md).
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 2 Task 4: packaging and cross-platform validation
 
 - Marked **Task 4** as `[DONE]` in [tauri/execution-plan-phase-2.md](./tauri/execution-plan-phase-2.md); Phase 2 completion criteria checked in [tauri/requirements.md](./tauri/requirements.md).

@@ -36,6 +36,14 @@ export type StudioSettings = {
   last_project_root?: string | null
 }
 
+export type WatchRebuildComplete = {
+  build: BuildSiteResult
+  preview: PreviewServerInfo | null
+}
+
+/** Matches backend `WATCH_DEBOUNCE_MS` — see studio/README.md */
+export const AUTO_REBUILD_DEBOUNCE_MS = 500
+
 export type BundleFileEntry = {
   relative_path: string
   name: string
@@ -101,5 +109,21 @@ export function writeBundleFile(
     sitePath,
     relativePath,
     content,
+  })
+}
+
+export function setAutoRebuild(
+  enabled: boolean,
+  projectRoot: string,
+  sitePath: string,
+  strict: boolean,
+  previewPort: number,
+) {
+  return invoke<void>('set_auto_rebuild', {
+    enabled,
+    projectRoot,
+    sitePath,
+    strict,
+    previewPort,
   })
 }

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { listen } from '@tauri-apps/api/event'
   import { open } from '@tauri-apps/plugin-dialog'
   import { openPath } from '@tauri-apps/plugin-opener'
   import BuildLog from './components/BuildLog.svelte'
@@ -8,6 +9,7 @@
   import PreviewPanel from './components/PreviewPanel.svelte'
   import ProblemsPanel from './components/ProblemsPanel.svelte'
   import {
+    AUTO_REBUILD_DEBOUNCE_MS,
     buildSite,
     getStudioSettings,
     listBundleFiles,
@@ -16,6 +18,7 @@
     readBundleFile,
     resolveProjectRoot,
     saveStudioSettings,
+    setAutoRebuild,
     startPreviewServer,
     validateSite,
     writeBundleFile,
@@ -24,6 +27,7 @@
     type Diagnostic,
     type ProjectRootInfo,
     type ValidateSiteResult,
+    type WatchRebuildComplete,
   } from './lib/studio-api'
 
   const DEFAULT_SITE = 'content/kometa'
@@ -48,6 +52,9 @@
   let previewUrl = $state<string | null>(null)
   let previewRefreshKey = $state(0)
   let busy = $state(false)
+  let autoRebuild = $state(false)
+
+  let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 
   function appendLog(line: string) {
     const stamp = new Date().toLocaleTimeString()
@@ -136,7 +143,42 @@
     const path = activeTabPath
     if (!path) return
     tabs = tabs.map((t) => (t.relativePath === path ? { ...t, content } : t))
+    scheduleAutoSave()
   }
+
+  function scheduleAutoSave() {
+    if (!autoRebuild || !projectInfo) return
+    if (autoSaveTimer) clearTimeout(autoSaveTimer)
+    autoSaveTimer = setTimeout(async () => {
+      autoSaveTimer = null
+      if (tabs.some(isDirty)) {
+        await saveDirtyTabs()
+      }
+    }, AUTO_REBUILD_DEBOUNCE_MS)
+  }
+
+  async function syncAutoRebuildWatcher() {
+    if (!projectInfo) return
+    try {
+      await setAutoRebuild(
+        autoRebuild,
+        projectInfo.project_root,
+        selectedSite,
+        strict,
+        PREVIEW_PORT,
+      )
+    } catch (err: unknown) {
+      appendLog(`Auto-rebuild watcher failed: ${String(err)}`)
+    }
+  }
+
+  $effect(() => {
+    if (!projectInfo) return
+    autoRebuild
+    selectedSite
+    strict
+    void syncAutoRebuildWatcher()
+  })
 
   async function saveDirtyTabs(): Promise<boolean> {
     if (!projectInfo) return false
@@ -194,6 +236,10 @@
       return
     }
     busy = true
+    const wasAutoRebuild = autoRebuild
+    if (wasAutoRebuild) {
+      await setAutoRebuild(false, projectInfo.project_root, selectedSite, strict, PREVIEW_PORT)
+    }
     try {
       if (!(await saveDirtyTabs())) return
 
@@ -215,6 +261,15 @@
     } catch (err: unknown) {
       appendLog(`build failed: ${String(err)}`)
     } finally {
+      if (wasAutoRebuild && projectInfo) {
+        await setAutoRebuild(
+          true,
+          projectInfo.project_root,
+          selectedSite,
+          strict,
+          PREVIEW_PORT,
+        )
+      }
       busy = false
     }
   }
@@ -267,6 +322,30 @@
 
   onMount(() => {
     initStudio()
+
+    let unlisten: (() => void) | undefined
+    listen<WatchRebuildComplete>('watch-rebuild-complete', (event) => {
+      const { build, preview } = event.payload
+      setProblemsFromResult(build)
+      if (build.ok && build.output_dir) {
+        lastOutputDir = build.output_dir
+        appendLog(`Auto-rebuild OK → ${build.output_dir}`)
+        if (preview) {
+          previewUrl = preview.url
+          previewRefreshKey += 1
+          appendLog(`Preview: ${preview.url}`)
+        }
+      } else {
+        appendLog(`Auto-rebuild failed (${build.errors.length} error(s)).`)
+      }
+    }).then((fn) => {
+      unlisten = fn
+    })
+
+    return () => {
+      unlisten?.()
+      if (autoSaveTimer) clearTimeout(autoSaveTimer)
+    }
   })
 </script>
 
@@ -301,6 +380,11 @@
     <label class="strict">
       <input type="checkbox" bind:checked={strict} />
       Strict
+    </label>
+
+    <label class="strict" title="Watch content bundle and rebuild after saves (500 ms debounce)">
+      <input type="checkbox" bind:checked={autoRebuild} disabled={!projectInfo} />
+      Auto-rebuild
     </label>
 
     <button type="button" disabled={!lastOutputDir} onclick={onOpenOutput}>

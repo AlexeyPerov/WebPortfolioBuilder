@@ -68,14 +68,14 @@ pub fn config_warnings_to_diagnostics(warnings: &[ConfigWarning]) -> Vec<Diagnos
     warnings.iter().map(Diagnostic::warning).collect()
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct ValidateSiteResult {
     pub ok: bool,
     pub warnings: Vec<Diagnostic>,
     pub errors: Vec<Diagnostic>,
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct BuildSiteResult {
     pub ok: bool,
     pub output_dir: Option<String>,
@@ -89,7 +89,7 @@ pub struct ProjectRootInfo {
     pub template_dir: String,
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct PreviewServerInfo {
     pub url: String,
     pub port: u16,
