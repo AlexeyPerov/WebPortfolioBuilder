@@ -1,11 +1,20 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
+
+const repoRoot = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..')
 
 const host = process.env.TAURI_DEV_HOST
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [svelte()],
+  resolve: {
+    alias: {
+      '@schema': path.join(repoRoot, 'docs/schema'),
+    },
+  },
   clearScreen: false,
   server: {
     port: 5173,

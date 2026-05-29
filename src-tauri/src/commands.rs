@@ -3,6 +3,8 @@ use crate::diagnostics::{
     Diagnostic, PreviewServerInfo, ProjectRootInfo, ValidateSiteResult,
 };
 use crate::preview_server::PreviewServerState;
+use crate::settings::{load_settings, save_settings, StudioSettings};
+use crate::studio_files::{list_bundle_files, project_info_at, read_bundle_file, write_bundle_file, BundleFileEntry};
 use portfoliowebsitebuilder_core::{
     copy_referenced_site_assets, discover_content_bundles, enforce_strict_warnings,
     load_site_bundle, render_site_bundle, resolve_project_root as core_resolve_project_root,
@@ -254,4 +256,46 @@ pub fn stop_preview_server(preview: State<'_, PreviewServerState>) -> Result<(),
 #[tauri::command]
 pub fn resolve_project_root_info() -> Result<ProjectRootInfo, String> {
     resolve_project_root()
+}
+
+#[tauri::command]
+pub fn get_studio_settings(app: tauri::AppHandle) -> Result<StudioSettings, String> {
+    load_settings(&app)
+}
+
+#[tauri::command]
+pub fn save_studio_settings(app: tauri::AppHandle, settings: StudioSettings) -> Result<(), String> {
+    save_settings(&app, &settings)
+}
+
+#[tauri::command]
+pub fn project_info_for_root(project_root: String) -> Result<ProjectRootInfo, String> {
+    project_info_at(&project_root)
+}
+
+#[tauri::command]
+pub fn list_bundle_files_cmd(
+    project_root: String,
+    site_path: String,
+) -> Result<Vec<BundleFileEntry>, String> {
+    list_bundle_files(&project_root, &site_path)
+}
+
+#[tauri::command]
+pub fn read_bundle_file_cmd(
+    project_root: String,
+    site_path: String,
+    relative_path: String,
+) -> Result<String, String> {
+    read_bundle_file(&project_root, &site_path, &relative_path)
+}
+
+#[tauri::command]
+pub fn write_bundle_file_cmd(
+    project_root: String,
+    site_path: String,
+    relative_path: String,
+    content: String,
+) -> Result<(), String> {
+    write_bundle_file(&project_root, &site_path, &relative_path, &content)
 }

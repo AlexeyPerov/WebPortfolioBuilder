@@ -32,6 +32,16 @@ export type PreviewServerInfo = {
   output_dir: string
 }
 
+export type StudioSettings = {
+  last_project_root?: string | null
+}
+
+export type BundleFileEntry = {
+  relative_path: string
+  name: string
+  is_dir: boolean
+}
+
 export function resolveProjectRoot() {
   return invoke<ProjectRootInfo>('resolve_project_root')
 }
@@ -54,4 +64,42 @@ export function startPreviewServer(outputDir: string, port: number) {
 
 export function stopPreviewServer() {
   return invoke<void>('stop_preview_server')
+}
+
+export function getStudioSettings() {
+  return invoke<StudioSettings>('get_studio_settings')
+}
+
+export function saveStudioSettings(settings: StudioSettings) {
+  return invoke<void>('save_studio_settings', { settings })
+}
+
+export function projectInfoForRoot(projectRoot: string) {
+  return invoke<ProjectRootInfo>('project_info_for_root', { projectRoot })
+}
+
+export function listBundleFiles(projectRoot: string, sitePath: string) {
+  return invoke<BundleFileEntry[]>('list_bundle_files_cmd', { projectRoot, sitePath })
+}
+
+export function readBundleFile(
+  projectRoot: string,
+  sitePath: string,
+  relativePath: string,
+) {
+  return invoke<string>('read_bundle_file_cmd', { projectRoot, sitePath, relativePath })
+}
+
+export function writeBundleFile(
+  projectRoot: string,
+  sitePath: string,
+  relativePath: string,
+  content: string,
+) {
+  return invoke<void>('write_bundle_file_cmd', {
+    projectRoot,
+    sitePath,
+    relativePath,
+    content,
+  })
 }

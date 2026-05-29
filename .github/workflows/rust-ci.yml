@@ -1,6 +1,6 @@
 # Portfolio Website Builder — Rust CI (Phase 0 sketch)
 # Phase 1: `cargo test --workspace` runs engine + golden parity tests.
-# Phase 2: `cargo tauri build` smoke on macos-latest + windows-latest.
+# Phase 2: `cargo tauri build` release bundles on macos-latest + windows-latest.
 
 name: Rust CI
 
@@ -51,4 +51,10 @@ jobs:
       - name: Install Tauri CLI
         run: cargo install tauri-cli --locked --force
       - name: cargo tauri build
-        run: cargo tauri build --bundles app
+        run: cargo tauri build
+      - name: Upload release bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-${{ matrix.os }}
+          path: src-tauri/target/release/bundle/
+          if-no-files-found: error

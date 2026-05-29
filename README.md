@@ -8,6 +8,16 @@ Static site generator in Rust (**PortfolioWebsiteBuilder**). The supported workf
 
 Phase 1 is complete: the **Rust engine** (`crates/core`, `crates/cli`) replaces the former Go CLI. **Phase 2** adds the **Tauri 2 + Svelte 5** desktop studio in [`studio/`](studio/) (see [`studio/README.md`](studio/README.md)).
 
+### Desktop studio — dev and install
+
+| Mode | Command | Notes |
+|------|---------|--------|
+| **Development** | `cargo tauri dev` (repo root) | Vite + Tauri window; full author UI (open project, edit JSON, build, HTTP preview). Prerequisites: Rust 1.77+, Node 20+, Tauri CLI 2.x — [studio/README.md](studio/README.md). |
+| **Release build** | `cargo tauri build` | Produces installers under `src-tauri/target/release/bundle/` (`.app`/`.dmg` on macOS; `.msi` or NSIS `-setup.exe` on Windows with WebView2 bootstrap). |
+| **CI artifacts** | GitHub Actions **Rust CI** job `cargo tauri build` | Download `studio-macos-latest` / `studio-windows-latest` artifacts from a green workflow run. |
+
+Cross-platform manual checks: [studio/VALIDATION-CHECKLIST.md](studio/VALIDATION-CHECKLIST.md).
+
 - [Specs/tauri/requirements.md](Specs/tauri/requirements.md) — scope, phases, and acceptance criteria
 - [Specs/tauri/execution-plan.md](Specs/tauri/execution-plan.md) — agent task index (Phase 0–3)
 - Phase plans: [0 — Preparation](Specs/tauri/execution-plan-phase-0.md) · [1 — Rust engine](Specs/tauri/execution-plan-phase-1.md) · [2 — Tauri studio](Specs/tauri/execution-plan-phase-2.md) · [3 — Author polish](Specs/tauri/execution-plan-phase-3.md)

@@ -1,12 +1,27 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
+  import { open } from '@tauri-apps/plugin-dialog'
+  import { openPath } from '@tauri-apps/plugin-opener'
+  import BuildLog from './components/BuildLog.svelte'
+  import FileTree from './components/FileTree.svelte'
+  import JsonEditor from './components/JsonEditor.svelte'
+  import PreviewPanel from './components/PreviewPanel.svelte'
+  import ProblemsPanel from './components/ProblemsPanel.svelte'
   import {
     buildSite,
+    getStudioSettings,
+    listBundleFiles,
     listContentBundles,
+    projectInfoForRoot,
+    readBundleFile,
     resolveProjectRoot,
+    saveStudioSettings,
     startPreviewServer,
-    stopPreviewServer,
     validateSite,
+    writeBundleFile,
     type BuildSiteResult,
+    type BundleFileEntry,
+    type Diagnostic,
     type ProjectRootInfo,
     type ValidateSiteResult,
   } from './lib/studio-api'
@@ -14,152 +29,260 @@
   const DEFAULT_SITE = 'content/kometa'
   const PREVIEW_PORT = 8080
 
+  type EditorTab = {
+    relativePath: string
+    content: string
+    savedContent: string
+  }
+
   let projectInfo = $state<ProjectRootInfo | null>(null)
   let bundles = $state<string[]>([])
   let selectedSite = $state(DEFAULT_SITE)
   let strict = $state(false)
+  let fileEntries = $state<BundleFileEntry[]>([])
+  let tabs = $state<EditorTab[]>([])
+  let activeTabPath = $state<string | null>(null)
+  let problems = $state<Diagnostic[]>([])
   let logs = $state<string[]>([])
   let lastOutputDir = $state<string | null>(null)
   let previewUrl = $state<string | null>(null)
+  let previewRefreshKey = $state(0)
+  let busy = $state(false)
 
   function appendLog(line: string) {
     const stamp = new Date().toLocaleTimeString()
-    logs = [`[${stamp}] ${line}`, ...logs].slice(0, 200)
+    logs = [...logs, `[${stamp}] ${line}`].slice(-200)
   }
 
-  function formatResult(label: string, payload: unknown) {
-    appendLog(`${label}: ${JSON.stringify(payload, null, 2)}`)
+  function activeTab(): EditorTab | undefined {
+    return tabs.find((t) => t.relativePath === activeTabPath)
   }
 
-  async function ensureProject() {
-    if (!projectInfo) {
-      projectInfo = await resolveProjectRoot()
-      appendLog(`Project root: ${projectInfo.project_root}`)
+  function isDirty(tab: EditorTab) {
+    return tab.content !== tab.savedContent
+  }
+
+  function setProblemsFromResult(result: ValidateSiteResult | BuildSiteResult) {
+    problems = [...result.warnings, ...result.errors]
+  }
+
+  async function persistProjectRoot(root: string) {
+    await saveStudioSettings({ last_project_root: root })
+  }
+
+  async function loadProject(root: string) {
+    projectInfo = await projectInfoForRoot(root)
+    await persistProjectRoot(projectInfo.project_root)
+    bundles = await listContentBundles(projectInfo.project_root)
+    if (bundles.includes(DEFAULT_SITE)) {
+      selectedSite = DEFAULT_SITE
+    } else if (bundles.length > 0) {
+      selectedSite = bundles[0]
     }
-    return projectInfo
+    await refreshFileTree()
+    appendLog(`Opened project: ${projectInfo.project_root}`)
   }
 
-  async function onResolveRoot() {
+  async function refreshFileTree() {
+    if (!projectInfo) return
+    fileEntries = await listBundleFiles(projectInfo.project_root, selectedSite)
+  }
+
+  async function onOpenProject() {
     try {
-      projectInfo = await resolveProjectRoot()
-      formatResult('resolve_project_root', projectInfo)
+      const picked = await open({
+        directory: true,
+        multiple: false,
+        title: 'Open project folder',
+      })
+      if (!picked || typeof picked !== 'string') return
+      busy = true
+      await loadProject(picked)
     } catch (err: unknown) {
-      appendLog(`resolve_project_root failed: ${String(err)}`)
+      appendLog(`Open project failed: ${String(err)}`)
+    } finally {
+      busy = false
     }
   }
 
-  async function onListBundles() {
+  async function onSiteChange() {
+    tabs = []
+    activeTabPath = null
+    problems = []
+    await refreshFileTree()
+  }
+
+  async function openFile(relativePath: string) {
+    if (!projectInfo) return
+    const existing = tabs.find((t) => t.relativePath === relativePath)
+    if (existing) {
+      activeTabPath = relativePath
+      return
+    }
     try {
-      const info = await ensureProject()
-      bundles = await listContentBundles(info.project_root)
-      formatResult('list_content_bundles', bundles)
+      const content = await readBundleFile(
+        projectInfo.project_root,
+        selectedSite,
+        relativePath,
+      )
+      tabs = [...tabs, { relativePath, content, savedContent: content }]
+      activeTabPath = relativePath
+    } catch (err: unknown) {
+      appendLog(`Open ${relativePath} failed: ${String(err)}`)
+    }
+  }
+
+  function updateActiveContent(content: string) {
+    const path = activeTabPath
+    if (!path) return
+    tabs = tabs.map((t) => (t.relativePath === path ? { ...t, content } : t))
+  }
+
+  async function saveDirtyTabs(): Promise<boolean> {
+    if (!projectInfo) return false
+    const dirty = tabs.filter(isDirty)
+    if (dirty.length === 0) return true
+    try {
+      const saved: EditorTab[] = []
+      for (const tab of dirty) {
+        await writeBundleFile(
+          projectInfo.project_root,
+          selectedSite,
+          tab.relativePath,
+          tab.content,
+        )
+        saved.push({ ...tab, savedContent: tab.content })
+      }
+      const savedPaths = new Set(saved.map((t) => t.relativePath))
+      tabs = tabs.map((t) =>
+        savedPaths.has(t.relativePath)
+          ? (saved.find((s) => s.relativePath === t.relativePath) ?? t)
+          : t,
+      )
+      appendLog(`Saved ${dirty.length} file(s) before build.`)
+      return true
+    } catch (err: unknown) {
+      appendLog(`Save failed: ${String(err)}`)
+      return false
+    }
+  }
+
+  async function onValidate() {
+    if (!projectInfo) {
+      appendLog('Open a project first.')
+      return
+    }
+    busy = true
+    try {
+      const result = await validateSite(projectInfo.project_root, selectedSite, strict)
+      setProblemsFromResult(result)
+      appendLog(
+        result.ok
+          ? `Validate OK (${result.warnings.length} warning(s)).`
+          : `Validate failed (${result.errors.length} error(s)).`,
+      )
+    } catch (err: unknown) {
+      appendLog(`validate_site failed: ${String(err)}`)
+    } finally {
+      busy = false
+    }
+  }
+
+  async function onBuild() {
+    if (!projectInfo) {
+      appendLog('Open a project first.')
+      return
+    }
+    busy = true
+    try {
+      if (!(await saveDirtyTabs())) return
+
+      const result = await buildSite(projectInfo.project_root, selectedSite, strict)
+      setProblemsFromResult(result)
+
+      if (!result.ok || !result.output_dir) {
+        appendLog('Build failed.')
+        return
+      }
+
+      lastOutputDir = result.output_dir
+      appendLog(`Build OK → ${result.output_dir}`)
+
+      const preview = await startPreviewServer(result.output_dir, PREVIEW_PORT)
+      previewUrl = preview.url
+      previewRefreshKey += 1
+      appendLog(`Preview: ${preview.url}`)
+    } catch (err: unknown) {
+      appendLog(`build failed: ${String(err)}`)
+    } finally {
+      busy = false
+    }
+  }
+
+  async function onOpenOutput() {
+    if (!lastOutputDir) {
+      appendLog('No output folder yet — run Build first.')
+      return
+    }
+    try {
+      await openPath(lastOutputDir)
+    } catch (err: unknown) {
+      appendLog(`Open output failed: ${String(err)}`)
+    }
+  }
+
+  function closeTab(relativePath: string, event: MouseEvent) {
+    event.stopPropagation()
+    const next = tabs.filter((t) => t.relativePath !== relativePath)
+    tabs = next
+    if (activeTabPath === relativePath) {
+      activeTabPath = next.length > 0 ? next[next.length - 1].relativePath : null
+    }
+  }
+
+  async function initStudio() {
+    try {
+      const settings = await getStudioSettings()
+      if (settings.last_project_root) {
+        try {
+          await loadProject(settings.last_project_root)
+          return
+        } catch {
+          appendLog('Saved project path invalid; using auto-detect.')
+        }
+      }
+      projectInfo = await resolveProjectRoot()
+      bundles = await listContentBundles(projectInfo.project_root)
       if (bundles.includes(DEFAULT_SITE)) {
         selectedSite = DEFAULT_SITE
       } else if (bundles.length > 0) {
         selectedSite = bundles[0]
       }
+      await refreshFileTree()
+      appendLog(`Project: ${projectInfo.project_root}`)
     } catch (err: unknown) {
-      appendLog(`list_content_bundles failed: ${String(err)}`)
+      appendLog(`Init failed: ${String(err)}`)
     }
   }
 
-  async function onValidate() {
-    try {
-      const info = await ensureProject()
-      const result: ValidateSiteResult = await validateSite(
-        info.project_root,
-        selectedSite,
-        strict,
-      )
-      formatResult('validate_site', result)
-    } catch (err: unknown) {
-      appendLog(`validate_site failed: ${String(err)}`)
-    }
-  }
-
-  async function onBuild() {
-    try {
-      const info = await ensureProject()
-      const result: BuildSiteResult = await buildSite(
-        info.project_root,
-        selectedSite,
-        strict,
-      )
-      formatResult('build_site', result)
-      if (result.ok && result.output_dir) {
-        lastOutputDir = result.output_dir
-      }
-    } catch (err: unknown) {
-      appendLog(`build_site failed: ${String(err)}`)
-    }
-  }
-
-  async function onStartPreview() {
-    try {
-      if (!lastOutputDir) {
-        appendLog('start_preview_server: build first to set output_dir')
-        return
-      }
-      const info = await startPreviewServer(lastOutputDir, PREVIEW_PORT)
-      previewUrl = info.url
-      formatResult('start_preview_server', info)
-    } catch (err: unknown) {
-      appendLog(`start_preview_server failed: ${String(err)}`)
-    }
-  }
-
-  async function onStopPreview() {
-    try {
-      await stopPreviewServer()
-      previewUrl = null
-      appendLog('stop_preview_server: ok')
-    } catch (err: unknown) {
-      appendLog(`stop_preview_server failed: ${String(err)}`)
-    }
-  }
-
-  async function onBuildAndPreview() {
-    await onBuild()
-    if (lastOutputDir) {
-      await onStartPreview()
-    }
-  }
-
-  $effect(() => {
-    onResolveRoot()
-      .then(() => onListBundles())
-      .catch((err: unknown) => appendLog(`init failed: ${String(err)}`))
+  onMount(() => {
+    initStudio()
   })
 </script>
 
-<main>
-  <header>
-    <h1>Portfolio Website Builder</h1>
-    <p class="subtitle">Phase 2.2 — invoke API dev panel</p>
-  </header>
+<div class="studio">
+  <header class="toolbar">
+    <button type="button" class="primary" disabled={busy} onclick={onOpenProject}>
+      Open project
+    </button>
 
-  {#if projectInfo}
-    <section class="paths">
-      <p>
-        <span class="label">Project</span>
-        <code>{projectInfo.project_root}</code>
-      </p>
-      <p>
-        <span class="label">Template</span>
-        <code>{projectInfo.template_dir}</code>
-      </p>
-    </section>
-  {/if}
-
-  <section class="controls">
-    <label class="strict">
-      <input type="checkbox" bind:checked={strict} />
-      Strict
-    </label>
-
-    <label>
-      Site bundle
-      <select bind:value={selectedSite}>
+    <label class="site-select">
+      Site
+      <select
+        bind:value={selectedSite}
+        disabled={!projectInfo || bundles.length === 0}
+        onchange={onSiteChange}
+      >
         {#if bundles.length === 0}
           <option value={DEFAULT_SITE}>{DEFAULT_SITE}</option>
         {:else}
@@ -170,128 +293,120 @@
       </select>
     </label>
 
-    <div class="buttons">
-      <button type="button" onclick={onResolveRoot}>Resolve root</button>
-      <button type="button" onclick={onListBundles}>List bundles</button>
-      <button type="button" onclick={onValidate}>Validate</button>
-      <button type="button" onclick={onBuild}>Build</button>
-      <button type="button" onclick={onStartPreview}>Start preview</button>
-      <button type="button" onclick={onStopPreview}>Stop preview</button>
-      <button type="button" class="primary" onclick={onBuildAndPreview}>Build + preview</button>
-    </div>
-  </section>
+    <button type="button" disabled={busy || !projectInfo} onclick={onBuild}>Build</button>
+    <button type="button" disabled={busy || !projectInfo} onclick={onValidate}>
+      Validate
+    </button>
 
-  {#if previewUrl}
-    <p class="preview-link">
-      Preview: <a href={previewUrl} target="_blank" rel="noreferrer">{previewUrl}</a>
-    </p>
-  {/if}
+    <label class="strict">
+      <input type="checkbox" bind:checked={strict} />
+      Strict
+    </label>
 
-  {#if lastOutputDir}
-    <p class="output-dir">
-      Last output: <code>{lastOutputDir}</code>
-    </p>
-  {/if}
+    <button type="button" disabled={!lastOutputDir} onclick={onOpenOutput}>
+      Open output folder
+    </button>
 
-  <section class="log-panel">
-    <h2>Log</h2>
-    <pre>{logs.length > 0 ? logs.join('\n\n') : 'No log entries yet.'}</pre>
-  </section>
-</main>
+    {#if projectInfo}
+      <span class="project-path" title={projectInfo.project_root}>
+        {projectInfo.project_root}
+      </span>
+    {/if}
+  </header>
+
+  <div class="workspace">
+    <aside class="sidebar">
+      <FileTree
+        entries={fileEntries}
+        selectedPath={activeTabPath}
+        onselect={(path) => openFile(path)}
+      />
+    </aside>
+
+    <section class="center">
+      <div class="editor-area">
+        {#if tabs.length > 0}
+          <div class="tab-bar" role="tablist">
+            {#each tabs as tab (tab.relativePath)}
+              <button
+                type="button"
+                role="tab"
+                class:active={activeTabPath === tab.relativePath}
+                aria-selected={activeTabPath === tab.relativePath}
+                onclick={() => (activeTabPath = tab.relativePath)}
+              >
+                {tab.relativePath}
+                {#if isDirty(tab)}<span class="dirty">•</span>{/if}
+                <span
+                  class="close"
+                  role="button"
+                  tabindex="0"
+                  aria-label="Close tab"
+                  onclick={(e) => closeTab(tab.relativePath, e)}
+                  onkeydown={(e) => {
+                    if (e.key === 'Enter') closeTab(tab.relativePath, e as unknown as MouseEvent)
+                  }}>×</span
+                >
+              </button>
+            {/each}
+          </div>
+        {/if}
+
+        <div class="editor-pane">
+          {#if activeTab()}
+            {@const tab = activeTab()!}
+            {#key tab.relativePath}
+              <JsonEditor
+                relativePath={tab.relativePath}
+                value={tab.content}
+                onchange={updateActiveContent}
+              />
+            {/key}
+          {:else}
+            <p class="editor-placeholder">Select a JSON file from the tree.</p>
+          {/if}
+        </div>
+      </div>
+      <ProblemsPanel items={problems} />
+    </section>
+
+    <aside class="preview">
+      <PreviewPanel
+        previewUrl={previewUrl}
+        refreshKey={previewRefreshKey}
+        onrefresh={() => (previewRefreshKey += 1)}
+      />
+    </aside>
+  </div>
+
+  <footer class="log-footer">
+    <BuildLog lines={logs} />
+  </footer>
+</div>
 
 <style>
-  main {
-    box-sizing: border-box;
-    min-height: 100vh;
-    padding: 1.5rem 1.25rem 2rem;
-    font-family:
-      system-ui,
-      -apple-system,
-      sans-serif;
+  .studio {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-height: 0;
     color: #1a1a1a;
     background: #f6f7f9;
   }
 
-  header {
-    margin-bottom: 1rem;
-  }
-
-  h1 {
-    margin: 0 0 0.25rem;
-    font-size: 1.5rem;
-    font-weight: 650;
-  }
-
-  .subtitle {
-    margin: 0;
-    color: #5c6570;
-    font-size: 0.95rem;
-  }
-
-  h2 {
-    margin: 0 0 0.5rem;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #5c6570;
-  }
-
-  .paths,
-  .controls,
-  .log-panel {
-    margin-bottom: 1rem;
-    padding: 0.85rem 1rem;
-    border: 1px solid #d8dee6;
-    border-radius: 0.5rem;
-    background: #fff;
-  }
-
-  .paths p {
-    margin: 0.35rem 0;
-  }
-
-  .label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #5c6570;
-    margin-bottom: 0.15rem;
-  }
-
-  code {
-    font-size: 0.85rem;
-    word-break: break-all;
-  }
-
-  .controls label {
-    display: block;
-    margin-bottom: 0.65rem;
-    font-size: 0.9rem;
-  }
-
-  .strict {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-
-  select {
-    display: block;
-    margin-top: 0.25rem;
-    min-width: 14rem;
-    padding: 0.35rem 0.5rem;
-  }
-
-  .buttons {
+  .toolbar {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    align-items: center;
+    gap: 0.5rem 0.65rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid #d8dee6;
+    background: #fff;
+    flex-shrink: 0;
   }
 
-  button {
-    padding: 0.4rem 0.65rem;
+  .toolbar button {
+    padding: 0.35rem 0.65rem;
     border: 1px solid #c5cdd8;
     border-radius: 0.35rem;
     background: #f0f2f5;
@@ -299,33 +414,138 @@
     cursor: pointer;
   }
 
-  button:hover {
-    background: #e4e8ee;
+  .toolbar button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
   }
 
-  button.primary {
+  .toolbar button.primary {
     border-color: #3d5a80;
     background: #3d5a80;
     color: #fff;
   }
 
-  button.primary:hover {
-    background: #2f4763;
+  .site-select {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
   }
 
-  .preview-link,
-  .output-dir {
-    margin: 0 0 0.75rem;
+  select {
+    min-width: 10rem;
+    padding: 0.3rem 0.45rem;
+  }
+
+  .strict {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+  }
+
+  .project-path {
+    margin-left: auto;
+    max-width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: #5c6570;
+    font-family: ui-monospace, Consolas, monospace;
+  }
+
+  .workspace {
+    display: grid;
+    grid-template-columns: 12rem 1fr minmax(280px, 38%);
+    flex: 1;
+    min-height: 0;
+  }
+
+  .sidebar {
+    border-right: 1px solid #d8dee6;
+    background: #fff;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .center {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    background: #fff;
+  }
+
+  .editor-area {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .tab-bar {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    border-bottom: 1px solid #e8ecf2;
+    background: #fafbfc;
+    flex-shrink: 0;
+  }
+
+  .tab-bar button {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.65rem;
+    border: none;
+    border-right: 1px solid #e8ecf2;
+    background: transparent;
+    font-size: 0.78rem;
+    font-family: ui-monospace, Consolas, monospace;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .tab-bar button.active {
+    background: #fff;
+    font-weight: 600;
+  }
+
+  .dirty {
+    color: #c45c26;
+  }
+
+  .close {
+    margin-left: 0.15rem;
+    opacity: 0.5;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    opacity: 1;
+  }
+
+  .editor-pane {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .editor-placeholder {
+    margin: 2rem 1rem;
+    color: #8a939e;
     font-size: 0.9rem;
   }
 
-  .log-panel pre {
-    margin: 0;
-    max-height: 22rem;
-    overflow: auto;
-    font-size: 0.75rem;
-    line-height: 1.35;
-    white-space: pre-wrap;
-    word-break: break-word;
+  .preview {
+    border-left: 1px solid #d8dee6;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .log-footer {
+    flex-shrink: 0;
+    height: 7rem;
+    min-height: 7rem;
   }
 </style>

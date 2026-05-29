@@ -1,6 +1,8 @@
 mod commands;
 mod diagnostics;
 mod preview_server;
+mod settings;
+pub mod studio_files;
 
 use preview_server::PreviewServerState;
 use tauri::Manager;
@@ -17,7 +19,15 @@ pub fn run() {
             commands::build_site,
             commands::start_preview_server,
             commands::stop_preview_server,
+            commands::get_studio_settings,
+            commands::save_studio_settings,
+            commands::project_info_for_root,
+            commands::list_bundle_files_cmd,
+            commands::read_bundle_file_cmd,
+            commands::write_bundle_file_cmd,
         ])
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(

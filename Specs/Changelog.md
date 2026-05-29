@@ -1,5 +1,23 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 2 Task 4: packaging and cross-platform validation
+
+- Marked **Task 4** as `[DONE]` in [tauri/execution-plan-phase-2.md](./tauri/execution-plan-phase-2.md); Phase 2 completion criteria checked in [tauri/requirements.md](./tauri/requirements.md).
+- Windows installer: `embedBootstrapper` WebView2 mode in `src-tauri/tauri.conf.json`; app name/icons already **Portfolio Website Builder**.
+- CI: full `cargo tauri build` on `macos-latest` and `windows-latest` with bundle artifacts uploaded.
+- [studio/VALIDATION-CHECKLIST.md](../studio/VALIDATION-CHECKLIST.md) for manual regression; [studio/README.md](../studio/README.md) and root [README.md](../README.md) document packaged install and `cargo tauri dev`.
+
+---
+
+## 2026-05-29 — Composer — Tauri Phase 2 Task 3: Studio UI v1
+
+- Marked **Task 3** as `[DONE]` in [tauri/execution-plan-phase-2.md](./tauri/execution-plan-phase-2.md).
+- Studio layout: toolbar (open project, site dropdown, build/validate/strict, open output), file tree, tabbed CodeMirror JSON editor with schema lint, Problems panel, HTTP preview iframe with desktop/phone widths, build log.
+- New Tauri commands: settings persistence, `project_info_for_root`, bundle file list/read/write; `tauri-plugin-dialog` and `tauri-plugin-opener`.
+- Build flow saves dirty buffers → `build_site` → `start_preview_server` → preview reload on `127.0.0.1`.
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 2 Task 2: invoke API over core
 
 - Marked **Task 2** as `[DONE]` in [tauri/execution-plan-phase-2.md](./tauri/execution-plan-phase-2.md).

@@ -14,7 +14,11 @@
      */
     "allowJs": true,
     "checkJs": true,
-    "moduleDetection": "force"
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "paths": {
+      "@schema/*": ["../docs/schema/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }

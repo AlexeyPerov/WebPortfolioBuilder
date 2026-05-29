@@ -58,21 +58,25 @@ During **`cargo tauri dev`**, run from the repo root so the current working dire
 1. Uses **cwd** when `content/kometa/site.json` exists there (or when cwd is the repo root in dev).
 2. Falls back to the directory containing the running executable (packaged app).
 
-The dev UI (Phase 2.2) shows the resolved **project root**, exercises all invoke commands, and appends JSON results to a log strip. Use **Build + preview** to generate `content/kometa` output and serve it at `http://127.0.0.1:8080/`.
+The studio UI (Phase 2.3) provides the full author layout: toolbar, bundle file tree, tabbed JSON editor, Problems panel, HTTP preview iframe, and build log. **Open project** uses a native folder dialog and persists the last path in app config. **Build** saves dirty editor buffers, runs `build_site`, then `start_preview_server` at `http://127.0.0.1:8080/` (no `file://` URLs).
 
-### Invoke commands (Task 2)
+### Invoke commands
 
 | Command | Purpose |
 |---------|---------|
-| `resolve_project_root` | Project root + `Template/` path |
+| `resolve_project_root` | Project root + `Template/` path (auto-detect) |
+| `project_info_for_root` | Validate a chosen project folder |
+| `get_studio_settings` / `save_studio_settings` | Persist last project path |
 | `list_content_bundles` | Lists bundles under `content/` |
+| `list_bundle_files_cmd` | File tree entries for active bundle |
+| `read_bundle_file_cmd` / `write_bundle_file_cmd` | UTF-8 load/save (`site.json`, `pages/*.json`) |
 | `validate_site` | Validate without write; structured warnings/errors |
 | `build_site` | Full generate; stops preview server first |
 | `start_preview_server` / `stop_preview_server` | HTTP static serve on `127.0.0.1` |
 
-TypeScript wrappers: [`src/lib/studio-api.ts`](src/lib/studio-api.ts).
+TypeScript wrappers: [`src/lib/studio-api.ts`](src/lib/studio-api.ts). UI components live under [`src/components/`](src/components/).
 
-For packaged builds (Task 4), bundled resources or an explicit project picker will replace cwd-based resolution; until then, run `cargo tauri dev` from the repo root.
+Use **Open project** to point at the repo root (or rely on auto-detect when `cargo tauri dev` runs from the repo root). Select `content/kometa`, open `pages/home.json`, edit, then **Build** to refresh the preview.
 
 ## Build (release)
 
@@ -88,11 +92,32 @@ Or:
 npm run tauri:build --prefix studio
 ```
 
-Artifacts are written under `src-tauri/target/release/bundle/`. For CI smoke builds, use `cargo tauri build --bundles app` (skips DMG/installer bundling).
+Release artifacts are written under `src-tauri/target/release/bundle/`:
 
-## Editor choice (Task 1 note)
+| OS | Typical artifacts | Install / run |
+|----|-------------------|---------------|
+| **macOS** | `macos/*.app`, `macos/*.dmg` | Open the `.app`, or mount the DMG and drag to Applications |
+| **Windows** | `msi/*.msi`, `nsis/*-setup.exe` | Run the installer; WebView2 is installed via embedded bootstrapper if missing (Windows 10/11) |
 
-Phase 2 Task 3 will add Monaco or CodeMirror 6 for JSON editing with schemas from [`../docs/schema/`](../docs/schema/). **CodeMirror 6** is the planned default (smaller bundle than Monaco); final choice is recorded when the editor lands.
+GitHub Actions (**Rust CI** → `cargo tauri build`) uploads these folders as workflow artifacts for `macos-latest` and `windows-latest`.
+
+Quick local smoke without DMG/installer:
+
+```bash
+cargo tauri build --bundles app
+```
+
+### macOS code signing (follow-up)
+
+CI and local release builds are **unsigned** by default. For distribution outside your machine, configure Apple Developer signing and notarization in Tauri — see [macOS code signing](https://v2.tauri.app/distribute/sign/macos/). Not required for dev or internal CI artifacts.
+
+### Cross-platform validation
+
+Manual regression (kometa carousel, mobile nav, demo multi-page links, hash preview) is tracked in [VALIDATION-CHECKLIST.md](./VALIDATION-CHECKLIST.md).
+
+## JSON editor
+
+**CodeMirror 6** (`@codemirror/lang-json` + `@codemirror/lint`) with **Ajv** validation against [`../docs/schema/site.schema.json`](../docs/schema/site.schema.json) and [`page.schema.json`](../docs/schema/page.schema.json). Monaco was not used to keep the bundle smaller (~515 kB minified JS for the full studio build).
 
 ## Layout
 
