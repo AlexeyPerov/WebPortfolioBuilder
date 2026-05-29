@@ -4,6 +4,16 @@ Static site generator in Go (**PortfolioWebsiteBuilder**). The supported workflo
 
 **Normative behavior** is documented in [Specs/ImplementationSpec.md](Specs/ImplementationSpec.md). Widget props and parity notes live in [Specs/WidgetRegistryV1.md](Specs/WidgetRegistryV1.md).
 
+## Migration (Tauri + Rust)
+
+The generator is moving from **Go CLI** to a **Rust engine** and **Tauri 2 + Svelte 5** desktop studio. Go on `main` remains the parity baseline until Phase 1 completes.
+
+- [Specs/tauri/requirements.md](Specs/tauri/requirements.md) — scope, phases, and acceptance criteria
+- [Specs/tauri/execution-plan.md](Specs/tauri/execution-plan.md) — agent task index (Phase 0–3)
+- Phase plans: [0 — Preparation](Specs/tauri/execution-plan-phase-0.md) · [1 — Rust engine](Specs/tauri/execution-plan-phase-1.md) · [2 — Tauri studio](Specs/tauri/execution-plan-phase-2.md) · [3 — Author polish](Specs/tauri/execution-plan-phase-3.md)
+
+Golden HTML from the Go build lives under `crates/core/tests/golden/` for Rust regression tests.
+
 ## Prerequisites
 
 - [Go](https://go.dev/dl/) 1.20+ installed.

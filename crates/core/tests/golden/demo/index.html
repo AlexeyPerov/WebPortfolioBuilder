@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo</title>
+  <link rel="icon" type="image/png" href="assets/logo-3.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css?family=Quicksand:700%7cRoboto:400,400i,700&amp;display=swap" rel="stylesheet">
+  <meta name="description" content="A polished demo portfolio site showcasing every v1 widget and multi-page navigation.">
+  <link rel="canonical" href="https://example.com/demo-site/">
+  <meta property="og:title" content="Demo">
+  <meta property="og:description" content="A polished demo portfolio site showcasing every v1 widget and multi-page navigation.">
+  <meta property="og:url" content="https://example.com/demo-site/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://example.com/demo-site/assets/logo.png">
+  <meta name="theme-color" content="#5b6cff">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Demo">
+  <meta name="twitter:description" content="A polished demo portfolio site showcasing every v1 widget and multi-page navigation.">
+  <meta name="twitter:image" content="https://example.com/demo-site/assets/logo.png">
+  <style>
+    :root {
+      --font-heading: "Quicksand", sans-serif;
+      --font-body: "Roboto", sans-serif;
+      --accent: #5b6cff;
+      --catalog-gradient: linear-gradient(to bottom, #eef2f7 0, #ffffff 70%);
+      --cover-background: #5b6cff;
+      --follow-us-gradient: linear-gradient(to bottom, #eef2f7 0, #ffffff 70%);
+      --footer-gradient: linear-gradient(to bottom, #eef2f7 0, #ffffff 85%);
+      --intro-gradient: linear-gradient(to bottom, #eef2f7 0, #ffffff 70%);
+      --line: #d8deea;
+      --offers-gradient: linear-gradient(to bottom, #ffffff 0, #eef2f7 70%);
+      --page-bg: #f8fafc;
+      --photos-gradient: linear-gradient(to bottom, #eef2f7 0, #ffffff 70%);
+      --surface: #ffffff;
+      --surface-strong: #eef2f7;
+      --text-primary: #1a1d2e;
+      --text-secondary: #4a5070;
+      --vacancies-gradient: linear-gradient(to bottom, #ffffff 0, #eef2f7 70%);
+      --widget-gradient: linear-gradient(to bottom, #eef2f7, #ffffff);
+    }
+  </style>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <noscript>
+    <style>
+      .scroll-reveal,
+      .scroll-reveal.scroll-reveal--visible {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    </style>
+  </noscript>
+  
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        
+        <div class="brand-row">
+          <a class="brand-home" href="./" aria-label="Home">
+            <img class="logo" src="assets/logo-3.png" alt="Site logo">
+            
+          </a>
+        </div>
+        
+        
+        <button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+          <span class="site-nav-toggle__bar" aria-hidden="true"></span>
+          <span class="site-nav-toggle__bar" aria-hidden="true"></span>
+          <span class="site-nav-toggle__bar" aria-hidden="true"></span>
+        </button>
+        <nav class="site-nav" id="site-nav" aria-label="Site navigation">
+          
+          <a class="site-nav__link" href="./">Home</a>
+          
+          <a class="site-nav__link" href="layouts/">Layouts</a>
+          
+          <a class="site-nav__link" href="gallery/">Gallery</a>
+          
+          <a class="site-nav__link" href="apps/">Apps</a>
+          
+          <a class="site-nav__link" href="careers/">Careers</a>
+          
+          <a class="site-nav__link" href="about/">About</a>
+          
+        </nav>
+        
+      </div>
+    </div>
+  </header>
+  
+
+  <main id="main-content">
+    <section class="cover-banner scroll-reveal" aria-label="Cover"><img class="cover-banner__img" src="assets/logo.png" alt="Cover placeholder"></section>
+<section class="intro section section-gradient scroll-reveal scroll-reveal--immediate"><div class="container center"><p>Explore every registered v1 widget across six demo pages — layouts, gallery, apps, careers, and about. All images are generic placeholders.</p><p>Rebuild with: go run . --site content/demo</p></div></section>
+
+<section class="project-grid section section-gradient scroll-reveal" id="portfolio" data-widget-type="project_grid">
+  <div class="container">
+    <h2 class="center">Featured work</h2>
+    <p class="project-grid__sub center">Portfolio-style cards with tags, meta, and CTAs</p>
+    <div class="project-grid__grid" style="--project-grid-min:260px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--project-grid-min)),1fr));gap:1.25rem;">
+      
+      <article class="project-card scroll-reveal">
+        
+        <div class="project-card__media">
+          <img src="assets/pic1.png" alt="Layout containers" loading="lazy" decoding="async">
+        </div>
+        
+        <div class="project-card__body">
+          
+          
+          <dl class="project-card__meta-dl"><div class="project-card__meta-row"><dt>type</dt><dd>Demo</dd></div><div class="project-card__meta-row"><dt>year</dt><dd>2026</dd></div></dl>
+          
+          <h3 class="project-card__title">Layout containers</h3>
+          <p class="project-card__desc">Row, column, and grid layout widgets with nested intro blocks.</p>
+          <ul class="project-card__tags"><li>Layout</li><li>CSS</li></ul>
+          <p class="project-card__cta-wrap"><a class="project-card__cta" href="layouts/">View layouts</a></p>
+        </div>
+      </article>
+      
+      <article class="project-card scroll-reveal">
+        
+        <div class="project-card__media">
+          <img src="assets/pic2.png" alt="Photo gallery" loading="lazy" decoding="async">
+        </div>
+        
+        <div class="project-card__body">
+          <p class="project-card__meta-line">Six placeholder photos</p>
+          
+          <h3 class="project-card__title">Photo gallery</h3>
+          <p class="project-card__desc">Images grid and media swiper carousel on a dedicated page.</p>
+          <ul class="project-card__tags"><li>Media</li></ul>
+          <p class="project-card__cta-wrap"><a class="project-card__cta" href="gallery/">Open gallery</a></p>
+        </div>
+      </article>
+      
+      <article class="project-card scroll-reveal">
+        
+        <div class="project-card__media">
+          <img src="assets/aoc-icon.png" alt="App catalog" loading="lazy" decoding="async">
+        </div>
+        
+        <div class="project-card__body">
+          
+          
+          <dl class="project-card__meta-dl"><div class="project-card__meta-row"><dt>platform</dt><dd>iOS &amp; Android</dd></div></dl>
+          
+          <h3 class="project-card__title">App catalog</h3>
+          <p class="project-card__desc">Rich product cards with store badges and screenshot carousels.</p>
+          <ul class="project-card__tags"><li>Mobile</li><li>Showcase</li></ul>
+          <p class="project-card__cta-wrap"><a class="project-card__cta" href="apps/">Browse apps</a></p>
+        </div>
+      </article>
+      
+      <article class="project-card scroll-reveal">
+        
+        <div class="project-card__media">
+          <img src="assets/pic3.png" alt="Open roles" loading="lazy" decoding="async">
+        </div>
+        
+        <div class="project-card__body">
+          <p class="project-card__meta-line">Two sample vacancies</p>
+          
+          <h3 class="project-card__title">Open roles</h3>
+          <p class="project-card__desc">Tabbed careers section with requirements and apply links.</p>
+          <ul class="project-card__tags"><li>Careers</li></ul>
+          <p class="project-card__cta-wrap"><a class="project-card__cta" href="careers/">See careers</a></p>
+        </div>
+      </article>
+      
+    </div>
+  </div>
+</section>
+
+<section class="offers section section-gradient scroll-reveal" id="offers"><div class="container"><h2 id="offers_title" class="center">Why this demo exists</h2><div class="offers-grid"><article class="offer-card"><img class="offer-card__image" src="assets/emoji_joy.png" alt="Every widget"><h3>Every widget</h3><p>Cover banner, intro, project grid, info grid, images grid, apps showcase, careers tabs, follow us, and media swiper.</p></article><article class="offer-card"><img class="offer-card__image" src="assets/emoji_Medal.png" alt="Multi-page nav"><h3>Multi-page nav</h3><p>Header links resolve relative paths from any page depth — home, layouts, gallery, apps, careers, and about.</p></article><article class="offer-card"><img class="offer-card__image" src="assets/emoji_salute.png" alt="Layout nesting"><h3>Layout nesting</h3><p>Row, column, and grid containers can wrap any leaf widget, including other layout widgets.</p></article><article class="offer-card"><img class="offer-card__image" src="assets/emoji_playful.png" alt="Placeholder assets"><h3>Placeholder assets</h3><p>Generic placeholder images and icons — no real product or studio branding.</p></article></div></div></section>
+<section class="photos section section-gradient scroll-reveal" id="photos"><div class="container"><h2 id="photos_title" class="center">Sample photos</h2><div class="photos-grid" data-image-lightbox><button type="button" class="photos-grid__item" data-lightbox-src="assets/pic4.png" data-lightbox-alt="Placeholder photo 4"><img src="assets/pic4.png" alt="Placeholder photo 4"></button><button type="button" class="photos-grid__item" data-lightbox-src="assets/pic5.png" data-lightbox-alt="Placeholder photo 5"><img src="assets/pic5.png" alt="Placeholder photo 5"></button><button type="button" class="photos-grid__item" data-lightbox-src="assets/pic6.png" data-lightbox-alt="Placeholder photo 6"><img src="assets/pic6.png" alt="Placeholder photo 6"></button></div></div></section>
+<section class="follow-us section section-gradient scroll-reveal" id="follow_us"><div class="container"><h2 id="follow_us_title" class="center">Follow us</h2><div class="follow-us__buttons"><a class="follow-us__btn follow-us__btn--github" href="https://github.com/example" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg class="follow-us__icon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg></a><a class="follow-us__btn follow-us__btn--linkedin" href="https://www.linkedin.com/company/example" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg class="follow-us__icon" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div></div></section>
+  </main>
+
+  <footer class="footer section section-gradient" id="footer"><div class="container"><h2 class="center footer-heading">Contact</h2><div class="footer-contact-row" id="footer-contact"><div class="footer-contact-row__text">Multi-page widget showcase for Portfolio Website Builder.</div><a class="footer-contact-row__email" href="mailto:demo@example.com">demo@example.com</a></div><p class="footer-copyright">© Demo bundle</p><p class="footer-cookie">This demo site does not use cookies</p></div></footer>
+  <script type="application/json" id="site-widgets-config">{"scroll_reveal":{"respect_reduced_motion":true,"root_margin":"0px 0px -5% 0px","threshold":0.12},"carousel":{"swipe_threshold_px":30,"keyboard_navigation":true},"split_widget":{"keyboard_navigation":true}}</script>
+  <script src="scroll-reveal.js" defer></script>
+  
+  
+  <script src="image-lightbox.js" defer></script>
+  <script src="nav.js" defer></script>
+</body>
+</html>
