@@ -1,3 +1,41 @@
+# Site generator output (CLI + studio preview builds)
 Results/
-Specs/**
+
+# Planning docs (local / agent workspace)
+/Specs/
+
+# Local / private author bundle copy (public samples: content/demo, content/my-studio)
 content/kometa/
+
+# --- Rust (Cargo workspace) ---
+/target/
+
+# --- Tauri 2 (Phase 2: src-tauri/) ---
+/src-tauri/target/
+/src-tauri/gen/
+
+# --- Svelte 5 + Vite studio (Phase 2: studio/) ---
+/studio/node_modules/
+/studio/dist/
+/studio/build/
+/studio/.vite/
+/studio/.svelte-kit/
+
+# Node (root-level tooling, if any)
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db

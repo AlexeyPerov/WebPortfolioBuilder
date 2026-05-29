@@ -1,9 +1,6 @@
 use crate::error::{CoreError, CoreResult};
 use crate::types::ConfigWarning;
-use std::path::Path;
-use std::fs;
 use std::io::Write;
-use std::path::Path;
 
 pub fn enforce_strict_warnings(warnings: &[ConfigWarning]) -> CoreResult<()> {
     let mut failures: Vec<String> = warnings

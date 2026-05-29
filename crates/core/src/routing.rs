@@ -118,11 +118,8 @@ fn parse_slug_reference(href: &str) -> CoreResult<(String, String)> {
 }
 
 pub fn relative_dir_link(from_dir: &str, to_dir: &str) -> String {
-    let from = if from_dir.is_empty() { "." } else { from_dir };
-    let to = if to_dir.is_empty() { "." } else { to_dir };
-
-    let from_path: PathBuf = from.split('/').filter(|s| !s.is_empty()).collect();
-    let to_path: PathBuf = to.split('/').filter(|s| !s.is_empty()).collect();
+    let from_path = dir_path_components(from_dir);
+    let to_path = dir_path_components(to_dir);
 
     let rel = path_relative(&from_path, &to_path);
     if rel == "." {
@@ -131,6 +128,15 @@ pub fn relative_dir_link(from_dir: &str, to_dir: &str) -> String {
         rel
     } else {
         format!("{rel}/")
+    }
+}
+
+fn dir_path_components(dir: &str) -> PathBuf {
+    let trimmed = dir.trim().trim_matches('/');
+    if trimmed.is_empty() {
+        PathBuf::new()
+    } else {
+        trimmed.split('/').filter(|s| !s.is_empty()).collect()
     }
 }
 
