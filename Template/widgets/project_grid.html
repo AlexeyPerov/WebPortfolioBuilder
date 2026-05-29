@@ -5,10 +5,12 @@
     {{if .Subheading}}<p class="project-grid__sub center">{{.Subheading}}</p>{{end}}
     <div class="project-grid__grid" style="{{.GridStyle}}">
       {{range .Cards}}
-      <article class="project-card scroll-reveal">
+      <article class="project-card scroll-reveal{{if not .HasImage}} project-card--no-media{{end}}">
+        {{if .HasImage}}
         <div class="project-card__media">
-          {{if .ImageSrc}}<img src="{{.ImageSrc}}" alt="{{.ImageAlt}}" loading="lazy" decoding="async">{{end}}
+          <img src="{{.ImageSrc}}" alt="{{.ImageAlt}}" loading="lazy" decoding="async">
         </div>
+        {{end}}
         <div class="project-card__body">
           {{if .MetaLine}}<p class="project-card__meta-line">{{.MetaLine}}</p>{{end}}
           {{if .HasMetaPairs}}

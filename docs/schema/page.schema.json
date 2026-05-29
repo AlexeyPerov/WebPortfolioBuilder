@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://portfoliowebsitebuilder/schema/page.schema.json",
   "title": "Portfolio site bundle — pages/*.json",
-  "description": "Page configuration for Portfolio Website Builder. Widget types match the closed v1 registry in Specs/WidgetRegistryV1.md.",
+  "description": "Page configuration for Portfolio Website Builder. Widget types match the closed v1 registry (see README).",
   "type": "object",
   "additionalProperties": false,
   "required": ["slug", "widgets"],
@@ -325,7 +325,7 @@
     "projectGridCard": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "description", "tags", "image", "meta", "cta"],
+      "required": ["title", "description", "tags", "meta", "cta"],
       "properties": {
         "title": { "type": "string" },
         "description": { "type": "string" },
@@ -333,7 +333,10 @@
           "type": "array",
           "items": { "type": "string" }
         },
-        "image": { "type": "string" },
+        "image": {
+          "type": "string",
+          "description": "Optional card thumbnail under assets/; omit for text-only cards."
+        },
         "meta": {
           "oneOf": [
             { "type": "string" },

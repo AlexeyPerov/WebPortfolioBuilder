@@ -511,6 +511,37 @@ func TestProjectGridRendersCards(t *testing.T) {
 	}
 }
 
+func TestProjectGridOptionalImage(t *testing.T) {
+	ctx := testRenderCtx(t, "content/demo/pages/home.json")
+	widgets := []WidgetNode{
+		{
+			Type: "project_grid",
+			Props: map[string]json.RawMessage{
+				"cards": mustWidgetRawJSON(t, []map[string]any{
+					{
+						"title":       "Text only",
+						"description": "No thumbnail.",
+						"tags":        []string{"Go"},
+						"meta":        "Sample",
+						"cta":         map[string]string{"url": "https://example.com/t"},
+					},
+				}),
+			},
+		},
+	}
+	out, _, err := renderWidgetTree(ctx, widgets)
+	if err != nil {
+		t.Fatalf("renderWidgetTree failed: %v", err)
+	}
+	html := string(out)
+	if strings.Contains(html, "project-card__media") {
+		t.Fatalf("expected no media block: %s", html)
+	}
+	if !strings.Contains(html, "project-card--no-media") {
+		t.Fatalf("expected no-media modifier: %s", html)
+	}
+}
+
 func TestProjectGridMetaString(t *testing.T) {
 	ctx := testRenderCtx(t, "content/demo/pages/home.json")
 	widgets := []WidgetNode{

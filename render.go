@@ -35,6 +35,7 @@ type renderedPageData struct {
 	SiteIconHref              string
 	ShowHeader                bool
 	ShowFooter                bool
+	ShowHeaderBrand           bool
 	HeaderBrandHref           string
 	HeaderBrandLogo           string
 	HeaderBrandText           string
@@ -171,6 +172,7 @@ func buildRenderedPageData(bundle SiteBundle, pageFile SitePageFile, route PageR
 	data.HeaderBrandHref = brandHref
 	data.HeaderBrandLogo = resolveAssetHrefForPage(bundle.Site.Header.Brand.Logo, route)
 	data.HeaderBrandText = strings.TrimSpace(bundle.Site.Header.Brand.Text)
+	data.ShowHeaderBrand = data.HeaderBrandLogo != "" || data.HeaderBrandText != ""
 	data.SiteIconHref = data.HeaderBrandLogo
 
 	navItems, err := renderHeaderNavForPage(bundle, route, routes)

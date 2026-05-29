@@ -43,13 +43,15 @@
   {{if .ShowHeader}}
   <header class="site-header">
     <div class="container">
-      <div class="header-inner">
+      <div class="header-inner{{if not .ShowHeaderBrand}} header-inner--no-brand{{end}}">
+        {{if .ShowHeaderBrand}}
         <div class="brand-row">
           <a class="brand-home" href="{{.HeaderBrandHref}}" aria-label="Home">
             {{if .HeaderBrandLogo}}<img class="logo" src="{{.HeaderBrandLogo}}" alt="Site logo">{{end}}
             {{if .HeaderBrandText}}<span class="brand-home__text">{{.HeaderBrandText}}</span>{{end}}
           </a>
         </div>
+        {{end}}
         {{if .HeaderNav}}
         <button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
           <span class="site-nav-toggle__bar" aria-hidden="true"></span>

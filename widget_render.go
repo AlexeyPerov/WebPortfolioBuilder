@@ -935,6 +935,7 @@ type projectGridTemplateData struct {
 }
 
 type projectGridCardTemplateData struct {
+	HasImage     bool
 	ImageSrc     string
 	ImageAlt     string
 	Title        string
@@ -1019,9 +1020,6 @@ func parseProjectGridProps(ctx *widgetRenderContext, widget WidgetNode, path str
 			return nil, fmt.Errorf("%s.description: required field missing", cardPath)
 		}
 		img := strings.TrimSpace(c.Image)
-		if img == "" {
-			return nil, fmt.Errorf("%s.image: required field missing", cardPath)
-		}
 		ctaURL := strings.TrimSpace(c.CTA.URL)
 		if ctaURL == "" {
 			return nil, fmt.Errorf("%s.cta.url: required field missing", cardPath)
@@ -1046,19 +1044,23 @@ func parseProjectGridProps(ctx *widgetRenderContext, widget WidgetNode, path str
 			}
 		}
 
-		out.Cards = append(out.Cards, projectGridCardTemplateData{
-			ImageSrc:     resolveAssetHrefForPage(img, ctx.Route),
-			ImageAlt:     title,
-			Title:        title,
+		card := projectGridCardTemplateData{
+			HasImage:    img != "",
+			Title:       title,
 			Description:  desc,
 			Tags:         tags,
 			MetaLine:     metaLine,
 			MetaPairs:    metaPairs,
 			HasMetaPairs: len(metaPairs) > 0,
-			CtaLabel:     ctaLabel,
-			CtaURL:       resolvedCTA,
-			CtaAttrs:     template.HTMLAttr(externalLinkAttrs(resolvedCTA)),
-		})
+			CtaLabel: ctaLabel,
+			CtaURL:   resolvedCTA,
+			CtaAttrs: template.HTMLAttr(externalLinkAttrs(resolvedCTA)),
+		}
+		if img != "" {
+			card.ImageSrc = resolveAssetHrefForPage(img, ctx.Route)
+			card.ImageAlt = title
+		}
+		out.Cards = append(out.Cards, card)
 	}
 	return out, nil
 }

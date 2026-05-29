@@ -79,6 +79,44 @@ func TestBuildRenderedPageDataAppliesMergeModel(t *testing.T) {
 	}
 }
 
+func TestBuildRenderedPageDataHidesEmptyHeaderBrand(t *testing.T) {
+	bundle := SiteBundle{
+		SitePath: "content/alexeyperov-io/site.json",
+		Site: SiteConfig{
+			SiteID: "alexeyperov-io",
+			Header: HeaderConfig{
+				Brand: HeaderBrand{},
+				Nav: []NavItem{
+					{Label: "Apps", Href: "#apps"},
+				},
+			},
+		},
+		Pages: []SitePageFile{
+			{
+				Path: "content/alexeyperov-io/pages/home.json",
+				Page: PageConfig{Slug: "", Widgets: []WidgetNode{{Type: "intro", Props: map[string]json.RawMessage{
+					"title": mustWidgetRawJSON(t, "Hi"),
+				}}}},
+			},
+		},
+	}
+	widgetTpl, err := loadWidgetTemplates("Template")
+	if err != nil {
+		t.Fatalf("loadWidgetTemplates: %v", err)
+	}
+	routes, err := buildRouteIndex(bundle)
+	if err != nil {
+		t.Fatalf("buildRouteIndex: %v", err)
+	}
+	data, _, err := buildRenderedPageData(bundle, bundle.Pages[0], routes.Ordered[0], routes, widgetTpl)
+	if err != nil {
+		t.Fatalf("buildRenderedPageData: %v", err)
+	}
+	if data.ShowHeaderBrand {
+		t.Fatal("expected ShowHeaderBrand false when logo and text empty")
+	}
+}
+
 func TestBuildRenderedPageDataEmitsSocialMetaFields(t *testing.T) {
 	bundle := SiteBundle{
 		SitePath: "content/demo/site.json",

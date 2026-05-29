@@ -231,12 +231,12 @@ go build ./...
 
 ## JSON Schema (author configs)
 
-JSON Schemas in [`Specs/schema/`](Specs/schema/) document `site.json` and `pages/*.json` for IDE autocomplete and offline checks. **Go validation remains the source of truth** (see `go run . --validate`).
+JSON Schemas in [`docs/schema/`](docs/schema/) document `site.json` and `pages/*.json` for IDE autocomplete and offline checks. **Go validation remains the source of truth** (see `go run . --validate`).
 
 | Schema | Applies to |
 |--------|------------|
-| [`Specs/schema/site.schema.json`](Specs/schema/site.schema.json) | `content/<site-id>/site.json` |
-| [`Specs/schema/page.schema.json`](Specs/schema/page.schema.json) | `content/<site-id>/pages/*.json` |
+| [`docs/schema/site.schema.json`](docs/schema/site.schema.json) | `content/<site-id>/site.json` |
+| [`docs/schema/page.schema.json`](docs/schema/page.schema.json) | `content/<site-id>/pages/*.json` |
 
 Widget `type` values in the page schema match the closed v1 registry in [Specs/WidgetRegistryV1.md](Specs/WidgetRegistryV1.md).
 
@@ -249,11 +249,11 @@ The repo includes [`.vscode/settings.json`](.vscode/settings.json) mapping those
   "json.schemas": [
     {
       "fileMatch": ["content/*/site.json"],
-      "url": "./Specs/schema/site.schema.json"
+      "url": "./docs/schema/site.schema.json"
     },
     {
       "fileMatch": ["content/*/pages/*.json"],
-      "url": "./Specs/schema/page.schema.json"
+      "url": "./docs/schema/page.schema.json"
     }
   ]
 }
@@ -262,8 +262,8 @@ The repo includes [`.vscode/settings.json`](.vscode/settings.json) mapping those
 Validate from the CLI (requires Node.js):
 
 ```bash
-npx ajv-cli validate -s Specs/schema/site.schema.json -d content/kometa/site.json
-npx ajv-cli validate -s Specs/schema/page.schema.json -d content/kometa/pages/home.json
+npx ajv-cli validate -s docs/schema/site.schema.json -d content/kometa/site.json
+npx ajv-cli validate -s docs/schema/page.schema.json -d content/kometa/pages/home.json
 ```
 
 ## Forbidden-string check (contributors)
