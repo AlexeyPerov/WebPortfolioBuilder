@@ -1,0 +1,59 @@
+{
+  "site_id": "alexeyperov-io",
+  "output_folder": "Results/AlexeyPerovWebsite",
+  "base_url": "https://alexeyperov.github.io",
+  "theme": {
+    "page_bg": "#12141f",
+    "surface": "#1a1d2e",
+    "surface_strong": "#252836",
+    "text_primary": "#f0f2f8",
+    "text_secondary": "#a8adc4",
+    "accent": "#ed6524",
+    "line": "#3a4058",
+    "widget_gradient": "linear-gradient(to bottom, #1a1d2e, #12141f)",
+    "cover_background": "#ed6524",
+    "intro_gradient": "linear-gradient(to bottom, #252836 0, #12141f 70%)",
+    "catalog_gradient": "linear-gradient(to bottom, #1a1d2e 0, #12141f 70%)",
+    "offers_gradient": "linear-gradient(to bottom, #12141f 0, #1a1d2e 70%)",
+    "photos_gradient": "linear-gradient(to bottom, #1a1d2e 0, #12141f 70%)",
+    "vacancies_gradient": "linear-gradient(to bottom, #12141f 0, #1a1d2e 70%)",
+    "follow_us_gradient": "linear-gradient(to bottom, #252836 0, #12141f 70%)",
+    "footer_gradient": "linear-gradient(to bottom, #1a1d2e 0, #12141f 85%)"
+  },
+  "store_icons": {},
+  "subscribe_block": {
+    "title": "",
+    "links": []
+  },
+  "social": {
+    "github_url": "https://github.com/AlexeyPerov",
+    "linkedin_url": "https://www.linkedin.com/in/alexey-perov-4669b375/"
+  },
+  "header": {
+    "brand": {
+      "logo": "",
+      "text": ""
+    },
+    "nav": [
+      { "label": "Projects", "href": "#intro_title", "open_in_new_tab": false },
+      { "label": "Unity", "href": "#unity-tools", "open_in_new_tab": false },
+      { "label": "Apps", "href": "#apps", "open_in_new_tab": false },
+      { "label": "Tools", "href": "#tools", "open_in_new_tab": false },
+      { "label": "Contact", "href": "#footer", "open_in_new_tab": false }
+    ]
+  },
+  "footer": {
+    "enabled": true,
+    "section_title": "",
+    "contact": {
+      "paragraphs": [],
+      "email": ""
+    },
+    "privacy_url": "",
+    "privacy_label": "Privacy Policy",
+    "terms_url": "",
+    "terms_label": "Terms of Service",
+    "copyright": "All projects are of MIT or BSD-3-Clause licenses.",
+    "cookie_notice": ""
+  }
+}
