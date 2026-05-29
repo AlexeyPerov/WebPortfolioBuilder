@@ -26,6 +26,11 @@ fn discover_content_bundles_finds_valid_sites() {
         r#"{"site_id":"beta","output_folder":"Results/Beta"}"#,
     );
     write_json_file(&content.join("broken/site.json"), "{not json");
+    fs::create_dir_all(content.join("_template/pages")).unwrap();
+    write_json_file(
+        &content.join("_template/site.json"),
+        r#"{"site_id":"template","output_folder":"Results/Template"}"#,
+    );
 
     let got = discover_content_bundles(root.path()).unwrap();
     assert_eq!(got, vec!["content/alpha", "content/beta"]);

@@ -73,6 +73,7 @@ The studio UI (Phase 2.3) provides the full author layout: toolbar, bundle file 
 | `validate_site` | Validate without write; structured warnings/errors |
 | `build_site` | Full generate; stops preview server first |
 | `set_auto_rebuild` | Start/stop debounced file watcher on active bundle |
+| `create_site_from_template` | Copy `content/_template/` to `content/<site-id>/` |
 | `start_preview_server` / `stop_preview_server` | HTTP static serve on `127.0.0.1` |
 
 TypeScript wrappers: [`src/lib/studio-api.ts`](src/lib/studio-api.ts). UI components live under [`src/components/`](src/components/).
@@ -84,6 +85,14 @@ Use **Open project** to point at the repo root (or rely on auto-detect when `car
 Enable **Auto-rebuild** in the toolbar to watch `content/<active-site>/` recursively (JSON and assets under the bundle; `Results/` is not watched). After you save a file, the studio debounces changes for **500 ms** (`WATCH_DEBOUNCE_MS` in `src-tauri/src/content_watcher.rs`, mirrored as `AUTO_REBUILD_DEBOUNCE_MS` in the UI) and then runs `build_site`, restarts the preview server, and updates the Problems panel and build log. Rapid saves within that window coalesce to a single build.
 
 Auto-rebuild is **off by default**. With it disabled, behavior matches Phase 2 manual **Build** only. Build failures are shown in Problems/log; the file watcher keeps running.
+
+### Open output folder (Phase 3)
+
+After a successful **Build** (or auto-rebuild), **Open output folder** reveals the last `output_dir` from `build_site` in the OS file manager (`revealItemInDir`). Run **Build** first if the button is disabled.
+
+### New site from template (Phase 3)
+
+**New site** copies [`content/_template/`](../content/_template/) to `content/<site-id>/`, sets `site_id` and `output_folder` in `site.json` (folder name must match `site_id`), and refreshes the site dropdown. Invalid or duplicate ids show a native error dialog. Underscore-prefixed folders (e.g. `_template`) are excluded from the site list.
 
 ## Build (release)
 

@@ -112,6 +112,10 @@ export function writeBundleFile(
   })
 }
 
+export function createSiteFromTemplate(projectRoot: string, siteId: string) {
+  return invoke<string>('create_site_from_template', { projectRoot, siteId })
+}
+
 export function setAutoRebuild(
   enabled: boolean,
   projectRoot: string,

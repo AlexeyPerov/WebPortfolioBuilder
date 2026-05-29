@@ -1,0 +1,55 @@
+{
+  "site_id": "your-site-id",
+  "output_folder": "Results/YourSiteIdWebsite",
+  "base_url": "https://example.com",
+  "theme": {
+    "page_bg": "#f8fafc",
+    "surface": "#ffffff",
+    "surface_strong": "#eef2f7",
+    "text_primary": "#1a1d2e",
+    "text_secondary": "#4a5070",
+    "accent": "#5b6cff",
+    "line": "#d8deea",
+    "widget_gradient": "linear-gradient(to bottom, #eef2f7, #ffffff)",
+    "cover_background": "#5b6cff",
+    "intro_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 70%)",
+    "catalog_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 70%)",
+    "offers_gradient": "linear-gradient(to bottom, #ffffff 0, #eef2f7 70%)",
+    "photos_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 70%)",
+    "vacancies_gradient": "linear-gradient(to bottom, #ffffff 0, #eef2f7 70%)",
+    "follow_us_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 70%)",
+    "footer_gradient": "linear-gradient(to bottom, #eef2f7 0, #ffffff 85%)"
+  },
+  "store_icons": {},
+  "subscribe_block": {
+    "title": "",
+    "links": []
+  },
+  "social": {
+    "github_url": "",
+    "linkedin_url": ""
+  },
+  "header": {
+    "brand": {
+      "logo": "",
+      "text": "My Site"
+    },
+    "nav": [
+      { "label": "Home", "href": "#intro_title", "open_in_new_tab": false }
+    ]
+  },
+  "footer": {
+    "enabled": true,
+    "section_title": "",
+    "contact": {
+      "paragraphs": [],
+      "email": ""
+    },
+    "privacy_url": "",
+    "privacy_label": "Privacy Policy",
+    "terms_url": "",
+    "terms_label": "Terms of Service",
+    "copyright": "",
+    "cookie_notice": ""
+  }
+}

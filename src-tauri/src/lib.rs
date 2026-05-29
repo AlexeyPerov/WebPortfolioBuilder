@@ -4,6 +4,7 @@ mod diagnostics;
 mod preview_server;
 mod settings;
 mod site_ops;
+pub mod site_template;
 pub mod studio_files;
 
 use content_watcher::ContentWatcherState;
@@ -30,6 +31,7 @@ pub fn run() {
             commands::read_bundle_file_cmd,
             commands::write_bundle_file_cmd,
             commands::set_auto_rebuild,
+            commands::create_site_from_template,
         ])
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())

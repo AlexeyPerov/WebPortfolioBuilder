@@ -1,0 +1,20 @@
+{
+  "slug": "",
+  "title": "My Site",
+  "seo": {
+    "description": "A new portfolio site created from the studio template.",
+    "og_image": ""
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "Welcome",
+        "paragraphs": [
+          "Edit site.json and pages/home.json in the studio, then run Build to preview.",
+          "Replace this intro with your own content."
+        ]
+      }
+    }
+  ]
+}

@@ -1,5 +1,13 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 3 Task 2: reveal output and new site
+
+- Marked **Task 2** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md).
+- **Open output folder:** `revealItemInDir` on last successful `output_dir`; error dialog when missing or reveal fails.
+- **New site:** `content/_template/` skeleton; `create_site_from_template` command validates id, copies bundle, patches `site.json`, verifies `site_id` matches folder; studio **New site** button + dropdown refresh. `_`-prefixed content dirs excluded from `list_content_bundles`.
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 3 Task 1: debounced watch rebuild
 
 - Marked **Task 1** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md).

@@ -3,6 +3,7 @@ use crate::diagnostics::{BuildSiteResult, PreviewServerInfo, ProjectRootInfo, Va
 use crate::preview_server::PreviewServerState;
 use crate::settings::{load_settings, save_settings, StudioSettings};
 use crate::site_ops::{run_build, run_validate};
+use crate::site_template;
 use crate::studio_files::{
     list_bundle_files, project_info_at, read_bundle_file, write_bundle_file, BundleFileEntry,
 };
@@ -136,6 +137,12 @@ pub fn set_auto_rebuild(
     }
     let project_root = parse_project_root(&project_root)?;
     watcher.start(app, project_root, site_path, strict, preview_port)
+}
+
+#[tauri::command]
+pub fn create_site_from_template(project_root: String, site_id: String) -> Result<String, String> {
+    let project_root = parse_project_root(&project_root)?;
+    site_template::create_site_from_template(&project_root, &site_id)
 }
 
 #[tauri::command]

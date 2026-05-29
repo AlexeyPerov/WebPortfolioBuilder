@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { listen } from '@tauri-apps/api/event'
-  import { open } from '@tauri-apps/plugin-dialog'
-  import { openPath } from '@tauri-apps/plugin-opener'
+  import { message, open } from '@tauri-apps/plugin-dialog'
+  import { revealItemInDir } from '@tauri-apps/plugin-opener'
   import BuildLog from './components/BuildLog.svelte'
   import FileTree from './components/FileTree.svelte'
   import JsonEditor from './components/JsonEditor.svelte'
@@ -11,6 +11,7 @@
   import {
     AUTO_REBUILD_DEBOUNCE_MS,
     buildSite,
+    createSiteFromTemplate,
     getStudioSettings,
     listBundleFiles,
     listContentBundles,
@@ -276,13 +277,48 @@
 
   async function onOpenOutput() {
     if (!lastOutputDir) {
+      await message('Run Build first to generate output.', {
+        title: 'No output folder',
+        kind: 'info',
+      })
       appendLog('No output folder yet — run Build first.')
       return
     }
     try {
-      await openPath(lastOutputDir)
+      await revealItemInDir(lastOutputDir)
     } catch (err: unknown) {
-      appendLog(`Open output failed: ${String(err)}`)
+      const text = String(err)
+      await message(text, { title: 'Open output failed', kind: 'error' })
+      appendLog(`Open output failed: ${text}`)
+    }
+  }
+
+  async function onNewSite() {
+    if (!projectInfo) {
+      appendLog('Open a project first.')
+      return
+    }
+    const raw = window.prompt(
+      'New site id (lowercase letters, digits, hyphens):',
+      'my-site',
+    )
+    if (raw === null) return
+    const siteId = raw.trim()
+    if (!siteId) return
+
+    busy = true
+    try {
+      const sitePath = await createSiteFromTemplate(projectInfo.project_root, siteId)
+      bundles = await listContentBundles(projectInfo.project_root)
+      selectedSite = sitePath
+      await onSiteChange()
+      appendLog(`Created site ${sitePath}`)
+    } catch (err: unknown) {
+      const text = String(err)
+      await message(text, { title: 'New site failed', kind: 'error' })
+      appendLog(`New site failed: ${text}`)
+    } finally {
+      busy = false
     }
   }
 
@@ -353,6 +389,15 @@
   <header class="toolbar">
     <button type="button" class="primary" disabled={busy} onclick={onOpenProject}>
       Open project
+    </button>
+
+    <button
+      type="button"
+      disabled={busy || !projectInfo}
+      title="Copy content/_template/ to a new bundle"
+      onclick={onNewSite}
+    >
+      New site
     </button>
 
     <label class="site-select">

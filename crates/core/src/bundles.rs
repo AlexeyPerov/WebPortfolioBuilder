@@ -43,7 +43,12 @@ pub fn discover_content_bundles(project_root: &Path) -> CoreResult<Vec<String>> 
         if !ent.file_type().map(|t| t.is_dir()).unwrap_or(false) {
             continue;
         }
-        let rel = format!("{}/{}", CONTENT_ROOT_REL, ent.file_name().to_string_lossy());
+        let dir_name = ent.file_name();
+        let dir_name = dir_name.to_string_lossy();
+        if dir_name.starts_with('_') {
+            continue;
+        }
+        let rel = format!("{}/{}", CONTENT_ROOT_REL, dir_name);
         let site_json = project_root.join(&rel).join("site.json");
         if is_valid_site_json(&site_json) {
             bundles.push(rel.replace('\\', "/"));
