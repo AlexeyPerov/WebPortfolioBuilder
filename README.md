@@ -1,23 +1,23 @@
 # Portfolio Website Builder
 
-Static site generator in Go (**PortfolioWebsiteBuilder**). The supported workflow is a **content bundle** under `content/<site-id>/`: metadata in `site.json`, one or more page JSON files under `pages/`, and static files under `assets/`. Running the CLI renders HTML into the path set by `output_folder` in `site.json` (relative to the project root) using [`Template/layout.html`](Template/layout.html), widget partials in [`Template/widgets/`](Template/widgets/), and shared CSS/JS copied from [`Template/`](Template/).
+Static site generator in Rust (**PortfolioWebsiteBuilder**). The supported workflow is a **content bundle** under `content/<site-id>/`: metadata in `site.json`, one or more page JSON files under `pages/`, and static files under `assets/`. Running the CLI renders HTML into the path set by `output_folder` in `site.json` (relative to the project root) using [`Template/layout.html`](Template/layout.html), widget partials in [`Template/widgets/`](Template/widgets/), and shared CSS/JS copied from [`Template/`](Template/).
 
 **Normative behavior** is documented in [Specs/ImplementationSpec.md](Specs/ImplementationSpec.md). Widget props and parity notes live in [Specs/WidgetRegistryV1.md](Specs/WidgetRegistryV1.md).
 
 ## Migration (Tauri + Rust)
 
-The generator is moving from **Go CLI** to a **Rust engine** and **Tauri 2 + Svelte 5** desktop studio. Go on `main` remains the parity baseline until Phase 1 completes.
+Phase 1 is complete: the **Rust engine** (`crates/core`, `crates/cli`) replaces the former Go CLI. **Tauri 2 + Svelte 5** desktop studio is planned in Phase 2.
 
 - [Specs/tauri/requirements.md](Specs/tauri/requirements.md) — scope, phases, and acceptance criteria
 - [Specs/tauri/execution-plan.md](Specs/tauri/execution-plan.md) — agent task index (Phase 0–3)
 - Phase plans: [0 — Preparation](Specs/tauri/execution-plan-phase-0.md) · [1 — Rust engine](Specs/tauri/execution-plan-phase-1.md) · [2 — Tauri studio](Specs/tauri/execution-plan-phase-2.md) · [3 — Author polish](Specs/tauri/execution-plan-phase-3.md)
 
-Golden HTML from the Go build lives under `crates/core/tests/golden/` for Rust regression tests.
+Golden HTML snapshots (captured from the historical Go build) live under `crates/core/tests/golden/` for regression tests. `go run .` is intentionally unavailable after the Minijinja template migration.
 
 ## Prerequisites
 
-- [Go](https://go.dev/dl/) 1.20+ installed.
-- Clone this repo and work from its root (module path [`portfoliowebsitebuilder`](go.mod)).
+- [Rust](https://www.rust-lang.org/tools/install) **1.77+** with **Cargo** (workspace `rust-version` in root [`Cargo.toml`](Cargo.toml)).
+- Clone this repo and work from its root.
 
 ## Content bundle layout
 
@@ -36,7 +36,7 @@ The sample Kometa bundle is [`content/kometa/`](content/kometa/). The [`content/
 From the repo root:
 
 ```bash
-go run .
+cargo run -p portfoliowebsitebuilder
 ```
 
 ### CLI flags
@@ -54,22 +54,22 @@ Examples:
 
 ```bash
 # Non-interactive build (CI-friendly)
-go run . --site content/kometa
+cargo run -p portfoliowebsitebuilder -- --site content/kometa
 
 # Widget showcase + multi-page demo
-go run . --site content/demo
+cargo run -p portfoliowebsitebuilder -- --site content/demo
 
 # Validate without generating output
-go run . --validate --site content/kometa
+cargo run -p portfoliowebsitebuilder -- --validate --site content/kometa
 
 # Strict validation (fail on typos in JSON keys)
-go run . --validate --strict --site content/kometa
+cargo run -p portfoliowebsitebuilder -- --validate --strict --site content/kometa
 
 # Build and preview over HTTP
-go run . --site content/kometa --serve
+cargo run -p portfoliowebsitebuilder -- --site content/kometa --serve
 
 # List available bundles
-go run . --list-sites
+cargo run -p portfoliowebsitebuilder -- --list-sites
 ```
 
 ### Interactive mode
@@ -83,13 +83,13 @@ The tool picks the project root by: using the **current working directory** if `
 Example (default bundle → `Results/KometaWebsite/`):
 
 ```bash
-go run . --site content/kometa
+cargo run -p portfoliowebsitebuilder -- --site content/kometa
 ```
 
 Or with the interactive prompt:
 
 ```bash
-printf '\n' | go run .
+printf '\n' | cargo run -p portfoliowebsitebuilder
 ```
 
 The program writes to `<project-root>/<output_folder>/` using `output_folder` from `site.json`. Each run **clears** the target output directory, copies non-HTML assets from [`Template/`](Template/) (CSS/JS/fonts, etc.), copies every referenced bundle asset, then renders all routes.
@@ -103,13 +103,13 @@ Generated sites use hash-based routing for in-page navigation. Preview over **HT
 After a successful build, start a local static server on `127.0.0.1` (default port **8080**):
 
 ```bash
-go run . --site content/kometa --serve
+cargo run -p portfoliowebsitebuilder -- --site content/kometa --serve
 ```
 
 Custom port:
 
 ```bash
-go run . --site content/kometa --serve --port 3000
+cargo run -p portfoliowebsitebuilder -- --site content/kometa --serve --port 3000
 ```
 
 The server runs until you press **Ctrl+C**. Output path comes from `output_folder` in `site.json` (Kometa default: `Results/KometaWebsite/`).
@@ -155,7 +155,7 @@ Example output paths from live bundles:
 Build locally:
 
 ```bash
-go run . --site content/kometa
+cargo run -p portfoliowebsitebuilder -- --site content/kometa
 ```
 
 The CLI wipes the target output directory, copies shared assets from `Template/`, copies referenced bundle assets, then renders every page route.
@@ -208,7 +208,7 @@ After changing `base_url`, theme, or widgets, rebuild and verify meta tags in th
 
 ## Root `config.json` (legacy sample only)
 
-[`config.json`](config.json) is a **single-file legacy sample** reflecting the older monolithic schema. The supported pipeline is **`content/`** bundles. Field names mirror the renamed catalog vocabulary (`apps`, `store_icons`, `subscribe_block`, theme `catalog_gradient`, content keys such as `apps_title` / `nav_apps`). It is handy for parity checks but **not** read by `go run .` today.
+[`config.json`](config.json) is a **single-file legacy sample** reflecting the older monolithic schema. The supported pipeline is **`content/`** bundles. Field names mirror the renamed catalog vocabulary (`apps`, `store_icons`, `subscribe_block`, theme `catalog_gradient`, content keys such as `apps_title` / `nav_apps`). It is handy for parity checks but **not** read by `cargo run -p portfoliowebsitebuilder` today.
 
 ## Widget tuning (`widgets` in `site.json`)
 
@@ -234,14 +234,14 @@ Either legacy flat URLs (`github_url`, `linkedin_url`, `facebook_url`) or **`soc
 ## Development
 
 ```bash
-gofmt -w .
-go test ./...
-go build ./...
+cargo fmt --all
+cargo test --workspace
+cargo build -p portfoliowebsitebuilder
 ```
 
 ## JSON Schema (author configs)
 
-JSON Schemas in [`docs/schema/`](docs/schema/) document `site.json` and `pages/*.json` for IDE autocomplete and offline checks. **Go validation remains the source of truth** (see `go run . --validate`).
+JSON Schemas in [`docs/schema/`](docs/schema/) document `site.json` and `pages/*.json` for IDE autocomplete and offline checks. **Rust CLI validation** is the source of truth (see `cargo run -p portfoliowebsitebuilder -- --validate`).
 
 | Schema | Applies to |
 |--------|------------|

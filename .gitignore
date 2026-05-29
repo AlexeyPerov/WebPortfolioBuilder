@@ -7,6 +7,9 @@ Results/
 # Local / private author bundle copy (public samples: content/demo, content/my-studio)
 content/kometa/
 
+# Legacy Go CLI binary (removed in Phase 1)
+/portfoliowebsitebuilder
+
 # --- Rust (Cargo workspace) ---
 /target/
 

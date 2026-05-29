@@ -40,22 +40,30 @@ fn ctrlc_handler(running: Arc<AtomicBool>) {
     });
 }
 
+/// Maps an HTTP URL path to a file under `dir`, rejecting path traversal.
+pub fn resolve_static_file_path(dir: &Path, url_path: &str) -> Option<std::path::PathBuf> {
+    let url_path = url_path.split('?').next().unwrap_or("/");
+    let rel = url_path.trim_start_matches('/');
+    let file_path = if rel.is_empty() {
+        dir.join("index.html")
+    } else {
+        dir.join(rel.replace('/', std::path::MAIN_SEPARATOR_STR))
+    };
+    let file_path = if file_path.is_dir() {
+        file_path.join("index.html")
+    } else {
+        file_path
+    };
+    if file_path.starts_with(dir) && file_path.is_file() {
+        Some(file_path)
+    } else {
+        None
+    }
+}
+
 fn handle_request(request: tiny_http::Request, dir: &Path) {
     if request.method() == &Method::Get || request.method() == &Method::Head {
-        let url_path = request.url().split('?').next().unwrap_or("/");
-        let rel = url_path.trim_start_matches('/');
-        let file_path = if rel.is_empty() {
-            dir.join("index.html")
-        } else {
-            dir.join(rel.replace('/', std::path::MAIN_SEPARATOR_STR))
-        };
-        let file_path = if file_path.is_dir() {
-            file_path.join("index.html")
-        } else {
-            file_path
-        };
-
-        if file_path.starts_with(dir) && file_path.is_file() {
+        if let Some(file_path) = resolve_static_file_path(dir, request.url()) {
             if let Ok(data) = std::fs::read(&file_path) {
                 let content_type = mime_guess(&file_path);
                 let mut response = Response::from_data(data).with_status_code(StatusCode(200));
@@ -68,6 +76,46 @@ fn handle_request(request: tiny_http::Request, dir: &Path) {
         }
     }
     let _ = request.respond(Response::from_string("Not Found").with_status_code(StatusCode(404)));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use tempfile::tempdir;
+
+    #[test]
+    fn resolve_static_file_path_serves_index_html() {
+        let dir = tempdir().unwrap();
+        fs::write(dir.path().join("index.html"), b"<html>ok</html>").unwrap();
+
+        let root = dir.path().canonicalize().unwrap();
+        let got = resolve_static_file_path(&root, "/index.html").unwrap();
+        assert_eq!(fs::read_to_string(got).unwrap(), "<html>ok</html>");
+    }
+
+    #[test]
+    fn resolve_static_file_path_root_url() {
+        let dir = tempdir().unwrap();
+        fs::write(dir.path().join("index.html"), b"home").unwrap();
+
+        let root = dir.path().canonicalize().unwrap();
+        assert!(resolve_static_file_path(&root, "/").is_some());
+    }
+
+    #[test]
+    fn resolve_static_file_path_rejects_traversal() {
+        let dir = tempdir().unwrap();
+        fs::write(dir.path().join("index.html"), b"home").unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        assert!(resolve_static_file_path(&root, "/../etc/passwd").is_none());
+    }
+
+    #[test]
+    fn mime_guess_html_and_css() {
+        assert_eq!(mime_guess(Path::new("a.html")), "text/html; charset=utf-8");
+        assert_eq!(mime_guess(Path::new("a.css")), "text/css; charset=utf-8");
+    }
 }
 
 fn mime_guess(path: &Path) -> &'static str {

@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://portfoliowebsitebuilder/schema/site.schema.json",
   "title": "Portfolio site bundle — site.json",
-  "description": "Site-level configuration for Portfolio Website Builder content bundles. Go validation remains the source of truth; this schema supports IDE autocomplete and offline checks.",
+  "description": "Site-level configuration for Portfolio Website Builder content bundles. Rust CLI validation (--validate) is the source of truth; this schema supports IDE autocomplete and offline checks.",
   "type": "object",
   "additionalProperties": false,
   "required": ["site_id", "output_folder"],

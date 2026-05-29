@@ -1,5 +1,14 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 1 Task 14: decommission Go and update docs
+
+- Marked **Task 14** and scope **Task 6** as `[DONE]` in [tauri/execution-plan-phase-1.md](./tauri/execution-plan-phase-1.md); Phase 1 completion criteria checked in [tauri/requirements.md](./tauri/requirements.md).
+- Removed all Go sources (`*.go`, `go.mod`), committed `portfoliowebsitebuilder` binary, and documented that **`go run .` is intentionally unavailable** after Minijinja migration.
+- Updated [README.md](../README.md), [ImplementationSpec.md](./ImplementationSpec.md), golden/tests README, and `docs/schema/site.schema.json` for Rust CLI workflow.
+- Added serve path tests in `serve.rs`, CLI tests for `--validate`+`--serve` conflict and interactive bundle prompt in `cli_integration.rs`.
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 1 Task 13: CLI build and asset pipeline tests
 
 - Marked **Task 13** and scope **Task 5** as `[DONE]` in [tauri/execution-plan-phase-1.md](./tauri/execution-plan-phase-1.md).

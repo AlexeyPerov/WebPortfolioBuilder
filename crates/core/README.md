@@ -28,7 +28,7 @@ Go uses contextual auto-escaping (`template.URL`, `template.CSS`, `template.HTML
 | Widget body HTML | `template.HTML` (trusted pipeline output) | only markup produced by our widget renderer — `| safe` after generation |
 | `site-widgets-config` JSON in `<script>` | `template.HTML` from `json.Marshal` | serialize JSON in Rust, embed in `<script type="application/json">` with HTML-escaped delimiters or use a dedicated JSON-for-script helper (no `</script>` injection) |
 
-**Post-render check:** scan full page HTML for the substring `ZgotmplZ` (Go’s marker when a string is unsafe in CSS/script context). If present, fail the build with page path and route — same as [`render.go`](../../render.go).
+**Post-render check:** scan full page HTML for the substring `ZgotmplZ` (Go’s historical marker when a string is unsafe in CSS/script context). If present, fail the build with page path and route — same policy as the former Go `render.go`, enforced in `render.rs`.
 
 Author-facing URLs in JSON (nav, store links, social) are validated at load time where Go already warns; rendering must not bypass escaping for convenience.
 

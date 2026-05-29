@@ -1,6 +1,6 @@
-# Golden HTML fixtures (Go baseline)
+# Golden HTML fixtures (historical Go baseline)
 
-These files are **frozen snapshots** of HTML produced by the Go generator (`go run . --site content/<bundle>`). They are the parity baseline for [Phase 1.4](../../Specs/tauri/execution-plan-phase-1.md) and later Rust `render_site_bundle` output.
+These files are **frozen snapshots** of HTML produced by the original Go generator before Phase 1 decommission. They are the parity baseline for [Phase 1.4](../../Specs/tauri/execution-plan-phase-1.md) and Rust `render_site_bundle` output.
 
 ## Bundles and paths
 
@@ -10,14 +10,27 @@ These files are **frozen snapshots** of HTML produced by the Go generator (`go r
 | `demo` | `content/demo` | `golden/demo/index.html` (home), `golden/demo/about/index.html` (nested slug), `golden/demo/apps/index.html` (heavy widgets: `apps_showcase`, carousels) |
 | `my-studio` | `content/my-studio` | `golden/my-studio/index.html` (home) |
 
-Regenerate from repo root after intentional Go output changes:
+Regenerate from repo root after intentional output changes (then copy representative `index.html` files into `golden/<bundle-id>/` per table above):
 
 ```bash
-go run . --site content/kometa
-go run . --site content/demo
-go run . --site content/my-studio
-# then copy representative index.html files into golden/<bundle-id>/ (see table above)
+cargo run -p portfoliowebsitebuilder -- --site content/kometa
+cargo run -p portfoliowebsitebuilder -- --site content/demo
+cargo run -p portfoliowebsitebuilder -- --site content/my-studio
 ```
+
+**Note:** `go run .` is intentionally unavailable after the Minijinja template migration (Phase 1 Task 14). Golden files are updated only when Rust output changes are deliberate.
+
+## CLI and serve tests (Go equivalents)
+
+| Go test | Rust equivalent |
+|---------|-----------------|
+| `cli_test.go` discover/list/validate/build | `crates/cli/tests/cli_integration.rs`, `crates/core/tests/{config_loader,strict_mode,bundles}.rs` |
+| `serve_test.go` `TestRunCLIServeWithValidateRejected` | `cli_integration.rs` → `cli_validate_with_serve_rejected` |
+| `serve_test.go` `TestStaticFileHandler` | `serve.rs` unit tests → `resolve_static_file_path_*` |
+| Interactive `printf '\n' \| go run .` | `cli_integration.rs` → `cli_interactive_empty_line_builds_single_bundle` |
+| `resolve_bundle_choice` | `crates/cli/src/main.rs` unit test |
+
+Long-running `--serve` (Ctrl+C shutdown) is verified manually: `cargo run -p portfoliowebsitebuilder -- --site content/kometa --serve`.
 
 ## Phase 1.4 comparison
 

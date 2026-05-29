@@ -1,8 +1,9 @@
-//! CLI integration tests (port of Go `cli_test.go` discover/list/validate/build portions).
+//! CLI integration tests (port of Go `cli_test.go` and `serve_test.go`).
 
 use std::fs;
+use std::io::Write;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 fn workspace_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
@@ -288,5 +289,81 @@ fn cli_build_my_studio_exits_zero() {
     assert!(
         ws.join("Results/My-StudioWebsite/index.html").is_file(),
         "expected my-studio build output"
+    );
+}
+
+#[test]
+fn cli_validate_with_serve_rejected() {
+    let ws = workspace_root();
+    if !ws.join("content/kometa/site.json").is_file() {
+        eprintln!("skip cli_validate_with_serve_rejected: bundle not present");
+        return;
+    }
+
+    let output = Command::new(bin())
+        .args(["--validate", "--serve", "--site", "content/kometa"])
+        .current_dir(&ws)
+        .output()
+        .expect("run cli");
+
+    assert_eq!(output.status.code(), Some(2));
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("cannot use --serve with --validate"),
+        "expected flag conflict, got stderr={stderr:?}"
+    );
+}
+
+#[test]
+fn cli_interactive_empty_line_builds_single_bundle() {
+    let ws = workspace_root();
+    let template_src = ws.join("Template");
+    if !template_src.join("layout.html").is_file() {
+        eprintln!("skip cli_interactive_empty_line: Template not present");
+        return;
+    }
+
+    let root = tempfile::tempdir().unwrap();
+    let project = root.path();
+    copy_dir_recursive(&template_src, &project.join("Template")).unwrap();
+
+    let site_dir = project.join("content/solo");
+    fs::create_dir_all(site_dir.join("pages")).unwrap();
+    fs::write(
+        site_dir.join("site.json"),
+        br#"{"site_id":"solo","output_folder":"Results/Solo"}"#,
+    )
+    .unwrap();
+    fs::write(
+        site_dir.join("pages/home.json"),
+        br#"{"slug":"","widgets":[{"type":"intro","props":{"title":"Hi"}}]}"#,
+    )
+    .unwrap();
+
+    let mut child = Command::new(bin())
+        .current_dir(project)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("spawn cli");
+
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(b"content/solo\n")
+        .expect("write stdin");
+
+    let output = child.wait_with_output().expect("wait cli");
+
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        project.join("Results/Solo/index.html").is_file(),
+        "expected interactive build output"
     );
 }
