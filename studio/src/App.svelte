@@ -6,6 +6,7 @@
   import BuildLog from './components/BuildLog.svelte'
   import FileTree from './components/FileTree.svelte'
   import JsonEditor from './components/JsonEditor.svelte'
+  import SiteFormEditor from './components/SiteFormEditor.svelte'
   import PreviewPanel from './components/PreviewPanel.svelte'
   import ProblemsPanel from './components/ProblemsPanel.svelte'
   import {
@@ -34,10 +35,27 @@
   const DEFAULT_SITE = 'content/kometa'
   const PREVIEW_PORT = 8080
 
+  type SiteEditorView = 'json' | 'form'
+
   type EditorTab = {
     relativePath: string
     content: string
     savedContent: string
+    siteView?: SiteEditorView
+  }
+
+  function isSiteJson(relativePath: string) {
+    return relativePath.replace(/\\/g, '/') === 'site.json'
+  }
+
+  function siteViewForTab(tab: EditorTab): SiteEditorView {
+    return tab.siteView ?? 'json'
+  }
+
+  function setSiteView(relativePath: string, siteView: SiteEditorView) {
+    tabs = tabs.map((t) =>
+      t.relativePath === relativePath ? { ...t, siteView } : t,
+    )
   }
 
   let projectInfo = $state<ProjectRootInfo | null>(null)
@@ -484,12 +502,38 @@
         <div class="editor-pane">
           {#if activeTab()}
             {@const tab = activeTab()!}
-            {#key tab.relativePath}
-              <JsonEditor
-                relativePath={tab.relativePath}
-                value={tab.content}
-                onchange={updateActiveContent}
-              />
+            {#if isSiteJson(tab.relativePath)}
+              <div class="site-view-bar" role="tablist" aria-label="site.json editor mode">
+                <button
+                  type="button"
+                  role="tab"
+                  class:active={siteViewForTab(tab) === 'json'}
+                  aria-selected={siteViewForTab(tab) === 'json'}
+                  onclick={() => setSiteView(tab.relativePath, 'json')}
+                >
+                  JSON
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  class:active={siteViewForTab(tab) === 'form'}
+                  aria-selected={siteViewForTab(tab) === 'form'}
+                  onclick={() => setSiteView(tab.relativePath, 'form')}
+                >
+                  Form
+                </button>
+              </div>
+            {/if}
+            {#key `${tab.relativePath}:${siteViewForTab(tab)}`}
+              {#if isSiteJson(tab.relativePath) && siteViewForTab(tab) === 'form'}
+                <SiteFormEditor value={tab.content} onchange={updateActiveContent} />
+              {:else}
+                <JsonEditor
+                  relativePath={tab.relativePath}
+                  value={tab.content}
+                  onchange={updateActiveContent}
+                />
+              {/if}
             {/key}
           {:else}
             <p class="editor-placeholder">Select a JSON file from the tree.</p>
@@ -656,6 +700,35 @@
   }
 
   .editor-pane {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .site-view-bar {
+    display: flex;
+    flex-shrink: 0;
+    border-bottom: 1px solid #e8ecf2;
+    background: #fafbfc;
+  }
+
+  .site-view-bar button {
+    padding: 0.35rem 0.85rem;
+    border: none;
+    border-right: 1px solid #e8ecf2;
+    background: transparent;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .site-view-bar button.active {
+    background: #fff;
+    font-weight: 600;
+  }
+
+  .editor-pane :global(.editor-host),
+  .editor-pane :global(.site-form) {
     flex: 1;
     min-height: 0;
   }

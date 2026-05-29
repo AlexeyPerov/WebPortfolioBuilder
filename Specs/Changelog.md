@@ -1,5 +1,12 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 3 Task 4: schema-driven form panels
+
+- Marked **Task 4** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md); Phase 3 exit criterion for theme/nav forms checked.
+- Studio: **JSON** / **Form** tabs when editing `site.json`. Form panels driven by [`docs/schema/site.schema.json`](../docs/schema/site.schema.json) for `theme` tokens and `header.nav` table; round-trip with JSON tab; invalid JSON disables form. Other `site.json` sections stay JSON-only. Documented in [studio/README.md](../studio/README.md).
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 3 Task 3: CLI install without GUI
 
 - Marked **Task 3** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md).

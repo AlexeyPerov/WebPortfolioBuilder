@@ -94,6 +94,15 @@ After a successful **Build** (or auto-rebuild), **Open output folder** reveals t
 
 **New site** copies [`content/_template/`](../content/_template/) to `content/<site-id>/`, sets `site_id` and `output_folder` in `site.json` (folder name must match `site_id`), and refreshes the site dropdown. Invalid or duplicate ids show a native error dialog. Underscore-prefixed folders (e.g. `_template`) are excluded from the site list.
 
+### site.json form panels (Phase 3)
+
+When `site.json` is open, switch between **JSON** and **Form** tabs in the editor pane. The form edits a subset of `site.json` only:
+
+- **Theme** — key/value fields for CSS tokens defined in [`docs/schema/site.schema.json`](../docs/schema/site.schema.json), plus any extra keys already in the file.
+- **Header navigation** — table editor for `header.nav` (`label`, `href`, `open_in_new_tab`).
+
+Form changes write the same `site.json` buffer as the JSON editor (round-trip safe). Invalid JSON disables the form with an error until syntax is fixed. Footer, widgets, typography, and other sections remain JSON-only.
+
 ## Build (release)
 
 From the repository root:
