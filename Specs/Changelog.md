@@ -1,5 +1,23 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 2 Task 2: invoke API over core
+
+- Marked **Task 2** as `[DONE]` in [tauri/execution-plan-phase-2.md](./tauri/execution-plan-phase-2.md).
+- Tauri commands: `resolve_project_root`, `list_content_bundles`, `validate_site`, `build_site`, `start_preview_server`, `stop_preview_server` (structured diagnostics with path, message, severity).
+- Managed preview server (`tiny_http` on `127.0.0.1`); stops on build, window close, and explicit stop.
+- Studio dev panel (`studio/src/App.svelte`) exercises all commands with a log strip; typed wrappers in `studio/src/lib/studio-api.ts`.
+
+---
+
+## 2026-05-29 — Composer — Tauri Phase 2 Task 1: Tauri + Svelte scaffold
+
+- Marked **Task 1** as `[DONE]` in [tauri/execution-plan-phase-2.md](./tauri/execution-plan-phase-2.md).
+- Added `studio/` (Svelte 5 + Vite) and `src-tauri/` (Tauri 2) at repo root; wired `portfolio-website-builder-studio` to `crates/core`.
+- Placeholder UI invokes `resolve_project_root_info` and shows project root + `Template/` paths; dev entry documented in [studio/README.md](../studio/README.md).
+- CI: `cargo tauri build --bundles app` smoke on `macos-latest` and `windows-latest`.
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 1 Task 14: decommission Go and update docs
 
 - Marked **Task 14** and scope **Task 6** as `[DONE]` in [tauri/execution-plan-phase-1.md](./tauri/execution-plan-phase-1.md); Phase 1 completion criteria checked in [tauri/requirements.md](./tauri/requirements.md).

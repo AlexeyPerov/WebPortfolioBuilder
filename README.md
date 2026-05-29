@@ -6,7 +6,7 @@ Static site generator in Rust (**PortfolioWebsiteBuilder**). The supported workf
 
 ## Migration (Tauri + Rust)
 
-Phase 1 is complete: the **Rust engine** (`crates/core`, `crates/cli`) replaces the former Go CLI. **Tauri 2 + Svelte 5** desktop studio is planned in Phase 2.
+Phase 1 is complete: the **Rust engine** (`crates/core`, `crates/cli`) replaces the former Go CLI. **Phase 2** adds the **Tauri 2 + Svelte 5** desktop studio in [`studio/`](studio/) (see [`studio/README.md`](studio/README.md)).
 
 - [Specs/tauri/requirements.md](Specs/tauri/requirements.md) — scope, phases, and acceptance criteria
 - [Specs/tauri/execution-plan.md](Specs/tauri/execution-plan.md) — agent task index (Phase 0–3)

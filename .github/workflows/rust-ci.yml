@@ -1,6 +1,6 @@
 # Portfolio Website Builder — Rust CI (Phase 0 sketch)
 # Phase 1: `cargo test --workspace` runs engine + golden parity tests.
-# Phase 2: add `cargo tauri build` on macos-latest + windows-latest.
+# Phase 2: `cargo tauri build` smoke on macos-latest + windows-latest.
 
 name: Rust CI
 
@@ -28,3 +28,27 @@ jobs:
           toolchain: "1.77"
       - name: cargo test --workspace
         run: cargo test --workspace --all-targets
+
+  tauri-build:
+    name: cargo tauri build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.77"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: studio/package-lock.json
+      - name: Install frontend dependencies
+        run: npm ci --prefix studio
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --locked --force
+      - name: cargo tauri build
+        run: cargo tauri build --bundles app

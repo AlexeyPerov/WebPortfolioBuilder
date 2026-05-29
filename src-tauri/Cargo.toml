@@ -1,0 +1,24 @@
+[package]
+name = "portfolio-website-builder-studio"
+version = "0.1.0"
+description = "Portfolio Website Builder desktop studio (Tauri 2)"
+authors = ["Portfolio Website Builder"]
+license = "MIT"
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.2", features = [] }
+
+[dependencies]
+portfoliowebsitebuilder-core = { path = "../crates/core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+log = "0.4"
+tauri = { version = "2.11.2", features = [] }
+tauri-plugin-log = "2"
+tiny_http = "0.12"
