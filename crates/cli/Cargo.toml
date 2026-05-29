@@ -1,0 +1,17 @@
+[package]
+name = "portfoliowebsitebuilder"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "portfoliowebsitebuilder"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+portfoliowebsitebuilder-core = { path = "../core" }
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"

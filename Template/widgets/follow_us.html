@@ -1,1 +1,1 @@
-{{define "follow_us"}}<section class="follow-us section section-gradient scroll-reveal" id="follow_us"><div class="container"><h2 id="follow_us_title" class="center">{{.Title}}</h2>{{if .HasButtons}}<div class="follow-us__buttons">{{.Buttons}}</div>{{end}}</div></section>{{end}}
+<section class="follow-us section section-gradient scroll-reveal" id="follow_us"><div class="container"><h2 id="follow_us_title" class="center">{{ Title }}</h2>{% if HasButtons %}<div class="follow-us__buttons">{{ Buttons|safe }}</div>{% endif %}</div></section>

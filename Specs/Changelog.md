@@ -1,5 +1,37 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 1 Task 12: golden HTML parity tests
+
+- Marked **Task 12** and scope **Task 4** as `[DONE]` in [tauri/execution-plan-phase-1.md](./tauri/execution-plan-phase-1.md).
+- Added `golden_parity.rs` with `normalize_html_for_test()` and unified diff on failure; exported `render_site_bundle_html` for in-memory comparison.
+- Fixed Go parity drift: Minijinja HTML escape policy, stylesheet href encoding, widgets-config JSON key order, inter-widget newline spacing.
+
+---
+
+## 2026-05-29 — Composer — Tauri Phase 1 Task 11: widget and script-needs tests
+
+- Marked **Task 11** as `[DONE]` in [tauri/execution-plan-phase-1.md](./tauri/execution-plan-phase-1.md).
+- Added integration tests: `widget_render.rs` (20 cases from Go `widget_render_test.go`) and `widget_scripts.rs` (4 cases from Go `widget_scripts_test.go`).
+- Fixed optional widget props to match Go: `apps_showcase.section_title` / `apps`, `project_grid` card `cta`/`tags`/`image`, `media_swiper` slide `alt` via `#[serde(default)]`.
+
+---
+
+## 2026-05-29 — Composer — Tauri Phase 1 Tasks 9–10: routing, assets, render tests
+
+- Marked **Tasks 9–10** and scope **Tasks 2–3** as `[DONE]` in [tauri/execution-plan-phase-1.md](./tauri/execution-plan-phase-1.md).
+- Added integration tests: `routing.rs`, `assets.rs`, `render_page_data.rs`, `html_footer.rs`; CLI `cli_validate_demo`.
+- Fixed `relative_dir_link` for home→nested slug paths (match Go `filepath.Rel`); `project_grid` optional props via `#[serde(default)]`.
+
+---
+
+## 2026-05-29 — Composer — Tauri Phase 1 Task 8: config/strict/bundle tests
+
+- Marked **Task 8** and **Task 1** as `[DONE]` in [tauri/execution-plan-phase-1.md](./tauri/execution-plan-phase-1.md).
+- Added Rust integration tests mirroring Go `config_loader_test.go`, `strict_test.go`, and `cli_test.go` discover/list/validate cases under `crates/core/tests/` (`config_loader.rs`, `strict_mode.rs`, `bundles.rs`, `common/mod.rs`) and `crates/cli/tests/cli_integration.rs`.
+- Fixed `intro` widget props parsing: optional `title` / `paragraphs` with `#[serde(default)]` to match Go strict validate fixtures.
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 0: preparation complete
 
 - Marked Tasks **1–4** as `[DONE]` in [tauri/execution-plan-phase-0.md](./tauri/execution-plan-phase-0.md); Phase 0 exit criteria checked off.

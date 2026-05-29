@@ -1,1 +1,1 @@
-{{define "intro"}}<section class="intro section section-gradient scroll-reveal scroll-reveal--immediate"><div class="container center">{{if .Title}}<h1 id="intro_title">{{.Title}}</h1>{{end}}{{range .Paragraphs}}<p>{{.}}</p>{{end}}</div></section>{{end}}
+<section class="intro section section-gradient scroll-reveal scroll-reveal--immediate"><div class="container center">{% if Title %}<h1 id="intro_title">{{ Title }}</h1>{% endif %}{% for p in Paragraphs %}<p>{{ p }}</p>{% endfor %}</div></section>

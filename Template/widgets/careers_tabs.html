@@ -1,1 +1,1 @@
-{{define "careers_tabs"}}<section class="vacancies section section-gradient scroll-reveal" id="vacancies"><div class="container">{{if .SectionTitle}}<h2 id="vacancies_title" class="center">{{.SectionTitle}}</h2>{{end}}{{.SplitWidget}}</div></section>{{end}}
+<section class="vacancies section section-gradient scroll-reveal" id="vacancies"><div class="container">{% if SectionTitle %}<h2 id="vacancies_title" class="center">{{ SectionTitle }}</h2>{% endif %}{{ SplitWidget|safe }}</div></section>

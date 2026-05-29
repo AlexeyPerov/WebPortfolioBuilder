@@ -1,29 +1,27 @@
-{{define "project_grid"}}
-<section class="project-grid section section-gradient scroll-reveal"{{.SectionIDAttr}} data-widget-type="project_grid">
+<section class="project-grid section section-gradient scroll-reveal"{{ SectionIDAttr|safe }} data-widget-type="project_grid">
   <div class="container">
-    {{if .Heading}}<h2 class="center">{{.Heading}}</h2>{{end}}
-    {{if .Subheading}}<p class="project-grid__sub center">{{.Subheading}}</p>{{end}}
-    <div class="project-grid__grid" style="{{.GridStyle}}">
-      {{range .Cards}}
-      <article class="project-card scroll-reveal{{if not .HasImage}} project-card--no-media{{end}}">
-        {{if .HasImage}}
+    {% if Heading %}<h2 class="center">{{ Heading }}</h2>{% endif %}
+    {% if Subheading %}<p class="project-grid__sub center">{{ Subheading }}</p>{% endif %}
+    <div class="project-grid__grid" style="{{ GridStyle|safe }}">
+      {% for card in Cards %}
+      <article class="project-card scroll-reveal{% if not card.HasImage %} project-card--no-media{% endif %}">
+        {% if card.HasImage %}
         <div class="project-card__media">
-          <img src="{{.ImageSrc}}" alt="{{.ImageAlt}}" loading="lazy" decoding="async">
+          <img src="{{ card.ImageSrc }}" alt="{{ card.ImageAlt }}" loading="lazy" decoding="async">
         </div>
-        {{end}}
+        {% endif %}
         <div class="project-card__body">
-          {{if .MetaLine}}<p class="project-card__meta-line">{{.MetaLine}}</p>{{end}}
-          {{if .HasMetaPairs}}
-          <dl class="project-card__meta-dl">{{range .MetaPairs}}<div class="project-card__meta-row"><dt>{{.Key}}</dt><dd>{{.Value}}</dd></div>{{end}}</dl>
-          {{end}}
-          <h3 class="project-card__title">{{.Title}}</h3>
-          <p class="project-card__desc">{{.Description}}</p>
-          {{if .Tags}}<ul class="project-card__tags">{{range .Tags}}<li>{{.}}</li>{{end}}</ul>{{end}}
-          {{if .CtaURL}}<p class="project-card__cta-wrap"><a class="project-card__cta" href="{{.CtaURL}}"{{.CtaAttrs}}>{{.CtaLabel}}</a></p>{{end}}
+          {% if card.MetaLine %}<p class="project-card__meta-line">{{ card.MetaLine }}</p>{% endif %}
+          {% if card.HasMetaPairs %}
+          <dl class="project-card__meta-dl">{% for pair in card.MetaPairs %}<div class="project-card__meta-row"><dt>{{ pair.Key }}</dt><dd>{{ pair.Value }}</dd></div>{% endfor %}</dl>
+          {% endif %}
+          <h3 class="project-card__title">{{ card.Title }}</h3>
+          <p class="project-card__desc">{{ card.Description }}</p>
+          {% if card.Tags %}<ul class="project-card__tags">{% for tag in card.Tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
+          {% if card.CtaURL %}<p class="project-card__cta-wrap"><a class="project-card__cta" href="{{ card.CtaURL }}"{{ card.CtaAttrs|safe }}>{{ card.CtaLabel }}</a></p>{% endif %}
         </div>
       </article>
-      {{end}}
+      {% endfor %}
     </div>
   </div>
 </section>
-{{end}}

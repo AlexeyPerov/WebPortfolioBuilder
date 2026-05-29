@@ -48,6 +48,14 @@ Apply **in order** to both golden and candidate HTML before comparison:
 
 **Forbidden in output** (hard fail, no normalization): the Go `html/template` unsafe marker `ZgotmplZ` must not appear in rendered HTML (see `render.go`).
 
+## Go parity notes (Rust renderer)
+
+The Rust renderer matches these Go `html/template` behaviors for golden comparison:
+
+- Stylesheet `href`: `|` → `%7c`, `&` → `&amp;` (see `escape_stylesheet_href` in `html.rs`).
+- Text nodes in templates: `+` → `&#43;`, apostrophe → `&#39;` (see `go_template_text_escape` / `configure_minijinja_html_escape`).
+- Widget join spacing mirrors Go `renderWidgetTree` (extra blank line when a multiline widget precedes another multiline or a single-line widget).
+
 ## Attribute ordering (policy)
 
 Golden files were captured from Go `html/template` as-is. Phase 1 should match Go output; if Minijinja emits the same attributes in a different order, either:

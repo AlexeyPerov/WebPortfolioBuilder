@@ -1,14 +1,21 @@
+<<<<<<< Updated upstream
 # Portfolio Website Builder — Rust CI (Phase 0 sketch)
 # Phase 1: `cargo test --workspace` runs engine + golden parity tests.
 # Phase 2: add `cargo tauri build` on macos-latest + windows-latest.
 
+=======
+# Rust workspace CI (Phase 0 stub). Expand in Phase 1 with workspace crates and Phase 2 with Tauri builds.
+>>>>>>> Stashed changes
 name: Rust CI
 
 on:
   push:
     branches: [main, master]
   pull_request:
+<<<<<<< Updated upstream
     branches: [main, master]
+=======
+>>>>>>> Stashed changes
 
 env:
   CARGO_TERM_COLOR: always
@@ -20,6 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+<<<<<<< Updated upstream
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
@@ -28,3 +36,23 @@ jobs:
           toolchain: "1.77"
       - name: cargo test --workspace
         run: cargo test --workspace --all-targets
+=======
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.77"
+          components: rustfmt, clippy
+
+      - name: Verify Rust version
+        run: rustc --version
+
+      - name: cargo test --workspace
+        run: cargo test --workspace
+>>>>>>> Stashed changes

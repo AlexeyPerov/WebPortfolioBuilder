@@ -1,1 +1,1 @@
-{{define "column"}}<section class="widget-column"{{if .ID}} id="{{.ID}}"{{end}}{{if .Style}} style="{{.Style}}"{{end}} data-widget-type="column">{{.Children}}</section>{{end}}
+<section class="widget-column"{% if ID %} id="{{ ID }}"{% endif %}{% if Style %} style="{{ Style|safe }}"{% endif %} data-widget-type="column">{{ Children|safe }}</section>
