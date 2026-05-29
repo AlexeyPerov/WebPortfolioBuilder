@@ -1,4 +1,4 @@
-//! CLI integration tests (port of Go `cli_test.go` discover/list/validate portions).
+//! CLI integration tests (port of Go `cli_test.go` discover/list/validate/build portions).
 
 use std::fs;
 use std::path::PathBuf;
@@ -190,5 +190,103 @@ fn cli_validate_strict_clean_bundle() {
     assert!(
         stdout.contains("Validation passed:"),
         "expected validation success, got stdout={stdout:?}"
+    );
+}
+
+#[test]
+fn cli_non_interactive_build_writes_index_html() {
+    let ws = workspace_root();
+    let template_src = ws.join("Template");
+    if !template_src.join("layout.html").is_file() {
+        eprintln!("skip cli_non_interactive_build: Template not present");
+        return;
+    }
+
+    let root = tempfile::tempdir().unwrap();
+    let project = root.path();
+    copy_dir_recursive(&template_src, &project.join("Template")).unwrap();
+
+    let site_dir = project.join("content/mini");
+    fs::create_dir_all(site_dir.join("pages")).unwrap();
+    fs::write(
+        site_dir.join("site.json"),
+        br#"{"site_id":"mini","output_folder":"Results/Mini"}"#,
+    )
+    .unwrap();
+    fs::write(
+        site_dir.join("pages/home.json"),
+        br#"{"slug":"","widgets":[{"type":"intro","props":{"title":"Hi"}}]}"#,
+    )
+    .unwrap();
+
+    let output = Command::new(bin())
+        .args(["--site", "content/mini"])
+        .current_dir(project)
+        .output()
+        .expect("run cli");
+
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(
+        stdout.contains("Website generated successfully."),
+        "expected build success message, got stdout={stdout:?}"
+    );
+    assert!(
+        project.join("Results/Mini/index.html").is_file(),
+        "expected generated index.html"
+    );
+}
+
+#[test]
+fn cli_build_demo_exits_zero() {
+    let ws = workspace_root();
+    if !ws.join("content/demo/site.json").is_file() {
+        eprintln!("skip cli_build_demo: bundle not present");
+        return;
+    }
+
+    let output = Command::new(bin())
+        .args(["--site", "content/demo"])
+        .current_dir(&ws)
+        .output()
+        .expect("run cli");
+
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        ws.join("Results/DemoWebsite/index.html").is_file(),
+        "expected demo build output"
+    );
+}
+
+#[test]
+fn cli_build_my_studio_exits_zero() {
+    let ws = workspace_root();
+    if !ws.join("content/my-studio/site.json").is_file() {
+        eprintln!("skip cli_build_my_studio: bundle not present");
+        return;
+    }
+
+    let output = Command::new(bin())
+        .args(["--site", "content/my-studio"])
+        .current_dir(&ws)
+        .output()
+        .expect("run cli");
+
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        ws.join("Results/My-StudioWebsite/index.html").is_file(),
+        "expected my-studio build output"
     );
 }

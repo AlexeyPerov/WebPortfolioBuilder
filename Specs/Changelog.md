@@ -1,5 +1,13 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 1 Task 13: CLI build and asset pipeline tests
+
+- Marked **Task 13** and scope **Task 5** as `[DONE]` in [tauri/execution-plan-phase-1.md](./tauri/execution-plan-phase-1.md).
+- Added `fs_util.rs` (destination wipe, template static copy, rebuild clears stale files) and `build_pipeline.rs` (render write smoke tests, disk golden parity via `generate_site`).
+- Extended `cli_integration.rs` with non-interactive build, demo/my-studio build exit checks.
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 1 Task 12: golden HTML parity tests
 
 - Marked **Task 12** and scope **Task 4** as `[DONE]` in [tauri/execution-plan-phase-1.md](./tauri/execution-plan-phase-1.md).
