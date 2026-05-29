@@ -8,11 +8,43 @@ Static site generator in Rust (**PortfolioWebsiteBuilder**). The supported workf
 
 Phase 1 is complete: the **Rust engine** (`crates/core`, `crates/cli`) replaces the former Go CLI. **Phase 2** adds the **Tauri 2 + Svelte 5** desktop studio in [`studio/`](studio/) (see [`studio/README.md`](studio/README.md)).
 
+### Headless / CI vs Studio app
+
+Two supported workflows share the same Rust engine (`crates/core`) and content bundles — pick one or use both:
+
+| | **Headless / CI** (CLI) | **Studio app** (Tauri + Svelte) |
+|--|-------------------------|----------------------------------|
+| **Use when** | Terminal, scripts, GitHub Actions, no GUI | Visual editing, JSON tabs, live preview, file watcher |
+| **Install** | `cargo install --path crates/cli --locked` (from repo root) | `cargo tauri build` → installers under `src-tauri/target/release/bundle/` |
+| **Dev run** | `cargo run -p portfoliowebsitebuilder -- …` | `cargo tauri dev` |
+| **Prerequisites** | Rust 1.77+ only | Rust 1.77+, Node 20+, Tauri CLI 2.x — [studio/README.md](studio/README.md) |
+| **Build site** | `portfoliowebsitebuilder --site content/kometa` | **Build** toolbar button (or auto-rebuild when enabled) |
+| **Validate** | `portfoliowebsitebuilder --validate --site content/kometa` | **Validate** toolbar button |
+| **Preview** | `--serve` flag or any static HTTP server | Built-in preview iframe on `127.0.0.1` |
+
+The CLI is **fully independent** of Tauri — no Node, WebView, or desktop shell required. CI pipelines should use the CLI only.
+
+**Install CLI to `~/.cargo/bin`:**
+
+```bash
+# From repository root (uses workspace Cargo.lock via --locked)
+cargo install --path crates/cli --locked
+```
+
+**Release binary without install** (copy or cache in CI):
+
+```bash
+cargo build --release -p portfoliowebsitebuilder
+./target/release/portfoliowebsitebuilder --validate --site content/kometa
+```
+
+Run CLI commands from the **project root** (directory containing `content/` and `Template/`), or place the binary there so project-root discovery works when invoked from elsewhere.
+
 ### Desktop studio — dev and install
 
 | Mode | Command | Notes |
 |------|---------|--------|
-| **Development** | `cargo tauri dev` (repo root) | Vite + Tauri window; full author UI (open project, edit JSON, build, HTTP preview). Prerequisites: Rust 1.77+, Node 20+, Tauri CLI 2.x — [studio/README.md](studio/README.md). |
+| **Development** | `cargo tauri dev` (repo root) | Vite + Tauri window; full author UI (open project, edit JSON, build, HTTP preview). |
 | **Release build** | `cargo tauri build` | Produces installers under `src-tauri/target/release/bundle/` (`.app`/`.dmg` on macOS; `.msi` or NSIS `-setup.exe` on Windows with WebView2 bootstrap). |
 | **CI artifacts** | GitHub Actions **Rust CI** job `cargo tauri build` | Download `studio-macos-latest` / `studio-windows-latest` artifacts from a green workflow run. |
 

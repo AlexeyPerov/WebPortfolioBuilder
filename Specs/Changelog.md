@@ -1,5 +1,12 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 3 Task 3: CLI install without GUI
+
+- Marked **Task 3** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md).
+- Root [README.md](../README.md): **Headless / CI vs Studio app** comparison table; `cargo install --path crates/cli --locked` and release-binary install for terminal/CI workflows. CLI documented as fully independent of Tauri.
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 3 Task 2: reveal output and new site
 
 - Marked **Task 2** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md).
