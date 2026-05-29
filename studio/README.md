@@ -1,6 +1,20 @@
 # Portfolio Website Builder — Studio
 
-Desktop studio shell for **Portfolio Website Builder** (Phase 2). The UI is **Svelte 5 + Vite** in this directory; the native shell and Rust commands live in [`../src-tauri/`](../src-tauri/) and call [`../crates/core`](../crates/core) in-process.
+Desktop studio shell for **Portfolio Website Builder** (Phase 2 UI + Phase 3 author polish). The UI is **Svelte 5 + Vite** in this directory; the native shell and Rust commands live in [`../src-tauri/`](../src-tauri/) and call [`../crates/core`](../crates/core) in-process.
+
+**Specs:** [Tauri migration requirements](../Specs/tauri/requirements.md) · [Phase 3 execution plan](../Specs/tauri/execution-plan-phase-3.md) · cross-platform checks in [VALIDATION-CHECKLIST.md](./VALIDATION-CHECKLIST.md). Author-workflow UX tasks (CLI validate, `--serve`, bundle discovery) live in [UX-Improvements-Iter-1.md](../Specs/UX-Improvements-Iter-1.md) — see **Desktop studio** there for how CLI and studio features relate.
+
+## Phase 3 capabilities (summary)
+
+| Feature | Default | Notes |
+|---------|---------|--------|
+| **Auto-rebuild** | Off | 500 ms debounced watcher on active bundle; see below |
+| **Open output folder** | — | After successful build |
+| **New site** | — | From `content/_template/` |
+| **site.json Form tab** | JSON tab first | Theme + `header.nav` only; other keys stay JSON-only |
+| Manual **Build** / **Validate** | Unchanged from Phase 2 | Works with Phase 3 features disabled |
+
+With **Auto-rebuild** off, the studio matches Phase 2: edit JSON → **Build** → HTTP preview. No regression in that path.
 
 ## Prerequisites
 
@@ -155,4 +169,4 @@ content/          ← author bundles
 docs/schema/      ← JSON Schema for editors
 ```
 
-See [Specs/tauri/requirements.md](../Specs/tauri/requirements.md) and [execution-plan-phase-2.md](../Specs/tauri/execution-plan-phase-2.md) for the full Phase 2 plan.
+See [Specs/tauri/requirements.md](../Specs/tauri/requirements.md), [execution-plan-phase-2.md](../Specs/tauri/execution-plan-phase-2.md), and [execution-plan-phase-3.md](../Specs/tauri/execution-plan-phase-3.md) for the full Tauri migration plans.

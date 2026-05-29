@@ -1,4 +1,7 @@
 {
+  // JSON Schema for content bundles (site.json, pages/*.json).
+  // Recommended extensions: rust-analyzer (rust-lang.rust-analyzer) for crates/* and src-tauri/;
+  // Svelte (svelte.svelte-vscode) for studio/ — see studio/.vscode/extensions.json.
   "json.schemas": [
     {
       "fileMatch": ["content/*/site.json"],

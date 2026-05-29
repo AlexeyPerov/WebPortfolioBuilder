@@ -1,5 +1,15 @@
 # Specs / implementation changelog
 
+## 2026-05-29 — Composer — Tauri Phase 3 Task 5: studio hardening and docs
+
+- Marked **Task 5** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md); Phase 3 exit criteria complete.
+- Root [README.md](../README.md): **Phase 3 — Studio author polish** table; migration blurb; VS Code extension notes (rust-analyzer + Svelte).
+- [studio/README.md](../studio/README.md): Phase 3 summary, Tauri/UX spec links; [VALIDATION-CHECKLIST.md](../studio/VALIDATION-CHECKLIST.md) Phase 3 rows (auto-rebuild, forms, new site, open output, Phase 2 regression with defaults off).
+- [UX-Improvements-Iter-1.md](./UX-Improvements-Iter-1.md): **Desktop studio (Tauri)** cross-link batch to `Specs/tauri/`.
+- [`.vscode/settings.json`](../.vscode/settings.json): optional rust-analyzer + Svelte notes; [studio/.vscode/extensions.json](../studio/.vscode/extensions.json) recommends both.
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 3 Task 4: schema-driven form panels
 
 - Marked **Task 4** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md); Phase 3 exit criterion for theme/nav forms checked.

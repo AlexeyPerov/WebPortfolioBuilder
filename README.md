@@ -6,7 +6,7 @@ Static site generator in Rust (**PortfolioWebsiteBuilder**). The supported workf
 
 ## Migration (Tauri + Rust)
 
-Phase 1 is complete: the **Rust engine** (`crates/core`, `crates/cli`) replaces the former Go CLI. **Phase 2** adds the **Tauri 2 + Svelte 5** desktop studio in [`studio/`](studio/) (see [`studio/README.md`](studio/README.md)).
+Phase 1 is complete: the **Rust engine** (`crates/core`, `crates/cli`) replaces the former Go CLI. **Phase 2** adds the **Tauri 2 + Svelte 5** desktop studio in [`studio/`](studio/) (see [`studio/README.md`](studio/README.md)). **Phase 3** (author workflow polish) adds auto-rebuild, new site from template, open output folder, and schema-driven `site.json` form panels — all optional; defaults preserve Phase 2 manual **Build** behavior.
 
 ### Headless / CI vs Studio app
 
@@ -14,11 +14,11 @@ Two supported workflows share the same Rust engine (`crates/core`) and content b
 
 | | **Headless / CI** (CLI) | **Studio app** (Tauri + Svelte) |
 |--|-------------------------|----------------------------------|
-| **Use when** | Terminal, scripts, GitHub Actions, no GUI | Visual editing, JSON tabs, live preview, file watcher |
+| **Use when** | Terminal, scripts, GitHub Actions, no GUI | Visual editing, JSON/form tabs, live preview, optional file watcher |
 | **Install** | `cargo install --path crates/cli --locked` (from repo root) | `cargo tauri build` → installers under `src-tauri/target/release/bundle/` |
 | **Dev run** | `cargo run -p portfoliowebsitebuilder -- …` | `cargo tauri dev` |
 | **Prerequisites** | Rust 1.77+ only | Rust 1.77+, Node 20+, Tauri CLI 2.x — [studio/README.md](studio/README.md) |
-| **Build site** | `portfoliowebsitebuilder --site content/kometa` | **Build** toolbar button (or auto-rebuild when enabled) |
+| **Build site** | `portfoliowebsitebuilder --site content/kometa` | **Build** toolbar button (manual); **Auto-rebuild** when enabled (Phase 3) |
 | **Validate** | `portfoliowebsitebuilder --validate --site content/kometa` | **Validate** toolbar button |
 | **Preview** | `--serve` flag or any static HTTP server | Built-in preview iframe on `127.0.0.1` |
 
@@ -48,7 +48,21 @@ Run CLI commands from the **project root** (directory containing `content/` and 
 | **Release build** | `cargo tauri build` | Produces installers under `src-tauri/target/release/bundle/` (`.app`/`.dmg` on macOS; `.msi` or NSIS `-setup.exe` on Windows with WebView2 bootstrap). |
 | **CI artifacts** | GitHub Actions **Rust CI** job `cargo tauri build` | Download `studio-macos-latest` / `studio-windows-latest` artifacts from a green workflow run. |
 
-Cross-platform manual checks: [studio/VALIDATION-CHECKLIST.md](studio/VALIDATION-CHECKLIST.md).
+Cross-platform manual checks: [studio/VALIDATION-CHECKLIST.md](studio/VALIDATION-CHECKLIST.md) (Phase 2 baseline + Phase 3 polish items).
+
+### Phase 3 — Studio author polish
+
+Optional desktop-studio features (all **off by default** except where noted). Details in [`studio/README.md`](studio/README.md).
+
+| Feature | What it does |
+|---------|----------------|
+| **Auto-rebuild** | Watches `content/<active-site>/` (500 ms debounce); rebuilds and refreshes preview after saves. Toggle in toolbar; **off by default**. |
+| **Open output folder** | Reveals last successful `output_dir` in the OS file manager after **Build** or auto-rebuild. |
+| **New site** | Copies `content/_template/` to `content/<site-id>/`; validates id and refreshes site dropdown. |
+| **site.json Form tab** | Schema-driven editors for `theme` tokens and `header.nav` alongside the JSON tab; round-trip safe. |
+| **CLI in PATH** | `cargo install --path crates/cli --locked` — no Tauri required (see [Headless / CI vs Studio app](#headless--ci-vs-studio-app)). |
+
+Phase 2 flows unchanged when auto-rebuild is disabled and you use manual **Build** + JSON editor only.
 
 - [Specs/tauri/requirements.md](Specs/tauri/requirements.md) — scope, phases, and acceptance criteria
 - [Specs/tauri/execution-plan.md](Specs/tauri/execution-plan.md) — agent task index (Phase 0–3)
@@ -294,7 +308,9 @@ Widget `type` values in the page schema match the closed v1 registry in [Specs/W
 
 ### VS Code / Cursor
 
-The repo includes [`.vscode/settings.json`](.vscode/settings.json) mapping those schemas to content paths. For a user-level setup, add to `settings.json`:
+The repo includes [`.vscode/settings.json`](.vscode/settings.json) mapping those schemas to content paths. Recommended extensions: **rust-analyzer** (`rust-lang.rust-analyzer`) for the Rust workspace; **Svelte** (`svelte.svelte-vscode`) when editing [`studio/`](studio/) — see also [`studio/.vscode/extensions.json`](studio/.vscode/extensions.json).
+
+For a user-level setup, add to `settings.json`:
 
 ```json
 {

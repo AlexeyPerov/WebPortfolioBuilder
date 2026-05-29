@@ -1,8 +1,10 @@
-# Phase 2 — Cross-platform validation checklist
+# Studio — Cross-platform validation checklist
 
-Manual regression for the **Portfolio Website Builder** desktop studio after packaging (Phase 2 Task 4). Run against a **packaged** build when possible; `cargo tauri dev` is acceptable for editor/preview loop checks.
+Manual regression for the **Portfolio Website Builder** desktop studio. Run against a **packaged** build when possible; `cargo tauri dev` is acceptable for editor/preview loop checks.
 
 **Bundles:** primary site `content/kometa`; multi-page checks use `content/demo`.
+
+## Phase 2 — baseline
 
 | # | Check | macOS | Windows |
 |---|--------|-------|---------|
@@ -17,10 +19,24 @@ Manual regression for the **Portfolio Website Builder** desktop studio after pac
 | 9 | No `file://` preview URLs | Pass | Pass (HTTP-only by design) |
 | 10 | Installer includes WebView2 bootstrap (fresh VM / no runtime) | N/A | Pass (CI NSIS/MSI; `embedBootstrapper` in `tauri.conf.json`) |
 
+## Phase 3 — author polish
+
+Run with **Auto-rebuild off** first (row 11), then enable Phase 3 features. Confirms no regression when polish is disabled.
+
+| # | Check | macOS | Windows |
+|---|--------|-------|---------|
+| 11 | **Auto-rebuild off:** manual **Build** only (Phase 2 path); preview + Problems unchanged | Pass (2026-05-29, dev) | Pending manual on Win 10/11 |
+| 12 | **Auto-rebuild on:** save `pages/home.json` → debounced rebuild → preview refresh; build error in Problems, watcher keeps running | Pass (500 ms debounce, dev) | Pending manual on Win 10/11 |
+| 13 | **Open output folder** after successful build reveals `Results/…` in file manager | Pass (dev) | Pending manual on Win 10/11 |
+| 14 | **New site** creates loadable bundle; duplicate/invalid id shows error; dropdown refreshes | Pass (dev) | Pending manual on Win 10/11 |
+| 15 | **site.json Form tab:** edit theme accent + nav label → **Build** → preview/CSS/header reflect changes; JSON ↔ Form round-trip | Pass (dev) | Pending manual on Win 10/11 |
+| 16 | Invalid JSON in `site.json` disables Form tab with clear message until fixed | Pass (dev) | Pending manual on Win 10/11 |
+
 ## Notes
 
 - **macOS packaging:** CI and local `cargo tauri build` produce `.app` / `.dmg` under `src-tauri/target/release/bundle/macos/`. Code signing and notarization are **not** enabled (documented follow-up in [README.md](./README.md)).
 - **Windows packaging:** CI produces installer artifacts under `src-tauri/target/release/bundle/` (`msi/` and/or `nsis/`). WebView2 is installed via the embedded bootstrapper when missing.
-- **WebKit vs WebView2:** Carousel and mobile nav should be re-checked on Windows after install.
+- **WebKit vs WebView2:** Carousel, mobile nav, and Phase 3 preview refresh should be re-checked on Windows after install.
+- **CLI-only:** `portfoliowebsitebuilder --validate --site content/kometa` remains independent of the studio (no Tauri required) — see root [README.md](../README.md).
 
-Update this table when completing Windows 10/11 manual passes (change **Pending** → **Pass** with date).
+Update **Pending** → **Pass** with date when completing Windows 10/11 manual passes.
