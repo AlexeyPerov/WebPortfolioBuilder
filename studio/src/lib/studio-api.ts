@@ -32,8 +32,11 @@ export type PreviewServerInfo = {
   output_dir: string
 }
 
+export type BuiltinThemeId = 'dark-amber' | 'light-blue'
+
 export type StudioSettings = {
   last_project_root?: string | null
+  theme?: BuiltinThemeId | null
 }
 
 export type WatchRebuildComplete = {

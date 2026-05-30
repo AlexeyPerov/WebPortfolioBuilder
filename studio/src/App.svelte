@@ -26,11 +26,19 @@
     writeBundleFile,
     type BuildSiteResult,
     type BundleFileEntry,
+    type BuiltinThemeId,
     type Diagnostic,
     type ProjectRootInfo,
     type ValidateSiteResult,
     type WatchRebuildComplete,
   } from './lib/studio-api'
+  import {
+    applyBuiltinTheme,
+    BUILTIN_THEME_IDS,
+    DEFAULT_BUILTIN_THEME,
+    getBuiltinThemeLabel,
+    isBuiltinThemeId,
+  } from './lib/styles/themeTokens'
 
   const DEFAULT_SITE = 'content/kometa'
   const PREVIEW_PORT = 8080
@@ -72,6 +80,7 @@
   let previewRefreshKey = $state(0)
   let busy = $state(false)
   let autoRebuild = $state(false)
+  let themeId = $state<BuiltinThemeId>(DEFAULT_BUILTIN_THEME)
 
   let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -92,8 +101,27 @@
     problems = [...result.warnings, ...result.errors]
   }
 
+  async function persistStudioSettings(overrides: {
+    last_project_root?: string | null
+    theme?: BuiltinThemeId
+  } = {}) {
+    await saveStudioSettings({
+      last_project_root:
+        overrides.last_project_root !== undefined
+          ? overrides.last_project_root
+          : projectInfo?.project_root,
+      theme: overrides.theme ?? themeId,
+    })
+  }
+
   async function persistProjectRoot(root: string) {
-    await saveStudioSettings({ last_project_root: root })
+    await persistStudioSettings({ last_project_root: root })
+  }
+
+  function setTheme(id: BuiltinThemeId) {
+    themeId = id
+    applyBuiltinTheme(id, document.documentElement)
+    void persistStudioSettings({ theme: id })
   }
 
   async function loadProject(root: string) {
@@ -352,6 +380,13 @@
   async function initStudio() {
     try {
       const settings = await getStudioSettings()
+      const initialTheme =
+        settings.theme && isBuiltinThemeId(settings.theme)
+          ? settings.theme
+          : DEFAULT_BUILTIN_THEME
+      themeId = initialTheme
+      applyBuiltinTheme(initialTheme, document.documentElement)
+
       if (settings.last_project_root) {
         try {
           await loadProject(settings.last_project_root)
@@ -453,6 +488,19 @@
     <button type="button" disabled={!lastOutputDir} onclick={onOpenOutput}>
       Open output folder
     </button>
+
+    <div class="theme-toggle" role="group" aria-label="App theme">
+      {#each BUILTIN_THEME_IDS as id (id)}
+        <button
+          type="button"
+          class:active={themeId === id}
+          title={getBuiltinThemeLabel(id)}
+          onclick={() => setTheme(id)}
+        >
+          {getBuiltinThemeLabel(id)}
+        </button>
+      {/each}
+    </div>
 
     {#if projectInfo}
       <span class="project-path" title={projectInfo.project_root}>
@@ -563,8 +611,8 @@
     flex-direction: column;
     height: 100vh;
     min-height: 0;
-    color: #1a1a1a;
-    background: #f6f7f9;
+    color: var(--color-text-primary);
+    background: var(--color-bg-root);
   }
 
   .toolbar {
@@ -573,18 +621,22 @@
     align-items: center;
     gap: 0.5rem 0.65rem;
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid #d8dee6;
-    background: #fff;
+    border-bottom: 1px solid var(--color-border-subtle);
+    background: var(--color-surface-1);
     flex-shrink: 0;
   }
 
   .toolbar button {
     padding: 0.35rem 0.65rem;
-    border: 1px solid #c5cdd8;
+    border: 1px solid var(--color-border-subtle);
     border-radius: 0.35rem;
-    background: #f0f2f5;
+    background: var(--color-hover);
     font-size: 0.85rem;
     cursor: pointer;
+  }
+
+  .toolbar button:hover:not(:disabled) {
+    background: var(--color-pressed);
   }
 
   .toolbar button:disabled {
@@ -593,9 +645,25 @@
   }
 
   .toolbar button.primary {
-    border-color: #3d5a80;
-    background: #3d5a80;
+    border-color: var(--color-accent);
+    background: var(--color-accent);
     color: #fff;
+  }
+
+  .theme-toggle {
+    display: flex;
+    gap: 0.2rem;
+  }
+
+  .theme-toggle button {
+    font-size: 0.78rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .theme-toggle button.active {
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 18%, var(--color-surface-1));
+    font-weight: 600;
   }
 
   .site-select {
@@ -607,7 +675,6 @@
 
   select {
     min-width: 10rem;
-    padding: 0.3rem 0.45rem;
   }
 
   .strict {
@@ -624,7 +691,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 0.75rem;
-    color: #5c6570;
+    color: var(--color-text-secondary);
     font-family: ui-monospace, Consolas, monospace;
   }
 
@@ -636,8 +703,8 @@
   }
 
   .sidebar {
-    border-right: 1px solid #d8dee6;
-    background: #fff;
+    border-right: 1px solid var(--color-border-subtle);
+    background: var(--color-surface-1);
     min-height: 0;
     overflow: hidden;
   }
@@ -647,7 +714,7 @@
     flex-direction: column;
     min-height: 0;
     min-width: 0;
-    background: #fff;
+    background: var(--color-surface-1);
   }
 
   .editor-area {
@@ -661,8 +728,8 @@
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    border-bottom: 1px solid #e8ecf2;
-    background: #fafbfc;
+    border-bottom: 1px solid var(--color-border-subtle);
+    background: var(--color-statusbar-bg);
     flex-shrink: 0;
   }
 
@@ -672,7 +739,7 @@
     gap: 0.25rem;
     padding: 0.35rem 0.65rem;
     border: none;
-    border-right: 1px solid #e8ecf2;
+    border-right: 1px solid var(--color-border-subtle);
     background: transparent;
     font-size: 0.78rem;
     font-family: ui-monospace, Consolas, monospace;
@@ -680,13 +747,17 @@
     white-space: nowrap;
   }
 
+  .tab-bar button:hover {
+    background: var(--color-hover);
+  }
+
   .tab-bar button.active {
-    background: #fff;
+    background: var(--color-surface-1);
     font-weight: 600;
   }
 
   .dirty {
-    color: #c45c26;
+    color: var(--color-accent);
   }
 
   .close {
@@ -709,21 +780,25 @@
   .site-view-bar {
     display: flex;
     flex-shrink: 0;
-    border-bottom: 1px solid #e8ecf2;
-    background: #fafbfc;
+    border-bottom: 1px solid var(--color-border-subtle);
+    background: var(--color-statusbar-bg);
   }
 
   .site-view-bar button {
     padding: 0.35rem 0.85rem;
     border: none;
-    border-right: 1px solid #e8ecf2;
+    border-right: 1px solid var(--color-border-subtle);
     background: transparent;
     font-size: 0.8rem;
     cursor: pointer;
   }
 
+  .site-view-bar button:hover {
+    background: var(--color-hover);
+  }
+
   .site-view-bar button.active {
-    background: #fff;
+    background: var(--color-surface-1);
     font-weight: 600;
   }
 
@@ -735,12 +810,12 @@
 
   .editor-placeholder {
     margin: 2rem 1rem;
-    color: #8a939e;
+    color: var(--color-text-secondary);
     font-size: 0.9rem;
   }
 
   .preview {
-    border-left: 1px solid #d8dee6;
+    border-left: 1px solid var(--color-border-subtle);
     min-height: 0;
     overflow: hidden;
   }

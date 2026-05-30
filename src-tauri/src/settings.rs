@@ -9,6 +9,8 @@ const SETTINGS_FILE: &str = "studio-settings.json";
 pub struct StudioSettings {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_project_root: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub theme: Option<String>,
 }
 
 pub fn settings_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {

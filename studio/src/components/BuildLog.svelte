@@ -16,8 +16,8 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    border-top: 1px solid #d8dee6;
-    background: #fff;
+    border-top: 1px solid var(--color-border-subtle);
+    background: var(--color-surface-1);
   }
 
   h2 {
@@ -27,8 +27,8 @@
     font-weight: 650;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #5c6570;
-    border-bottom: 1px solid #e8ecf2;
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border-subtle);
   }
 
   pre {

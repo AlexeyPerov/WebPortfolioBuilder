@@ -55,7 +55,7 @@
     flex-direction: column;
     min-height: 0;
     height: 100%;
-    background: #eef1f5;
+    background: var(--color-bg-root);
   }
 
   header {
@@ -64,8 +64,8 @@
     justify-content: space-between;
     gap: 0.5rem;
     padding: 0.4rem 0.65rem;
-    border-bottom: 1px solid #d8dee6;
-    background: #fff;
+    border-bottom: 1px solid var(--color-border-subtle);
+    background: var(--color-surface-1);
   }
 
   h2 {
@@ -74,7 +74,7 @@
     font-weight: 650;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #5c6570;
+    color: var(--color-text-secondary);
   }
 
   .actions {
@@ -85,11 +85,15 @@
 
   button {
     padding: 0.25rem 0.5rem;
-    border: 1px solid #c5cdd8;
+    border: 1px solid var(--color-border-subtle);
     border-radius: 0.3rem;
-    background: #f6f7f9;
+    background: var(--color-hover);
     font-size: 0.78rem;
     cursor: pointer;
+  }
+
+  button:hover:not(:disabled) {
+    background: var(--color-pressed);
   }
 
   button:disabled {
@@ -98,8 +102,8 @@
   }
 
   button.active {
-    border-color: #3d5a80;
-    background: #3d5a80;
+    border-color: var(--color-accent);
+    background: var(--color-accent);
     color: #fff;
   }
 
@@ -121,7 +125,7 @@
     width: 100%;
     height: 100%;
     min-height: 12rem;
-    border: 1px solid #c5cdd8;
+    border: 1px solid var(--color-border-subtle);
     border-radius: 0.35rem;
     background: #fff;
   }
@@ -134,7 +138,7 @@
   .placeholder {
     margin: auto;
     font-size: 0.85rem;
-    color: #5c6570;
+    color: var(--color-text-secondary);
     text-align: center;
     padding: 1rem;
   }

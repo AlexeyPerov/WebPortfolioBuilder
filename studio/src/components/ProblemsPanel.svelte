@@ -34,8 +34,8 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    border-top: 1px solid #d8dee6;
-    background: #fafbfc;
+    border-top: 1px solid var(--color-border-subtle);
+    background: var(--color-statusbar-bg);
   }
 
   header {
@@ -43,7 +43,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.35rem 0.65rem;
-    border-bottom: 1px solid #e8ecf2;
+    border-bottom: 1px solid var(--color-border-subtle);
   }
 
   h2 {
@@ -52,19 +52,19 @@
     font-weight: 650;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #5c6570;
+    color: var(--color-text-secondary);
   }
 
   .count {
     font-size: 0.72rem;
-    color: #8a939e;
+    color: var(--color-text-secondary);
   }
 
   .empty {
     margin: 0;
     padding: 0.5rem 0.65rem;
     font-size: 0.8rem;
-    color: #8a939e;
+    color: var(--color-text-secondary);
   }
 
   ul {
@@ -78,23 +78,23 @@
   li {
     padding: 0.25rem 0.65rem;
     font-size: 0.78rem;
-    border-bottom: 1px solid #eef1f5;
+    border-bottom: 1px solid var(--color-border-subtle);
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
   }
 
   li.warning {
-    background: #fff9e6;
+    background: color-mix(in srgb, #ffc800 18%, var(--color-surface-1));
   }
 
   li.error {
-    background: #fdecea;
+    background: color-mix(in srgb, #e06c75 14%, var(--color-surface-1));
   }
 
   .file {
     font-family: ui-monospace, Consolas, monospace;
-    color: #3d5a80;
+    color: var(--color-accent);
     flex: 0 0 auto;
   }
 

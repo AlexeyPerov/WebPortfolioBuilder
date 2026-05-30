@@ -5,6 +5,7 @@
   import { json } from '@codemirror/lang-json'
   import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
   import { linter, type Diagnostic as CmDiagnostic } from '@codemirror/lint'
+  import { createSyntaxHighlightExtension } from '../lib/editor/editorHighlight'
   import { lintJsonDocument } from '../lib/editor-schema'
 
   type Props = {
@@ -32,10 +33,45 @@
     })
   }
 
+  function editorTheme(): Extension {
+    return EditorView.theme({
+      '&': {
+        height: '100%',
+        fontSize: '13px',
+        color: 'var(--color-text-primary)',
+        backgroundColor: 'var(--color-surface-1)',
+      },
+      '.cm-scroller': { fontFamily: 'ui-monospace, Consolas, monospace' },
+      '.cm-content, .cm-gutter': { minHeight: '100%' },
+      '.cm-content': { caretColor: 'var(--color-text-primary)' },
+      '.cm-gutters': {
+        backgroundColor: 'var(--color-surface-1)',
+        color: 'var(--color-text-secondary)',
+        borderRight: '1px solid var(--color-border-subtle)',
+      },
+      '&.cm-focused': { outline: 'none' },
+      '.cm-activeLine, .cm-activeLineGutter': {
+        backgroundColor: 'var(--color-hover)',
+      },
+      '.cm-cursor, .cm-dropCursor': {
+        borderLeftColor: 'var(--color-text-primary)',
+      },
+      '.cm-lintRange-error': {
+        backgroundImage: 'none',
+        borderBottom: '2px wavy #e06c75',
+      },
+      '.cm-lintRange-warning': {
+        backgroundImage: 'none',
+        borderBottom: '2px wavy #d19a66',
+      },
+    })
+  }
+
   function buildExtensions(): Extension[] {
     return [
       history(),
       json(),
+      createSyntaxHighlightExtension(),
       jsonLinter(),
       keymap.of([...defaultKeymap, ...historyKeymap]),
       EditorView.updateListener.of((update) => {
@@ -43,10 +79,7 @@
           onchange?.(update.state.doc.toString())
         }
       }),
-      EditorView.theme({
-        '&': { height: '100%', fontSize: '13px' },
-        '.cm-scroller': { fontFamily: 'ui-monospace, Consolas, monospace' },
-      }),
+      editorTheme(),
     ]
   }
 

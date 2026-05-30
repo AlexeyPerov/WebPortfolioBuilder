@@ -79,16 +79,16 @@
   }
 
   button:hover {
-    background: #e8ecf2;
+    background: var(--color-hover);
   }
 
   button.selected {
-    background: #d6e4f5;
+    background: color-mix(in srgb, var(--color-accent) 22%, transparent);
     font-weight: 600;
   }
 
   .label {
-    color: #5c6570;
+    color: var(--color-text-secondary);
     font-weight: 600;
   }
 </style>
