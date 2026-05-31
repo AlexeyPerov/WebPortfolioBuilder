@@ -42,7 +42,9 @@
   </header>
   <div class="frame-wrap" class:phone={viewport === 'phone'}>
     {#if iframeSrc}
-      <iframe title="Site preview" src={iframeSrc}></iframe>
+      {#key refreshKey}
+        <iframe title="Site preview" src={iframeSrc}></iframe>
+      {/key}
     {:else}
       <p class="placeholder">Build the site to load preview over HTTP.</p>
     {/if}

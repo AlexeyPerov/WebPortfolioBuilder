@@ -3,7 +3,6 @@ use crate::routing::is_external_or_special_href;
 use crate::types::{SiteBundle, WidgetNode};
 use serde_json::Value as JsonValue;
 use std::collections::HashMap;
-use std::fs;
 use std::path::{Path, PathBuf};
 
 struct BundleAssetReference {

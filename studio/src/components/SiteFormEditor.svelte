@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ColorFieldInput from './ColorFieldInput.svelte'
   import {
     applySiteForm,
     mergeThemeForEdit,
@@ -8,6 +9,7 @@
     type NavItem,
     type SiteFormModel,
   } from '../lib/site-form'
+  import { showThemeColorPicker } from '../lib/color-value'
 
   type Props = {
     value: string
@@ -103,12 +105,20 @@
           <label class="field">
             <span class="label">{themeTokenLabel(row.key)}</span>
             <span class="token-name">{row.key}</span>
-            <input
-              type="text"
-              value={row.value}
-              spellcheck="false"
-              oninput={(e) => updateTheme(row.key, e.currentTarget.value)}
-            />
+            {#if showThemeColorPicker(row.key, row.value)}
+              <ColorFieldInput
+                tokenKey={row.key}
+                value={row.value}
+                onchange={(nextValue) => updateTheme(row.key, nextValue)}
+              />
+            {:else}
+              <input
+                type="text"
+                value={row.value}
+                spellcheck="false"
+                oninput={(e) => updateTheme(row.key, e.currentTarget.value)}
+              />
+            {/if}
           </label>
         {/each}
       </div>
@@ -119,12 +129,20 @@
           {#each themeRows!.extra as row (row.key)}
             <div class="field extra-token">
               <span class="label">{row.key}</span>
-              <input
-                type="text"
-                value={row.value}
-                spellcheck="false"
-                oninput={(e) => updateTheme(row.key, e.currentTarget.value)}
-              />
+              {#if showThemeColorPicker(row.key, row.value)}
+                <ColorFieldInput
+                  tokenKey={row.key}
+                  value={row.value}
+                  onchange={(nextValue) => updateTheme(row.key, nextValue)}
+                />
+              {:else}
+                <input
+                  type="text"
+                  value={row.value}
+                  spellcheck="false"
+                  oninput={(e) => updateTheme(row.key, e.currentTarget.value)}
+                />
+              {/if}
               <button type="button" class="icon-btn" title="Remove token" onclick={() => removeThemeKey(row.key)}>
                 ×
               </button>
@@ -222,8 +240,9 @@
 
 <style>
   .site-form {
-    height: 100%;
-    overflow: auto;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     padding: 1rem 1.1rem 1.5rem;
     font-size: 0.875rem;
   }

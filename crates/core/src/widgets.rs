@@ -841,8 +841,6 @@ fn parse_project_grid_props(
         subheading: String,
         #[serde(default)]
         section_id: String,
-        #[serde(default)]
-        min_card_column_width: String,
         cards: Vec<CardRaw>,
     }
     let tr: TopRaw = props_to_struct(&widget.props, path)?;

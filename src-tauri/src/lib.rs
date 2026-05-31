@@ -29,12 +29,14 @@ pub fn run() {
             commands::project_info_for_root,
             commands::list_bundle_files_cmd,
             commands::read_bundle_file_cmd,
+            commands::read_bundle_image_cmd,
             commands::write_bundle_file_cmd,
             commands::set_auto_rebuild,
             commands::create_site_from_template,
         ])
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(

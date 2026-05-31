@@ -31,6 +31,7 @@ Run with **Auto-rebuild off** first (row 11), then enable Phase 3 features. Conf
 | 14 | **New site** creates loadable bundle; duplicate/invalid id shows error; dropdown refreshes | Pass (dev) | Pending manual on Win 10/11 |
 | 15 | **site.json Form tab:** edit theme accent + nav label → **Build** → preview/CSS/header reflect changes; JSON ↔ Form round-trip | Pass (dev) | Pending manual on Win 10/11 |
 | 16 | Invalid JSON in `site.json` disables Form tab with clear message until fixed | Pass (dev) | Pending manual on Win 10/11 |
+| 17 | **Resizable workspace:** drag file-tree and preview gutters; relaunch app restores pane widths and window size | Pending | Pending |
 
 ## Notes
 

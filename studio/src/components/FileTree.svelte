@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { BundleFileEntry } from '../lib/studio-api'
+  import { isImageFile, isJsonFile } from '../lib/image-files'
 
   type Props = {
     entries: BundleFileEntry[]
@@ -10,7 +11,7 @@
   let { entries, selectedPath, onselect }: Props = $props()
 
   function isSelectable(entry: BundleFileEntry) {
-    return !entry.is_dir && entry.relative_path.endsWith('.json')
+    return !entry.is_dir && (isJsonFile(entry.relative_path) || isImageFile(entry.relative_path))
   }
 </script>
 
@@ -22,6 +23,7 @@
           <button
             type="button"
             class:selected={selectedPath === entry.relative_path}
+            class:image={isImageFile(entry.relative_path)}
             onclick={() => onselect?.(entry.relative_path)}
           >
             {entry.name}
@@ -76,6 +78,11 @@
   button {
     cursor: pointer;
     border-radius: 0.25rem;
+  }
+
+  button.image {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.82rem;
   }
 
   button:hover {

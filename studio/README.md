@@ -74,13 +74,15 @@ During **`cargo tauri dev`**, run from the repo root so the current working dire
 
 The studio UI (Phase 2.3) provides the full author layout: toolbar, bundle file tree, tabbed JSON editor, Problems panel, HTTP preview iframe, and build log. **Open project** uses a native folder dialog and persists the last path in app config. **Build** saves dirty editor buffers, runs `build_site`, then `start_preview_server` at `http://127.0.0.1:8080/` (no `file://` URLs).
 
+**Resizable workspace:** drag the vertical gutters between the file tree, editor, and preview. Widths are saved to `studio-settings.json` (`workspace_layout.sidebar_px`, `workspace_layout.preview_px`) when you release a drag, on app close, and whenever other studio settings are saved. **Window size and position** are restored automatically via the Tauri window-state plugin (stored separately in app config).
+
 ### Invoke commands
 
 | Command | Purpose |
 |---------|---------|
 | `resolve_project_root` | Project root + `Template/` path (auto-detect) |
 | `project_info_for_root` | Validate a chosen project folder |
-| `get_studio_settings` / `save_studio_settings` | Persist last project path |
+| `get_studio_settings` / `save_studio_settings` | Persist last project path, theme, and workspace pane widths (`workspace_layout`) |
 | `list_content_bundles` | Lists bundles under `content/` |
 | `list_bundle_files_cmd` | File tree entries for active bundle |
 | `read_bundle_file_cmd` / `write_bundle_file_cmd` | UTF-8 load/save (`site.json`, `pages/*.json`) |

@@ -33,6 +33,7 @@
   .problems {
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
     min-height: 0;
     border-top: 1px solid var(--color-border-subtle);
     background: var(--color-statusbar-bg);

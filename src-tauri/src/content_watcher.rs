@@ -126,10 +126,9 @@ fn run_watch_rebuild(
         Err(_) => return,
     };
 
-    let preview = app.state::<PreviewServerState>();
-    preview.stop();
-
     let build = run_build(project_root, site_path, strict);
+
+    let preview = app.state::<PreviewServerState>();
 
     let preview_info = if build.ok {
         build.output_dir.as_ref().and_then(|output_dir| {

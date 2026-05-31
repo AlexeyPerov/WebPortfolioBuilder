@@ -5,7 +5,8 @@ use crate::settings::{load_settings, save_settings, StudioSettings};
 use crate::site_ops::{run_build, run_validate};
 use crate::site_template;
 use crate::studio_files::{
-    list_bundle_files, project_info_at, read_bundle_file, write_bundle_file, BundleFileEntry,
+    list_bundle_files, project_info_at, read_bundle_file, read_bundle_image, write_bundle_file,
+    BundleFileEntry, BundleImagePreview,
 };
 use portfoliowebsitebuilder_core::{
     discover_content_bundles, resolve_project_root as core_resolve_project_root,
@@ -52,9 +53,7 @@ pub fn build_site(
     project_root: String,
     site_path: String,
     strict: bool,
-    preview: State<'_, PreviewServerState>,
 ) -> Result<BuildSiteResult, String> {
-    preview.stop();
     let project_root = parse_project_root(&project_root)?;
     Ok(run_build(&project_root, &site_path, strict))
 }
@@ -119,6 +118,15 @@ pub fn read_bundle_file_cmd(
     relative_path: String,
 ) -> Result<String, String> {
     read_bundle_file(&project_root, &site_path, &relative_path)
+}
+
+#[tauri::command]
+pub fn read_bundle_image_cmd(
+    project_root: String,
+    site_path: String,
+    relative_path: String,
+) -> Result<BundleImagePreview, String> {
+    read_bundle_image(&project_root, &site_path, &relative_path)
 }
 
 #[tauri::command]

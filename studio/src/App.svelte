@@ -1,14 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { listen } from '@tauri-apps/api/event'
+  import { getCurrentWindow } from '@tauri-apps/api/window'
   import { message, open } from '@tauri-apps/plugin-dialog'
   import { revealItemInDir } from '@tauri-apps/plugin-opener'
   import BuildLog from './components/BuildLog.svelte'
   import FileTree from './components/FileTree.svelte'
   import JsonEditor from './components/JsonEditor.svelte'
   import SiteFormEditor from './components/SiteFormEditor.svelte'
+  import PageFormEditor from './components/PageFormEditor.svelte'
+  import ImagePreviewPanel from './components/ImagePreviewPanel.svelte'
   import PreviewPanel from './components/PreviewPanel.svelte'
   import ProblemsPanel from './components/ProblemsPanel.svelte'
+  import ResizableWorkspace from './components/ResizableWorkspace.svelte'
   import {
     AUTO_REBUILD_DEBOUNCE_MS,
     buildSite,
@@ -39,6 +43,16 @@
     getBuiltinThemeLabel,
     isBuiltinThemeId,
   } from './lib/styles/themeTokens'
+  import {
+    DEFAULT_SIDEBAR_PX,
+    type WorkspaceLayout,
+  } from './lib/workspace-layout'
+  import {
+    isPageJson,
+    isSiteJson,
+    supportsFormView,
+  } from './lib/editor-schema'
+  import { isImageFile } from './lib/image-files'
 
   const DEFAULT_SITE = 'content/kometa'
   const PREVIEW_PORT = 8080
@@ -52,12 +66,8 @@
     siteView?: SiteEditorView
   }
 
-  function isSiteJson(relativePath: string) {
-    return relativePath.replace(/\\/g, '/') === 'site.json'
-  }
-
   function siteViewForTab(tab: EditorTab): SiteEditorView {
-    return tab.siteView ?? 'json'
+    return tab.siteView ?? (supportsFormView(tab.relativePath) ? 'form' : 'json')
   }
 
   function setSiteView(relativePath: string, siteView: SiteEditorView) {
@@ -73,16 +83,25 @@
   let fileEntries = $state<BundleFileEntry[]>([])
   let tabs = $state<EditorTab[]>([])
   let activeTabPath = $state<string | null>(null)
+  let imagePreviewPath = $state<string | null>(null)
   let problems = $state<Diagnostic[]>([])
   let logs = $state<string[]>([])
   let lastOutputDir = $state<string | null>(null)
   let previewUrl = $state<string | null>(null)
   let previewRefreshKey = $state(0)
+  let previewGeneration = $state(0)
   let busy = $state(false)
   let autoRebuild = $state(false)
   let themeId = $state<BuiltinThemeId>(DEFAULT_BUILTIN_THEME)
+  let sidebarWidth = $state(DEFAULT_SIDEBAR_PX)
+  let previewWidth = $state(360)
+  let savedWorkspaceLayout = $state<WorkspaceLayout | null>(null)
 
   let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+
+  function workspaceLayoutPayload(): WorkspaceLayout {
+    return { sidebar_px: sidebarWidth, preview_px: previewWidth }
+  }
 
   function appendLog(line: string) {
     const stamp = new Date().toLocaleTimeString()
@@ -104,6 +123,7 @@
   async function persistStudioSettings(overrides: {
     last_project_root?: string | null
     theme?: BuiltinThemeId
+    workspace_layout?: WorkspaceLayout
   } = {}) {
     await saveStudioSettings({
       last_project_root:
@@ -111,7 +131,12 @@
           ? overrides.last_project_root
           : projectInfo?.project_root,
       theme: overrides.theme ?? themeId,
+      workspace_layout: overrides.workspace_layout ?? workspaceLayoutPayload(),
     })
+  }
+
+  function onWorkspaceLayoutCommit() {
+    void persistStudioSettings()
   }
 
   async function persistProjectRoot(root: string) {
@@ -159,15 +184,31 @@
     }
   }
 
+  function selectedTreePath(): string | null {
+    return imagePreviewPath ?? activeTabPath
+  }
+
   async function onSiteChange() {
+    previewGeneration += 1
     tabs = []
     activeTabPath = null
+    imagePreviewPath = null
     problems = []
+    previewUrl = null
+    lastOutputDir = null
+    previewRefreshKey += 1
     await refreshFileTree()
+  }
+
+  async function openImage(relativePath: string) {
+    if (!projectInfo || !isImageFile(relativePath)) return
+    imagePreviewPath = relativePath
+    activeTabPath = null
   }
 
   async function openFile(relativePath: string) {
     if (!projectInfo) return
+    imagePreviewPath = null
     const existing = tabs.find((t) => t.relativePath === relativePath)
     if (existing) {
       activeTabPath = relativePath
@@ -184,6 +225,18 @@
     } catch (err: unknown) {
       appendLog(`Open ${relativePath} failed: ${String(err)}`)
     }
+  }
+
+  function onTreeSelect(relativePath: string) {
+    if (isImageFile(relativePath)) {
+      void openImage(relativePath)
+    } else {
+      void openFile(relativePath)
+    }
+  }
+
+  function closeImagePreview() {
+    imagePreviewPath = null
   }
 
   function updateActiveContent(content: string) {
@@ -287,6 +340,7 @@
     if (wasAutoRebuild) {
       await setAutoRebuild(false, projectInfo.project_root, selectedSite, strict, PREVIEW_PORT)
     }
+    const buildGeneration = previewGeneration
     try {
       if (!(await saveDirtyTabs())) return
 
@@ -298,10 +352,20 @@
         return
       }
 
+      if (buildGeneration !== previewGeneration) {
+        appendLog('Build finished for a previous site selection; preview not updated.')
+        return
+      }
+
       lastOutputDir = result.output_dir
       appendLog(`Build OK → ${result.output_dir}`)
 
       const preview = await startPreviewServer(result.output_dir, PREVIEW_PORT)
+      if (buildGeneration !== previewGeneration) {
+        appendLog('Preview ready for a previous site selection; panel not updated.')
+        return
+      }
+
       previewUrl = preview.url
       previewRefreshKey += 1
       appendLog(`Preview: ${preview.url}`)
@@ -380,6 +444,7 @@
   async function initStudio() {
     try {
       const settings = await getStudioSettings()
+      savedWorkspaceLayout = settings.workspace_layout ?? null
       const initialTheme =
         settings.theme && isBuiltinThemeId(settings.theme)
           ? settings.theme
@@ -413,6 +478,8 @@
     initStudio()
 
     let unlisten: (() => void) | undefined
+    let unlistenClose: (() => void) | undefined
+
     listen<WatchRebuildComplete>('watch-rebuild-complete', (event) => {
       const { build, preview } = event.payload
       setProblemsFromResult(build)
@@ -431,8 +498,17 @@
       unlisten = fn
     })
 
+    getCurrentWindow()
+      .onCloseRequested(() => {
+        void persistStudioSettings()
+      })
+      .then((fn) => {
+        unlistenClose = fn
+      })
+
     return () => {
       unlisten?.()
+      unlistenClose?.()
       if (autoSaveTimer) clearTimeout(autoSaveTimer)
     }
   })
@@ -509,96 +585,130 @@
     {/if}
   </header>
 
-  <div class="workspace">
-    <aside class="sidebar">
-      <FileTree
-        entries={fileEntries}
-        selectedPath={activeTabPath}
-        onselect={(path) => openFile(path)}
-      />
-    </aside>
-
-    <section class="center">
-      <div class="editor-area">
-        {#if tabs.length > 0}
-          <div class="tab-bar" role="tablist">
-            {#each tabs as tab (tab.relativePath)}
-              <button
-                type="button"
-                role="tab"
-                class:active={activeTabPath === tab.relativePath}
-                aria-selected={activeTabPath === tab.relativePath}
-                onclick={() => (activeTabPath = tab.relativePath)}
-              >
-                {tab.relativePath}
-                {#if isDirty(tab)}<span class="dirty">•</span>{/if}
-                <span
-                  class="close"
-                  role="button"
-                  tabindex="0"
-                  aria-label="Close tab"
-                  onclick={(e) => closeTab(tab.relativePath, e)}
-                  onkeydown={(e) => {
-                    if (e.key === 'Enter') closeTab(tab.relativePath, e as unknown as MouseEvent)
-                  }}>×</span
-                >
-              </button>
-            {/each}
-          </div>
-        {/if}
-
-        <div class="editor-pane">
-          {#if activeTab()}
-            {@const tab = activeTab()!}
-            {#if isSiteJson(tab.relativePath)}
-              <div class="site-view-bar" role="tablist" aria-label="site.json editor mode">
-                <button
-                  type="button"
-                  role="tab"
-                  class:active={siteViewForTab(tab) === 'json'}
-                  aria-selected={siteViewForTab(tab) === 'json'}
-                  onclick={() => setSiteView(tab.relativePath, 'json')}
-                >
-                  JSON
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  class:active={siteViewForTab(tab) === 'form'}
-                  aria-selected={siteViewForTab(tab) === 'form'}
-                  onclick={() => setSiteView(tab.relativePath, 'form')}
-                >
-                  Form
-                </button>
-              </div>
-            {/if}
-            {#key `${tab.relativePath}:${siteViewForTab(tab)}`}
-              {#if isSiteJson(tab.relativePath) && siteViewForTab(tab) === 'form'}
-                <SiteFormEditor value={tab.content} onchange={updateActiveContent} />
-              {:else}
-                <JsonEditor
-                  relativePath={tab.relativePath}
-                  value={tab.content}
-                  onchange={updateActiveContent}
-                />
-              {/if}
-            {/key}
-          {:else}
-            <p class="editor-placeholder">Select a JSON file from the tree.</p>
-          {/if}
-        </div>
+  <ResizableWorkspace
+    bind:sidebarWidth
+    bind:previewWidth
+    savedLayout={savedWorkspaceLayout}
+    onlayoutcommit={onWorkspaceLayoutCommit}
+  >
+    {#snippet sidebar()}
+      <div class="sidebar">
+        <FileTree
+          entries={fileEntries}
+          selectedPath={selectedTreePath()}
+          onselect={onTreeSelect}
+        />
       </div>
-      <ProblemsPanel items={problems} />
-    </section>
+    {/snippet}
 
-    <aside class="preview">
-      <PreviewPanel
-        previewUrl={previewUrl}
-        refreshKey={previewRefreshKey}
-        onrefresh={() => (previewRefreshKey += 1)}
-      />
-    </aside>
-  </div>
+    {#snippet main()}
+      <section class="center">
+        <div class="editor-area">
+          {#if tabs.length > 0 && !imagePreviewPath}
+            <div class="tab-bar" role="tablist">
+              {#each tabs as tab (tab.relativePath)}
+                <button
+                  type="button"
+                  role="tab"
+                  class:active={activeTabPath === tab.relativePath}
+                  aria-selected={activeTabPath === tab.relativePath}
+                  onclick={() => {
+                    imagePreviewPath = null
+                    activeTabPath = tab.relativePath
+                  }}
+                >
+                  {tab.relativePath}
+                  {#if isDirty(tab)}<span class="dirty">•</span>{/if}
+                  <span
+                    class="close"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Close tab"
+                    onclick={(e) => closeTab(tab.relativePath, e)}
+                    onkeydown={(e) => {
+                      if (e.key === 'Enter')
+                        closeTab(tab.relativePath, e as unknown as MouseEvent)
+                    }}>×</span
+                  >
+                </button>
+              {/each}
+            </div>
+          {/if}
+
+          <div class="editor-pane">
+            {#if imagePreviewPath && projectInfo}
+              <ImagePreviewPanel
+                projectRoot={projectInfo.project_root}
+                sitePath={selectedSite}
+                relativePath={imagePreviewPath}
+                onclose={closeImagePreview}
+              />
+            {:else if activeTab()}
+              {@const tab = activeTab()!}
+              {#if supportsFormView(tab.relativePath)}
+                <div class="site-view-bar" role="tablist" aria-label="Editor mode">
+                  <button
+                    type="button"
+                    role="tab"
+                    class:active={siteViewForTab(tab) === 'json'}
+                    aria-selected={siteViewForTab(tab) === 'json'}
+                    onclick={() => setSiteView(tab.relativePath, 'json')}
+                  >
+                    JSON
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    class:active={siteViewForTab(tab) === 'form'}
+                    aria-selected={siteViewForTab(tab) === 'form'}
+                    onclick={() => setSiteView(tab.relativePath, 'form')}
+                  >
+                    Form
+                  </button>
+                </div>
+              {/if}
+              <div class="editor-body">
+              {#key `${tab.relativePath}:${siteViewForTab(tab)}`}
+                {#if siteViewForTab(tab) === 'form'}
+                  {#if isSiteJson(tab.relativePath)}
+                    <SiteFormEditor value={tab.content} onchange={updateActiveContent} />
+                  {:else if isPageJson(tab.relativePath)}
+                    <PageFormEditor value={tab.content} onchange={updateActiveContent} />
+                  {:else}
+                    <JsonEditor
+                      relativePath={tab.relativePath}
+                      value={tab.content}
+                      onchange={updateActiveContent}
+                    />
+                  {/if}
+                {:else}
+                  <JsonEditor
+                    relativePath={tab.relativePath}
+                    value={tab.content}
+                    onchange={updateActiveContent}
+                  />
+                {/if}
+              {/key}
+              </div>
+            {:else}
+              <p class="editor-placeholder">Select a JSON or image file from the tree.</p>
+            {/if}
+          </div>
+        </div>
+        <ProblemsPanel items={problems} />
+      </section>
+    {/snippet}
+
+    {#snippet preview()}
+      <div class="preview">
+        <PreviewPanel
+          previewUrl={previewUrl}
+          refreshKey={previewRefreshKey}
+          onrefresh={() => (previewRefreshKey += 1)}
+        />
+      </div>
+    {/snippet}
+  </ResizableWorkspace>
 
   <footer class="log-footer">
     <BuildLog lines={logs} />
@@ -695,14 +805,8 @@
     font-family: ui-monospace, Consolas, monospace;
   }
 
-  .workspace {
-    display: grid;
-    grid-template-columns: 12rem 1fr minmax(280px, 38%);
-    flex: 1;
-    min-height: 0;
-  }
-
   .sidebar {
+    height: 100%;
     border-right: 1px solid var(--color-border-subtle);
     background: var(--color-surface-1);
     min-height: 0;
@@ -712,8 +816,10 @@
   .center {
     display: flex;
     flex-direction: column;
+    height: 100%;
     min-height: 0;
     min-width: 0;
+    overflow: hidden;
     background: var(--color-surface-1);
   }
 
@@ -775,6 +881,15 @@
     flex-direction: column;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
+  }
+
+  .editor-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .site-view-bar {
@@ -803,7 +918,9 @@
   }
 
   .editor-pane :global(.editor-host),
-  .editor-pane :global(.site-form) {
+  .editor-pane :global(.site-form),
+  .editor-pane :global(.page-form),
+  .editor-pane :global(.image-preview) {
     flex: 1;
     min-height: 0;
   }
@@ -815,6 +932,7 @@
   }
 
   .preview {
+    height: 100%;
     border-left: 1px solid var(--color-border-subtle);
     min-height: 0;
     overflow: hidden;

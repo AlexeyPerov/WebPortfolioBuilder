@@ -34,9 +34,15 @@ export type PreviewServerInfo = {
 
 export type BuiltinThemeId = 'dark-amber' | 'light-blue'
 
+export type WorkspaceLayout = {
+  sidebar_px?: number | null
+  preview_px?: number | null
+}
+
 export type StudioSettings = {
   last_project_root?: string | null
   theme?: BuiltinThemeId | null
+  workspace_layout?: WorkspaceLayout | null
 }
 
 export type WatchRebuildComplete = {
@@ -51,6 +57,11 @@ export type BundleFileEntry = {
   relative_path: string
   name: string
   is_dir: boolean
+}
+
+export type BundleImagePreview = {
+  relative_path: string
+  data_url: string
 }
 
 export function resolveProjectRoot() {
@@ -99,6 +110,18 @@ export function readBundleFile(
   relativePath: string,
 ) {
   return invoke<string>('read_bundle_file_cmd', { projectRoot, sitePath, relativePath })
+}
+
+export function readBundleImage(
+  projectRoot: string,
+  sitePath: string,
+  relativePath: string,
+) {
+  return invoke<BundleImagePreview>('read_bundle_image_cmd', {
+    projectRoot,
+    sitePath,
+    relativePath,
+  })
 }
 
 export function writeBundleFile(

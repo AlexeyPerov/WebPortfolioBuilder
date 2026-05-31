@@ -68,6 +68,39 @@ fn is_editable_json(relative_path: &str) -> bool {
     rel == "site.json" || rel.starts_with("pages/") && rel.ends_with(".json")
 }
 
+fn is_image_file(relative_path: &str) -> bool {
+    const IMAGE_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "svg", "ico", "avif"];
+    Path::new(relative_path)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| IMAGE_EXTENSIONS.contains(&ext.to_ascii_lowercase().as_str()))
+        .unwrap_or(false)
+}
+
+fn mime_for_image(relative_path: &str) -> &'static str {
+    match Path::new(relative_path)
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_ascii_lowercase())
+        .as_deref()
+    {
+        Some("png") => "image/png",
+        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("gif") => "image/gif",
+        Some("webp") => "image/webp",
+        Some("svg") => "image/svg+xml",
+        Some("ico") => "image/x-icon",
+        Some("avif") => "image/avif",
+        _ => "application/octet-stream",
+    }
+}
+
+#[derive(Clone, Serialize)]
+pub struct BundleImagePreview {
+    pub relative_path: String,
+    pub data_url: String,
+}
+
 pub fn list_bundle_files(project_root: &str, site_path: &str) -> Result<Vec<BundleFileEntry>, String> {
     let project_root = parse_project_root(project_root)?;
     let bundle = bundle_root(&project_root, site_path);
@@ -147,6 +180,30 @@ pub fn read_bundle_file(
         return Err("cannot read a directory".into());
     }
     fs::read_to_string(&path).map_err(|e| e.to_string())
+}
+
+pub fn read_bundle_image(
+    project_root: &str,
+    site_path: &str,
+    relative_path: &str,
+) -> Result<BundleImagePreview, String> {
+    if !is_image_file(relative_path) {
+        return Err("not an image file".into());
+    }
+    let project_root = parse_project_root(project_root)?;
+    let bundle = bundle_root(&project_root, site_path);
+    let path = resolve_bundle_relative(&bundle, relative_path)?;
+    if path.is_dir() {
+        return Err("cannot preview a directory".into());
+    }
+    let bytes = fs::read(&path).map_err(|e| e.to_string())?;
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+    let encoded = STANDARD.encode(bytes);
+    let mime = mime_for_image(relative_path);
+    Ok(BundleImagePreview {
+        relative_path: relative_path.replace('\\', "/"),
+        data_url: format!("data:{mime};base64,{encoded}"),
+    })
 }
 
 pub fn write_bundle_file(

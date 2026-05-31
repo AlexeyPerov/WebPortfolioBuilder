@@ -37,12 +37,19 @@
     return EditorView.theme({
       '&': {
         height: '100%',
+        maxHeight: '100%',
+        display: 'flex',
+        flexDirection: 'column',
         fontSize: '13px',
         color: 'var(--color-text-primary)',
         backgroundColor: 'var(--color-surface-1)',
       },
-      '.cm-scroller': { fontFamily: 'ui-monospace, Consolas, monospace' },
-      '.cm-content, .cm-gutter': { minHeight: '100%' },
+      '.cm-scroller': {
+        overflow: 'auto',
+        flex: '1 1 0',
+        minHeight: 0,
+        fontFamily: 'ui-monospace, Consolas, monospace',
+      },
       '.cm-content': { caretColor: 'var(--color-text-primary)' },
       '.cm-gutters': {
         backgroundColor: 'var(--color-surface-1)',
@@ -69,6 +76,7 @@
 
   function buildExtensions(): Extension[] {
     return [
+      EditorView.lineWrapping,
       history(),
       json(),
       createSyntaxHighlightExtension(),
@@ -90,6 +98,9 @@
       extensions: buildExtensions(),
     })
     view = new EditorView({ state, parent: host })
+    const ro = new ResizeObserver(() => view?.requestMeasure())
+    ro.observe(host)
+    return () => ro.disconnect()
   })
 
   onDestroy(() => {
@@ -118,13 +129,16 @@
 
 <style>
   .editor-host {
-    height: 100%;
+    flex: 1;
     min-height: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
   .editor-host :global(.cm-editor) {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
   }
 
   .editor-host :global(.cm-focused) {

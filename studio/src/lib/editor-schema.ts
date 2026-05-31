@@ -7,10 +7,22 @@ const ajv = new Ajv({ allErrors: true, strict: false })
 const validateSiteDoc = ajv.compile(siteSchema)
 const validatePageDoc = ajv.compile(pageSchema)
 
-export function schemaForRelativePath(relativePath: string): object | null {
+export function isPageJson(relativePath: string): boolean {
   const rel = relativePath.replace(/\\/g, '/')
-  if (rel === 'site.json') return siteSchema as object
-  if (rel.startsWith('pages/') && rel.endsWith('.json')) return pageSchema as object
+  return rel.startsWith('pages/') && rel.endsWith('.json')
+}
+
+export function isSiteJson(relativePath: string): boolean {
+  return relativePath.replace(/\\/g, '/') === 'site.json'
+}
+
+export function supportsFormView(relativePath: string): boolean {
+  return isSiteJson(relativePath) || isPageJson(relativePath)
+}
+
+export function schemaForRelativePath(relativePath: string): object | null {
+  if (isSiteJson(relativePath)) return siteSchema as object
+  if (isPageJson(relativePath)) return pageSchema as object
   return null
 }
 
@@ -33,7 +45,7 @@ export function lintJsonDocument(
   const schema = schemaForRelativePath(relativePath)
   if (!schema) return issues
 
-  const validate = relativePath.replace(/\\/g, '/') === 'site.json' ? validateSiteDoc : validatePageDoc
+  const validate = isSiteJson(relativePath) ? validateSiteDoc : validatePageDoc
   if (!validate(parsed)) {
     for (const e of validate.errors ?? []) {
       const path = e.instancePath || e.schemaPath

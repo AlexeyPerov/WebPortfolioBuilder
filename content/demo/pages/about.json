@@ -18,7 +18,7 @@
         "title": "",
         "paragraphs": [
           "This site demonstrates every v1 widget type across six pages. It is a reference bundle for authors learning the content format.",
-          "Rebuild anytime with: go run . --site content/demo"
+          "Rebuild anytime with this tool"
         ]
       }
     },
