@@ -9,11 +9,19 @@ export type PageLayout = {
   hide_footer: boolean
 }
 
+export type WidgetNode = {
+  type: string
+  id?: string
+  enabled?: boolean
+  props: Record<string, unknown>
+}
+
 export type PageFormModel = {
   slug: string
   title: string
   seo: PageSeo
   layout: PageLayout
+  widgets: WidgetNode[]
 }
 
 export type ParsePageFormResult =
@@ -43,6 +51,104 @@ function readLayout(raw: unknown): PageLayout {
   }
 }
 
+function readProps(raw: unknown): Record<string, unknown> {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
+  return { ...(raw as Record<string, unknown>) }
+}
+
+function readWidgetNode(raw: unknown): WidgetNode {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { type: 'intro', props: {} }
+  }
+  const row = raw as Record<string, unknown>
+  const widget: WidgetNode = {
+    type: typeof row.type === 'string' ? row.type : 'intro',
+    props: readProps(row.props),
+  }
+  if (typeof row.id === 'string' && row.id.trim() !== '') {
+    widget.id = row.id
+  }
+  if (row.enabled === false) {
+    widget.enabled = false
+  }
+  return widget
+}
+
+function readWidgets(raw: unknown): WidgetNode[] {
+  if (!Array.isArray(raw)) return []
+  return raw.map(readWidgetNode)
+}
+
+function writeWidgetNode(node: WidgetNode): Record<string, unknown> {
+  const out: Record<string, unknown> = { type: node.type }
+  if (node.id?.trim()) out.id = node.id.trim()
+  if (node.enabled === false) out.enabled = false
+  if (Object.keys(node.props).length > 0) {
+    out.props = node.props
+  }
+  return out
+}
+
+/** Spread original props first so additionalProperties keys are preserved. */
+export function mergeWidgetProps(
+  existing: Record<string, unknown>,
+  patch: Record<string, unknown>,
+): Record<string, unknown> {
+  return { ...existing, ...patch }
+}
+
+export { defaultPropsForType, defaultWidget } from './widget-types'
+
+export function insertWidget(
+  widgets: WidgetNode[],
+  index: number,
+  widget: WidgetNode,
+): WidgetNode[] {
+  const next = [...widgets]
+  const at = Math.max(0, Math.min(index, next.length))
+  next.splice(at, 0, widget)
+  return next
+}
+
+export function removeWidget(widgets: WidgetNode[], index: number): WidgetNode[] {
+  return widgets.filter((_, i) => i !== index)
+}
+
+export function moveWidget(widgets: WidgetNode[], index: number, delta: number): WidgetNode[] {
+  const target = index + delta
+  if (target < 0 || target >= widgets.length || target === index) return widgets
+  const next = [...widgets]
+  ;[next[index], next[target]] = [next[target], next[index]]
+  return next
+}
+
+export function updateWidget(
+  widgets: WidgetNode[],
+  index: number,
+  patch: Partial<WidgetNode>,
+): WidgetNode[] {
+  return widgets.map((widget, i) => {
+    if (i !== index) return widget
+    const next: WidgetNode = { ...widget, ...patch }
+    if (patch.props !== undefined) {
+      next.props = patch.props
+    }
+    return next
+  })
+}
+
+export function updateWidgetProps(
+  widgets: WidgetNode[],
+  index: number,
+  propsPatch: Record<string, unknown>,
+): WidgetNode[] {
+  const widget = widgets[index]
+  if (!widget) return widgets
+  return updateWidget(widgets, index, {
+    props: mergeWidgetProps(widget.props, propsPatch),
+  })
+}
+
 export function parsePageForm(text: string): ParsePageFormResult {
   let doc: unknown
   try {
@@ -65,6 +171,7 @@ export function parsePageForm(text: string): ParsePageFormResult {
       title: typeof record.title === 'string' ? record.title : '',
       seo: readSeo(record.seo),
       layout: readLayout(record.layout),
+      widgets: readWidgets(record.widgets),
     },
   }
 }
@@ -98,6 +205,8 @@ export function applyPageForm(doc: Record<string, unknown>, model: PageFormModel
   } else {
     delete next.layout
   }
+
+  next.widgets = model.widgets.map(writeWidgetNode)
 
   return `${JSON.stringify(next, null, 2)}\n`
 }

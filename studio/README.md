@@ -11,7 +11,8 @@ Desktop studio shell for **Portfolio Website Builder** (Phase 2 UI + Phase 3 aut
 | **Auto-rebuild** | Off | 500 ms debounced watcher on active bundle; see below |
 | **Open output folder** | — | After successful build |
 | **New site** | — | From `content/_template/` |
-| **site.json Form tab** | JSON tab first | Theme + `header.nav` only; other keys stay JSON-only |
+| **site.json Form tab** | Form tab default | Theme + `header.nav`; other keys stay JSON-only |
+| **pages/*.json Form tab** | Form tab default | Page metadata + widget list; 9 widget prop editors |
 | Manual **Build** / **Validate** | Unchanged from Phase 2 | Works with Phase 3 features disabled |
 
 With **Auto-rebuild** off, the studio matches Phase 2: edit JSON → **Build** → HTTP preview. No regression in that path.
@@ -118,6 +119,17 @@ When `site.json` is open, switch between **JSON** and **Form** tabs in the edito
 - **Header navigation** — table editor for `header.nav` (`label`, `href`, `open_in_new_tab`).
 
 Form changes write the same `site.json` buffer as the JSON editor (round-trip safe). Invalid JSON disables the form with an error until syntax is fixed. Footer, widgets, typography, and other sections remain JSON-only.
+
+### pages/*.json form panels
+
+When a page file under `pages/` is open, the **Form** tab is the default. It edits:
+
+- **Page** — `slug`, `title`
+- **SEO** — `description`, `og_image`, `canonical_url`
+- **Layout** — `hide_header`, `hide_footer`
+- **Widgets** — top-level list (add, remove, reorder, `type`, `id`, `enabled`) plus typed prop editors for nine widget types: `cover_banner`, `intro`, `follow_us`, `info_grid`, `images_grid`, `media_swiper`, `apps_showcase`, `careers_tabs`, `project_grid`
+
+Layout widgets (`row`, `column`, `grid`) and extra props on supported widgets can still be edited via the collapsible **Props (JSON)** block or the JSON tab. Asset files under `assets/` are clickable in the file tree for image preview in the editor pane.
 
 ## Build (release)
 

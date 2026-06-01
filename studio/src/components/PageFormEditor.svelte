@@ -5,7 +5,9 @@
     type PageFormModel,
     type PageLayout,
     type PageSeo,
+    type WidgetNode,
   } from '../lib/page-form'
+  import WidgetListSection from './page-form/WidgetListSection.svelte'
 
   type Props = {
     value: string
@@ -14,7 +16,19 @@
 
   let { value, onchange }: Props = $props()
 
+  let selectedWidgetIndex = $state(0)
+
   const parsed = $derived(parsePageForm(value))
+
+  $effect(() => {
+    if (!parsed.ok) return
+    const len = parsed.model.widgets.length
+    if (len === 0) {
+      selectedWidgetIndex = 0
+    } else if (selectedWidgetIndex >= len) {
+      selectedWidgetIndex = len - 1
+    }
+  })
 
   function emitModel(model: PageFormModel) {
     if (!parsed.ok) return
@@ -147,8 +161,16 @@
       </div>
     </section>
 
+    <WidgetListSection
+      widgets={parsed.model.widgets}
+      selectedIndex={selectedWidgetIndex}
+      onSelectIndex={(index) => (selectedWidgetIndex = index)}
+      onchange={(widgets: WidgetNode[]) => updateField('widgets', widgets)}
+    />
+
     <p class="json-only-note">
-      The <code>widgets</code> array remains editable in the JSON tab only.
+      Layout widgets (<code>row</code>, <code>column</code>, <code>grid</code>) and extra props on
+      supported widgets may still need the JSON tab. The JSON tab remains the full-document editor.
     </p>
   {/if}
 </div>

@@ -32,6 +32,12 @@ Run with **Auto-rebuild off** first (row 11), then enable Phase 3 features. Conf
 | 15 | **site.json Form tab:** edit theme accent + nav label → **Build** → preview/CSS/header reflect changes; JSON ↔ Form round-trip | Pass (dev) | Pending manual on Win 10/11 |
 | 16 | Invalid JSON in `site.json` disables Form tab with clear message until fixed | Pass (dev) | Pending manual on Win 10/11 |
 | 17 | **Resizable workspace:** drag file-tree and preview gutters; relaunch app restores pane widths and window size | Pending | Pending |
+| 18 | **pages/home.json Form:** reorder widgets; edit cover_banner + intro; Form ↔ JSON round-trip; **Build** → preview OK | Pending | Pending |
+| 19 | **content/demo/pages/gallery.json Form:** edit `images_grid` + `media_swiper` props | Pending | Pending |
+| 20 | **content/demo/pages/careers.json Form:** edit `careers_tabs` vacancy | Pending | Pending |
+| 21 | **content/demo/pages/apps.json Form:** edit `apps_showcase` app card | Pending | Pending |
+| 22 | **content/demo/pages/layouts.json Form:** layout widgets show JSON fallback; nested children editable in JSON tab | Pending | Pending |
+| 23 | Click **assets/** image in file tree → image preview in editor pane | Pending | Pending |
 
 ## Notes
 

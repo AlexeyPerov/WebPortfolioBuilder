@@ -35,11 +35,26 @@
       "text": ""
     },
     "nav": [
-      { "label": "Projects", "href": "#intro_title", "open_in_new_tab": false },
-      { "label": "Unity", "href": "#unity-tools", "open_in_new_tab": false },
-      { "label": "Apps", "href": "#apps", "open_in_new_tab": false },
-      { "label": "Tools", "href": "#tools", "open_in_new_tab": false },
-      { "label": "Contact", "href": "#footer", "open_in_new_tab": false }
+      {
+        "label": "Unity",
+        "href": "#unity-tools",
+        "open_in_new_tab": false
+      },
+      {
+        "label": "Apps",
+        "href": "#apps",
+        "open_in_new_tab": false
+      },
+      {
+        "label": "Tools",
+        "href": "#tools",
+        "open_in_new_tab": false
+      },
+      {
+        "label": "Contact",
+        "href": "#footer",
+        "open_in_new_tab": false
+      }
     ]
   },
   "footer": {
