@@ -35,7 +35,10 @@ pub fn build_route_index(bundle: &SiteBundle) -> CoreResult<RouteIndex> {
 
     routes.sort_by(|a, b| a.output_rel_path.cmp(&b.output_rel_path));
 
-    Ok(RouteIndex { ordered: routes, by_slug })
+    Ok(RouteIndex {
+        ordered: routes,
+        by_slug,
+    })
 }
 
 fn output_rel_path_for_slug(slug: &str) -> String {

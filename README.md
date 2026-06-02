@@ -287,6 +287,15 @@ Per-app payloads use `CatalogApp`-shaped JSON (`apps` prop): icon and header ima
 
 Either legacy flat URLs (`github_url`, `linkedin_url`, `facebook_url`) or **`social.links`** as an explicit ordered array. Entries need a resolving `url` plus a built-in `icon` preset or `icon_image` under `assets/`.
 
+### Follow-us contrast on dark themes
+
+Optional theme tokens (injected as `--social-*` CSS variables):
+
+- **`social_button_background`** — rounded tile behind preset/custom icons (defaults to `--widget-gradient` when unset).
+- **`social_icon_github`**, **`social_icon_linkedin`**, **`social_icon_facebook`** — preset SVG colors (`currentColor`).
+
+When **`page_bg`** is dark and these keys are omitted, the generator adds a light **`social_button_background`** so brand icons stay readable. If you set a dark tile yourself, it auto-fills lighter preset icon colors unless you override them in `site.json`.
+
 ## Development
 
 ```bash

@@ -40,10 +40,7 @@ pub fn output_folder_for_site_id(site_id: &str) -> String {
             let mut chars = part.chars();
             match chars.next() {
                 None => String::new(),
-                Some(first) => first
-                    .to_uppercase()
-                    .chain(chars)
-                    .collect::<String>(),
+                Some(first) => first.to_uppercase().chain(chars).collect::<String>(),
             }
         })
         .collect();
@@ -76,10 +73,7 @@ fn patch_site_json(site_json_path: &Path, site_id: &str) -> Result<(), String> {
     let obj = value
         .as_object_mut()
         .ok_or_else(|| "site.json must be a JSON object".to_string())?;
-    obj.insert(
-        "site_id".to_string(),
-        Value::String(site_id.to_string()),
-    );
+    obj.insert("site_id".to_string(), Value::String(site_id.to_string()));
     obj.insert(
         "output_folder".to_string(),
         Value::String(output_folder_for_site_id(site_id)),
@@ -107,8 +101,7 @@ pub fn create_site_from_template(project_root: &Path, site_id: &str) -> Result<S
         return Err(format!("site already exists: content/{site_id}"));
     }
 
-    copy_dir_recursive(&template_dir, &target_dir)
-        .map_err(|e| format!("copy template: {e}"))?;
+    copy_dir_recursive(&template_dir, &target_dir).map_err(|e| format!("copy template: {e}"))?;
 
     let site_json_path = target_dir.join("site.json");
     patch_site_json(&site_json_path, site_id)?;

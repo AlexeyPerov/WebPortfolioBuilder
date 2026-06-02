@@ -42,6 +42,10 @@ const THEME_LABELS: Record<string, string> = {
   vacancies_gradient: 'Vacancies section gradient',
   follow_us_gradient: 'Follow us section gradient',
   footer_gradient: 'Footer section gradient',
+  social_button_background: 'Social icon tile background',
+  social_icon_github: 'Social icon — GitHub',
+  social_icon_linkedin: 'Social icon — LinkedIn',
+  social_icon_facebook: 'Social icon — Facebook',
 }
 
 export function themeTokenLabel(key: string): string {

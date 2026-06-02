@@ -615,8 +615,8 @@ p {
   width: 56px;
   height: 56px;
   border-radius: 14px;
-  border: none;
-  background: var(--widget-gradient);
+  border: 1px solid var(--line);
+  background: var(--social-button-background, var(--widget-gradient));
   text-decoration: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -637,15 +637,15 @@ p {
 }
 
 .follow-us__btn--github {
-  color: #181717;
+  color: var(--social-icon-github, #181717);
 }
 
 .follow-us__btn--linkedin {
-  color: #0a66c2;
+  color: var(--social-icon-linkedin, #0a66c2);
 }
 
 .follow-us__btn--facebook {
-  color: #1877f2;
+  color: var(--social-icon-facebook, #1877f2);
 }
 
 .photos-grid {

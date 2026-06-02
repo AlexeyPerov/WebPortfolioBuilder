@@ -2,10 +2,10 @@
 
 mod common;
 
+use common::{copy_dir_recursive, create_test_site_dir, workspace_root, write_json_file};
 use portfoliowebsitebuilder_core::{
     enforce_strict_warnings, load_site_bundle, validate_site, ConfigWarning,
 };
-use common::{copy_dir_recursive, create_test_site_dir, workspace_root, write_json_file};
 
 #[test]
 fn enforce_strict_warnings_fails_on_unknown_top_level_key() {

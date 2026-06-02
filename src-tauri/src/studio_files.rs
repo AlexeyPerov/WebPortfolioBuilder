@@ -101,7 +101,10 @@ pub struct BundleImagePreview {
     pub data_url: String,
 }
 
-pub fn list_bundle_files(project_root: &str, site_path: &str) -> Result<Vec<BundleFileEntry>, String> {
+pub fn list_bundle_files(
+    project_root: &str,
+    site_path: &str,
+) -> Result<Vec<BundleFileEntry>, String> {
     let project_root = parse_project_root(project_root)?;
     let bundle = bundle_root(&project_root, site_path);
     if !bundle.is_dir() {
@@ -124,11 +127,7 @@ pub fn list_bundle_files(project_root: &str, site_path: &str) -> Result<Vec<Bund
         let mut pages: Vec<_> = fs::read_dir(&pages_dir)
             .map_err(|e| e.to_string())?
             .flatten()
-            .filter(|e| {
-                e.path()
-                    .extension()
-                    .is_some_and(|ext| ext == "json")
-            })
+            .filter(|e| e.path().extension().is_some_and(|ext| ext == "json"))
             .map(|e| {
                 let name = e.file_name().to_string_lossy().into_owned();
                 BundleFileEntry {

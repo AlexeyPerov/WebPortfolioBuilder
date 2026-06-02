@@ -1,5 +1,8 @@
 use crate::routing::is_external_or_special_href;
-use crate::types::{CatalogApp, FooterConfig, FooterContact, StoreLink, SubscribeBlock, WidgetsConfig};
+use crate::theme::enrich_theme_with_social_defaults;
+use crate::types::{
+    CatalogApp, FooterConfig, FooterContact, StoreLink, SubscribeBlock, WidgetsConfig,
+};
 use serde_json::json;
 use std::collections::HashMap;
 
@@ -392,7 +395,12 @@ pub fn resolve_catalog_store_entries(
             let icon_src = if !img_path.is_empty() {
                 img_path.to_string()
             } else if !icon_key.is_empty() {
-                icons.get(&icon_key).cloned().unwrap_or_default().trim().to_string()
+                icons
+                    .get(&icon_key)
+                    .cloned()
+                    .unwrap_or_default()
+                    .trim()
+                    .to_string()
             } else {
                 String::new()
             };
@@ -415,10 +423,30 @@ pub fn resolve_catalog_store_entries(
         return out;
     }
     let slots = [
-        (&app.google_play_url, "google_play", "googleplay", "Get it on Google Play"),
-        (&app.app_store_url, "app_store", "appstore", "Download on the App Store"),
-        (&app.amazon_store_url, "amazon", "amazon", "Available at Amazon Appstore"),
-        (&app.galaxy_store_url, "galaxy", "galaxy", "Available on Galaxy Store"),
+        (
+            &app.google_play_url,
+            "google_play",
+            "googleplay",
+            "Get it on Google Play",
+        ),
+        (
+            &app.app_store_url,
+            "app_store",
+            "appstore",
+            "Download on the App Store",
+        ),
+        (
+            &app.amazon_store_url,
+            "amazon",
+            "amazon",
+            "Available at Amazon Appstore",
+        ),
+        (
+            &app.galaxy_store_url,
+            "galaxy",
+            "galaxy",
+            "Available on Galaxy Store",
+        ),
     ];
     let mut out = Vec::new();
     for (url, icon_key, class_suffix, def_aria) in slots {
@@ -426,7 +454,10 @@ pub fn resolve_catalog_store_entries(
         if u.is_empty() {
             continue;
         }
-        let icon_src = icons.get(icon_key).map(|s| s.trim().to_string()).unwrap_or_default();
+        let icon_src = icons
+            .get(icon_key)
+            .map(|s| s.trim().to_string())
+            .unwrap_or_default();
         if icon_src.is_empty() {
             continue;
         }
@@ -441,9 +472,7 @@ pub fn resolve_catalog_store_entries(
 }
 
 fn normalize_store_icon_key(icon: &str) -> String {
-    icon.trim()
-        .to_lowercase()
-        .replace(' ', "_")
+    icon.trim().to_lowercase().replace(' ', "_")
 }
 
 fn store_class_suffix_from_link(icon_key: &str, has_custom_image: bool) -> String {
@@ -521,7 +550,11 @@ pub fn build_careers_split_widget_html(entries: &[(String, String)]) -> String {
     build_careers_split_widget("Open positions", "vacancy", entries)
 }
 
-fn build_careers_split_widget(aria_label: &str, id_prefix: &str, entries: &[(String, String)]) -> String {
+fn build_careers_split_widget(
+    aria_label: &str,
+    id_prefix: &str,
+    entries: &[(String, String)],
+) -> String {
     if entries.is_empty() {
         return String::new();
     }
@@ -597,6 +630,7 @@ pub fn render_vacancy_panel_html(
 }
 
 pub fn build_theme_css_variables(theme: &HashMap<String, String>) -> String {
+    let theme = enrich_theme_with_social_defaults(theme);
     let mut keys: Vec<_> = theme.keys().cloned().collect();
     keys.sort();
     let mut lines = Vec::new();
@@ -612,7 +646,11 @@ pub fn build_theme_css_variables(theme: &HashMap<String, String>) -> String {
 }
 
 pub fn resolved_theme_color(theme: &HashMap<String, String>) -> String {
-    if let Some(accent) = theme.get("accent").map(|s| s.trim()).filter(|s| !s.is_empty()) {
+    if let Some(accent) = theme
+        .get("accent")
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+    {
         return accent.to_string();
     }
     theme

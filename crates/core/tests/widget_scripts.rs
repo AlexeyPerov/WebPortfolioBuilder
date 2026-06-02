@@ -22,10 +22,7 @@ fn widget(widget_type: &str, props: serde_json::Value) -> WidgetNode {
 #[test]
 fn collect_page_script_needs_intro_only() {
     let needs = collect_page_script_needs(&[widget("intro", json!({}))]);
-    assert!(
-        needs.scroll_reveal,
-        "intro should require scroll-reveal.js"
-    );
+    assert!(needs.scroll_reveal, "intro should require scroll-reveal.js");
     assert!(
         !needs.catalog_carousel && !needs.split_widget && !needs.image_lightbox,
         "intro-only page should not need carousel/split/lightbox scripts: {needs:?}"
@@ -68,10 +65,7 @@ fn collect_page_script_needs_nested_layout() {
 fn collect_page_script_needs_skips_disabled_widgets() {
     let mut disabled = widget("apps_showcase", json!({}));
     disabled.enabled = Some(false);
-    let needs = collect_page_script_needs(&[
-        widget("intro", json!({})),
-        disabled,
-    ]);
+    let needs = collect_page_script_needs(&[widget("intro", json!({})), disabled]);
     assert!(needs.scroll_reveal);
     assert!(
         !needs.catalog_carousel,

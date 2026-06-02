@@ -2,18 +2,18 @@
 
 mod common;
 
+use common::{workspace_root, write_json_file};
+use portfoliowebsitebuilder_core::types::{
+    HeaderBrand, HeaderConfig, PageConfig, PageSeo, SiteConfig, SitePageFile, WidgetNode,
+};
 use portfoliowebsitebuilder_core::{
     check_referenced_site_assets, copy_referenced_site_assets, load_site_bundle,
     validate_site_bundle_only, SiteBundle,
-};
-use portfoliowebsitebuilder_core::types::{
-    HeaderBrand, HeaderConfig, PageConfig, PageSeo, SiteConfig, SitePageFile, WidgetNode,
 };
 use serde_json::json;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use common::{workspace_root, write_json_file};
 
 fn write_test_asset(path: &Path) {
     if let Some(parent) = path.parent() {
@@ -108,15 +108,15 @@ fn copy_referenced_site_assets_copies_deduped_recursive_references() {
     };
     let root_props = {
         let mut m = HashMap::new();
-        m.insert("children".to_string(), json!([{
-            "type": "column",
-            "props": child_props
-        }]));
-        m.insert("image".to_string(), json!("assets/cover.png"));
         m.insert(
-            "cards".to_string(),
-            json!([{"image": "assets/cover.png"}]),
+            "children".to_string(),
+            json!([{
+                "type": "column",
+                "props": child_props
+            }]),
         );
+        m.insert("image".to_string(), json!("assets/cover.png"));
+        m.insert("cards".to_string(), json!([{"image": "assets/cover.png"}]));
         m
     };
 

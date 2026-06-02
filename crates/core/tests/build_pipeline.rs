@@ -5,13 +5,13 @@ mod common;
 use common::{
     copy_dir_recursive, golden_root, normalize_html_for_test, template_dir, workspace_root,
 };
-use portfoliowebsitebuilder_core::{
-    copy_referenced_site_assets, generate_site, load_site_bundle, render_site_bundle,
-    HTML_TEMPLATE_FAILURE_MARKER,
-};
 use portfoliowebsitebuilder_core::fs_util::copy_template_static_assets;
 use portfoliowebsitebuilder_core::types::{
     PageConfig, SiteBundle, SiteConfig, SitePageFile, WidgetNode,
+};
+use portfoliowebsitebuilder_core::{
+    copy_referenced_site_assets, generate_site, load_site_bundle, render_site_bundle,
+    HTML_TEMPLATE_FAILURE_MARKER,
 };
 use serde_json::json;
 use similar::{ChangeTag, TextDiff};
@@ -185,7 +185,10 @@ fn render_demo_site_bundle_smoke() {
         r#"id="offers""#,
         r#"class="photos section section-gradient scroll-reveal""#,
     ] {
-        assert!(html.contains(needle), "expected {needle:?} in demo index.html");
+        assert!(
+            html.contains(needle),
+            "expected {needle:?} in demo index.html"
+        );
     }
 
     let apps = fs::read_to_string(out_dir.join("apps/index.html")).unwrap();
@@ -193,7 +196,10 @@ fn render_demo_site_bundle_smoke() {
         r#"data-widget-type="apps_showcase""#,
         r#"data-widget-type="project_grid""#,
     ] {
-        assert!(apps.contains(needle), "expected {needle:?} in demo apps/index.html");
+        assert!(
+            apps.contains(needle),
+            "expected {needle:?} in demo apps/index.html"
+        );
     }
 
     let gallery = fs::read_to_string(out_dir.join("gallery/index.html")).unwrap();
@@ -257,7 +263,10 @@ fn render_kometa_site_bundle_smoke() {
         "image-lightbox.js",
         r#"alt="Alec Monopoly pop art print in the Kometa office""#,
     ] {
-        assert!(html.contains(needle), "expected {needle:?} in kometa index.html");
+        assert!(
+            html.contains(needle),
+            "expected {needle:?} in kometa index.html"
+        );
     }
 }
 
@@ -289,12 +298,8 @@ fn generate_site_written_html_matches_golden() {
             .unwrap_or_else(|e| panic!("generate_site {}: {e}", case.bundle_rel));
 
         let written_path = Path::new(&out_dir).join(case.output_rel);
-        let actual_raw = fs::read_to_string(&written_path).unwrap_or_else(|e| {
-            panic!(
-                "read written {}: {e}",
-                written_path.display()
-            )
-        });
+        let actual_raw = fs::read_to_string(&written_path)
+            .unwrap_or_else(|e| panic!("read written {}: {e}", written_path.display()));
 
         let golden_path = golden_root.join(case.golden_rel);
         let golden_raw = fs::read_to_string(&golden_path)

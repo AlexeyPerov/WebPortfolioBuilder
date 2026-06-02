@@ -1,9 +1,7 @@
 //! Port of Go `html_test.go` (footer HTML helpers).
 
-use portfoliowebsitebuilder_core::{
-    build_footer_legal_row, build_footer_outer_html,
-};
 use portfoliowebsitebuilder_core::types::{FooterConfig, FooterContact};
+use portfoliowebsitebuilder_core::{build_footer_legal_row, build_footer_outer_html};
 
 #[test]
 fn build_footer_outer_html_no_scroll_reveal() {

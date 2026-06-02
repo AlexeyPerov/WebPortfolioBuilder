@@ -50,9 +50,7 @@ pub fn copy_referenced_site_assets(bundle: &SiteBundle, target_dir: &Path) -> Co
     Ok(())
 }
 
-fn dedupe_bundle_asset_references(
-    bundle: &SiteBundle,
-) -> CoreResult<HashMap<String, String>> {
+fn dedupe_bundle_asset_references(bundle: &SiteBundle) -> CoreResult<HashMap<String, String>> {
     let refs = collect_bundle_asset_references(bundle)?;
     let mut seen = HashMap::new();
     for r in refs {
@@ -120,8 +118,10 @@ fn collect_asset_refs_from_widgets(
         for (key, raw) in &widget.props {
             let prop_path = format!("{widget_path}.props.{key}");
             if key == "children" {
-                let children: Vec<WidgetNode> = serde_json::from_value(raw.clone())
-                    .map_err(|e| CoreError::msg(format!("{prop_path}: invalid children array: {e}")))?;
+                let children: Vec<WidgetNode> =
+                    serde_json::from_value(raw.clone()).map_err(|e| {
+                        CoreError::msg(format!("{prop_path}: invalid children array: {e}"))
+                    })?;
                 collect_asset_refs_from_widgets(&children, &prop_path, refs)?;
                 continue;
             }
@@ -217,10 +217,12 @@ fn resolve_asset_under_site_bundle(
     let assets_root = PathBuf::from(site_dir).join("assets").canonicalize()?;
     let local_rel = p.trim_start_matches("assets/");
     let clean = Path::new(local_rel);
-    if clean
-        .components()
-        .any(|c| matches!(c, std::path::Component::ParentDir | std::path::Component::RootDir))
-    {
+    if clean.components().any(|c| {
+        matches!(
+            c,
+            std::path::Component::ParentDir | std::path::Component::RootDir
+        )
+    }) {
         return Err(CoreError::msg(format!("invalid asset path {web_path:?}")));
     }
     let src_abs = assets_root.join(clean);

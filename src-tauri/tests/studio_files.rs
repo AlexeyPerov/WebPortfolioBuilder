@@ -37,12 +37,9 @@ fn reject_path_traversal() {
 fn read_kometa_image_preview() {
     let root = repo_root();
     let root_str = root.to_string_lossy();
-    let preview = app_lib::studio_files::read_bundle_image(
-        &root_str,
-        "content/kometa",
-        "assets/logo.png",
-    )
-    .expect("image preview");
+    let preview =
+        app_lib::studio_files::read_bundle_image(&root_str, "content/kometa", "assets/logo.png")
+            .expect("image preview");
     assert_eq!(preview.relative_path, "assets/logo.png");
     assert!(preview.data_url.starts_with("data:image/png;base64,"));
 }

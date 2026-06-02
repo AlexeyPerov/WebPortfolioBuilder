@@ -2,8 +2,8 @@
 
 mod common;
 
-use portfoliowebsitebuilder_core::{load_site_bundle, validated_output_folder_for};
 use common::{create_test_site_dir, workspace_root, write_json_file};
+use portfoliowebsitebuilder_core::{load_site_bundle, validated_output_folder_for};
 
 #[test]
 fn validated_output_folder_allows_nested_relative_path() {

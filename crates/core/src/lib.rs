@@ -12,6 +12,7 @@ pub mod render;
 pub mod routing;
 pub mod serve;
 pub mod strict;
+pub mod theme;
 pub mod types;
 pub mod widgets;
 
@@ -19,9 +20,7 @@ pub use assets::{check_referenced_site_assets, copy_referenced_site_assets};
 pub use bundles::{discover_content_bundles, resolve_project_root, resolve_site_dir};
 pub use config::{load_site_bundle, validated_output_folder, validated_output_folder_for};
 pub use error::{CoreError, CoreResult};
-pub use html::{
-    build_footer_legal_row, build_footer_outer_html, HTML_TEMPLATE_FAILURE_MARKER,
-};
+pub use html::{build_footer_legal_row, build_footer_outer_html, HTML_TEMPLATE_FAILURE_MARKER};
 pub use render::{
     build_rendered_page_data, generate_site, render_site_bundle, render_site_bundle_html,
     validate_site, validate_site_bundle, validate_site_bundle_only,

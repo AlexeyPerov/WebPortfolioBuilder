@@ -2,12 +2,12 @@
 
 mod common;
 
+use common::workspace_root;
 use portfoliowebsitebuilder_core::{
     build_route_index, load_site_bundle, normalized_slug, resolve_internal_slug_reference,
     resolve_nav_href, validated_output_folder_for, PageRoute, SiteBundle,
 };
 use std::collections::HashMap;
-use common::workspace_root;
 
 fn sample_routes() -> HashMap<String, PageRoute> {
     let mut routes = HashMap::new();
@@ -135,7 +135,10 @@ fn demo_route_index_multi_page_paths() {
     assert_eq!(index.ordered.len(), 6);
     assert_eq!(index.by_slug[""].output_rel_path, "index.html");
     for slug in ["about", "apps", "careers", "gallery", "layouts"] {
-        let route = index.by_slug.get(slug).unwrap_or_else(|| panic!("missing slug {slug}"));
+        let route = index
+            .by_slug
+            .get(slug)
+            .unwrap_or_else(|| panic!("missing slug {slug}"));
         assert_eq!(route.output_rel_path, format!("{slug}/index.html"));
     }
 }

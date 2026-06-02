@@ -132,12 +132,7 @@ fn cli_validate_strict_fails_on_unknown_key() {
     .unwrap();
 
     let output = Command::new(bin())
-        .args([
-            "--validate",
-            "--strict",
-            "--site",
-            "content/strict-test",
-        ])
+        .args(["--validate", "--strict", "--site", "content/strict-test"])
         .current_dir(project)
         .output()
         .expect("run cli");

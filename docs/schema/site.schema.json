@@ -43,7 +43,23 @@
         "photos_gradient": { "type": "string" },
         "vacancies_gradient": { "type": "string" },
         "follow_us_gradient": { "type": "string" },
-        "footer_gradient": { "type": "string" }
+        "footer_gradient": { "type": "string" },
+        "social_button_background": {
+          "type": "string",
+          "description": "Follow-us icon tile background (solid color or gradient). On dark page themes, a light pill is injected when omitted."
+        },
+        "social_icon_github": {
+          "type": "string",
+          "description": "GitHub preset icon color (SVG currentColor). Auto-lightened when the social tile background is dark."
+        },
+        "social_icon_linkedin": {
+          "type": "string",
+          "description": "LinkedIn preset icon color. Auto-adjusted when the social tile background is dark."
+        },
+        "social_icon_facebook": {
+          "type": "string",
+          "description": "Facebook preset icon color. Auto-adjusted when the social tile background is dark."
+        }
       }
     },
     "typography": {

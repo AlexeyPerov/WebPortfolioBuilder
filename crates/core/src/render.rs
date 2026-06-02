@@ -4,23 +4,28 @@ use crate::error::{CoreError, CoreResult};
 use crate::fs_util::{copy_template_static_assets, prepare_destination};
 use crate::html::{
     build_footer_outer_html, build_theme_css_variables, build_widgets_config_script,
-    escape_stylesheet_href, normalized_typography, resolved_canonical_url, resolved_open_graph_image,
-    resolved_theme_color, resolved_twitter_card, configure_minijinja_html_escape,
+    configure_minijinja_html_escape, escape_stylesheet_href, normalized_typography,
+    resolved_canonical_url, resolved_open_graph_image, resolved_theme_color, resolved_twitter_card,
     HTML_TEMPLATE_FAILURE_MARKER,
 };
 use crate::routing::{
-    asset_prefix_for_depth, build_route_index,
-    resolve_asset_href_for_page, resolve_internal_slug_reference, PageRoute, RouteIndex,
+    asset_prefix_for_depth, build_route_index, resolve_asset_href_for_page,
+    resolve_internal_slug_reference, PageRoute, RouteIndex,
 };
 use crate::types::{ConfigWarning, SiteBundle, SitePageFile};
-use crate::widgets::{collect_page_script_needs, load_widget_env, render_widget_tree, WidgetRenderContext};
+use crate::widgets::{
+    collect_page_script_needs, load_widget_env, render_widget_tree, WidgetRenderContext,
+};
 use minijinja::Environment;
 use serde_json::json;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
-pub fn validate_site_bundle(bundle: &SiteBundle, template_dir: &Path) -> CoreResult<Vec<ConfigWarning>> {
+pub fn validate_site_bundle(
+    bundle: &SiteBundle,
+    template_dir: &Path,
+) -> CoreResult<Vec<ConfigWarning>> {
     let (_, warnings) = render_site_bundle_internal(bundle, template_dir, None)?;
     Ok(warnings)
 }
@@ -57,11 +62,8 @@ fn render_site_bundle_internal(
         .add_template_owned("layout", layout_content)
         .map_err(|e| CoreError::msg(e.to_string()))?;
 
-    let page_by_path: HashMap<&str, &SitePageFile> = bundle
-        .pages
-        .iter()
-        .map(|p| (p.path.as_str(), p))
-        .collect();
+    let page_by_path: HashMap<&str, &SitePageFile> =
+        bundle.pages.iter().map(|p| (p.path.as_str(), p)).collect();
 
     let mut warnings = Vec::new();
     let mut pages = HashMap::new();
@@ -76,10 +78,7 @@ fn render_site_bundle_internal(
             .map_err(|e| CoreError::msg(e.to_string()))?
             .render(data)
             .map_err(|e| {
-                CoreError::msg(format!(
-                    "cannot render page {:?}: {e}",
-                    route.source_path
-                ))
+                CoreError::msg(format!("cannot render page {:?}: {e}", route.source_path))
             })?;
 
         if html.contains(HTML_TEMPLATE_FAILURE_MARKER) {
@@ -92,7 +91,11 @@ fn render_site_bundle_internal(
         pages.insert(route.output_rel_path.clone(), html.clone());
 
         if let Some(target) = target_dir {
-            let dst = target.join(route.output_rel_path.replace('/', std::path::MAIN_SEPARATOR_STR));
+            let dst = target.join(
+                route
+                    .output_rel_path
+                    .replace('/', std::path::MAIN_SEPARATOR_STR),
+            );
             if let Some(parent) = dst.parent() {
                 fs::create_dir_all(parent)?;
             }
@@ -126,9 +129,8 @@ pub fn build_rendered_page_data(
         resolved_open_graph_image(&bundle.site.base_url, page.seo.og_image.trim());
     let theme_color = resolved_theme_color(&bundle.site.theme);
     let twitter_card = resolved_twitter_card(&open_graph_image);
-    let has_seo = !meta_description.is_empty()
-        || !canonical_url.is_empty()
-        || !open_graph_image.is_empty();
+    let has_seo =
+        !meta_description.is_empty() || !canonical_url.is_empty() || !open_graph_image.is_empty();
 
     let (fonts_href, font_heading, font_body) = normalized_typography(&bundle.site.typography);
     let fonts_href = escape_stylesheet_href(&fonts_href);
@@ -137,11 +139,9 @@ pub fn build_rendered_page_data(
     let show_header = !page.layout.hide_header;
     let show_footer = bundle.site.footer.is_enabled() && !page.layout.hide_footer;
 
-    let brand_href = resolve_internal_slug_reference(route, "", &routes.by_slug).map_err(|e| {
-        CoreError::msg(format!("{} -> header.brand: {e}", bundle.site_path))
-    })?;
-    let header_brand_logo =
-        resolve_asset_href_for_page(&bundle.site.header.brand.logo, route);
+    let brand_href = resolve_internal_slug_reference(route, "", &routes.by_slug)
+        .map_err(|e| CoreError::msg(format!("{} -> header.brand: {e}", bundle.site_path)))?;
+    let header_brand_logo = resolve_asset_href_for_page(&bundle.site.header.brand.logo, route);
     let header_brand_text = bundle.site.header.brand.text.trim().to_string();
     let show_header_brand = !header_brand_logo.is_empty() || !header_brand_text.is_empty();
 
@@ -221,9 +221,10 @@ pub fn render_header_nav_for_page(
             continue;
         }
         let resolved = crate::routing::resolve_nav_href(route, &item.href, &routes.by_slug)
-            .map_err(|e| CoreError::msg(format!("{} -> header.nav[{i}].href: {e}", bundle.site_path)))?;
-        let open_new_tab = item.open_in_new_tab
-            && resolved.to_lowercase().starts_with("http");
+            .map_err(|e| {
+                CoreError::msg(format!("{} -> header.nav[{i}].href: {e}", bundle.site_path))
+            })?;
+        let open_new_tab = item.open_in_new_tab && resolved.to_lowercase().starts_with("http");
         out.push(json!({
             "Label": label,
             "Href": resolved,

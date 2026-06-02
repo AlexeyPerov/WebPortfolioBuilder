@@ -37,11 +37,7 @@ impl PreviewServerState {
         }
     }
 
-    pub fn start(
-        &self,
-        output_dir: &Path,
-        port: u16,
-    ) -> Result<(u16, String), String> {
+    pub fn start(&self, output_dir: &Path, port: u16) -> Result<(u16, String), String> {
         let output_dir = output_dir
             .canonicalize()
             .unwrap_or_else(|_| output_dir.to_path_buf());
@@ -56,10 +52,7 @@ impl PreviewServerState {
             let guard = self.inner.lock().expect("preview server lock");
             if let Some(running) = guard.as_ref() {
                 if running.port == port {
-                    *running
-                        .output_dir
-                        .lock()
-                        .expect("preview output dir lock") = output_dir;
+                    *running.output_dir.lock().expect("preview output dir lock") = output_dir;
                     let url = format!("http://127.0.0.1:{port}/");
                     return Ok((port, url));
                 }
@@ -125,10 +118,7 @@ fn bind_server(addr: &str) -> Result<Server, String> {
 }
 
 fn handle_request(request: tiny_http::Request, output_dir: &Arc<Mutex<PathBuf>>) {
-    let dir = output_dir
-        .lock()
-        .expect("preview output dir lock")
-        .clone();
+    let dir = output_dir.lock().expect("preview output dir lock").clone();
     if request.method() == &Method::Get || request.method() == &Method::Head {
         if let Some(file_path) = resolve_static_file_path(&dir, request.url()) {
             if let Ok(data) = std::fs::read(&file_path) {
@@ -179,7 +169,9 @@ mod tests {
     fn http_get(port: u16, path: &str) -> String {
         let mut stream =
             TcpStream::connect(format!("127.0.0.1:{port}")).expect("connect to preview server");
-        stream.set_read_timeout(Some(Duration::from_secs(2))).unwrap();
+        stream
+            .set_read_timeout(Some(Duration::from_secs(2)))
+            .unwrap();
         write!(
             stream,
             "GET {path} HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n"
@@ -198,9 +190,7 @@ mod tests {
         let state = PreviewServerState::default();
         let port = pick_port();
 
-        let (_, url) = state
-            .start(dir.path(), port)
-            .expect("first preview start");
+        let (_, url) = state.start(dir.path(), port).expect("first preview start");
         assert_eq!(url, format!("http://127.0.0.1:{port}/"));
 
         let body = http_get(port, "/");
@@ -276,7 +266,9 @@ mod tests {
 
         state.start(dir.path(), port).expect("first start");
         let started = Instant::now();
-        state.start(dir.path(), port).expect("second start on same port");
+        state
+            .start(dir.path(), port)
+            .expect("second start on same port");
         assert!(
             started.elapsed() < Duration::from_secs(2),
             "second start hung for {:?}",

@@ -25,18 +25,15 @@ const PAGE_TOP_LEVEL_KEYS: &[&str] = &["slug", "widgets", "title", "seo", "layou
 const LEGACY_PAGE_KEYS: &[&str] = &["hero"];
 
 pub fn load_site_bundle(site_dir: &Path) -> CoreResult<(SiteBundle, Vec<ConfigWarning>)> {
-    let clean = site_dir.canonicalize().unwrap_or_else(|_| site_dir.to_path_buf());
+    let clean = site_dir
+        .canonicalize()
+        .unwrap_or_else(|_| site_dir.to_path_buf());
     let site_path = clean.join("site.json");
     let (site, site_warnings) = load_site_config(&site_path)?;
 
     let pages_dir = clean.join("pages");
     let mut page_paths: Vec<PathBuf> = fs::read_dir(&pages_dir)
-        .map_err(|e| {
-            CoreError::msg(format!(
-                "cannot list page configs in {:?}: {e}",
-                pages_dir
-            ))
-        })?
+        .map_err(|e| CoreError::msg(format!("cannot list page configs in {:?}: {e}", pages_dir)))?
         .filter_map(|e| e.ok())
         .map(|e| e.path())
         .filter(|p| p.extension().is_some_and(|ext| ext == "json"))
@@ -104,7 +101,10 @@ fn decode_json_object_file<T: serde::de::DeserializeOwned>(
     Ok((raw_keys, target))
 }
 
-fn legacy_page_key_warnings(path: &Path, raw_keys: &HashMap<String, JsonValue>) -> Vec<ConfigWarning> {
+fn legacy_page_key_warnings(
+    path: &Path,
+    raw_keys: &HashMap<String, JsonValue>,
+) -> Vec<ConfigWarning> {
     let path_s = path.to_string_lossy();
     if raw_keys.contains_key("hero") {
         vec![ConfigWarning::content(

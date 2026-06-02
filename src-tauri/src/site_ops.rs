@@ -2,11 +2,11 @@ use crate::diagnostics::{
     config_warnings_to_diagnostics, strict_failure_diagnostics, BuildSiteResult, Diagnostic,
     ValidateSiteResult,
 };
+use portfoliowebsitebuilder_core::fs_util::{copy_template_static_assets, prepare_destination};
 use portfoliowebsitebuilder_core::{
     copy_referenced_site_assets, enforce_strict_warnings, load_site_bundle, render_site_bundle,
     resolve_site_dir, validate_site_bundle_only, validated_output_folder_for,
 };
-use portfoliowebsitebuilder_core::fs_util::{copy_template_static_assets, prepare_destination};
 use std::path::Path;
 
 fn apply_strict_gate(
@@ -102,20 +102,18 @@ pub fn run_build(project_root: &Path, site_path: &str, strict: bool) -> BuildSit
         };
     }
 
-    let output_folder = match validated_output_folder_for(
-        &bundle.site.output_folder,
-        &bundle.site_path,
-    ) {
-        Ok(f) => f,
-        Err(e) => {
-            return BuildSiteResult {
-                ok: false,
-                output_dir: None,
-                warnings,
-                errors: vec![Diagnostic::error_from_core(e)],
-            };
-        }
-    };
+    let output_folder =
+        match validated_output_folder_for(&bundle.site.output_folder, &bundle.site_path) {
+            Ok(f) => f,
+            Err(e) => {
+                return BuildSiteResult {
+                    ok: false,
+                    output_dir: None,
+                    warnings,
+                    errors: vec![Diagnostic::error_from_core(e)],
+                };
+            }
+        };
 
     let target_dir = project_root.join(output_folder.replace('/', std::path::MAIN_SEPARATOR_STR));
 

@@ -9,7 +9,7 @@
     {
       "type": "intro",
       "props": {
-        "title": "Projects in Github account",
+        "title": "",
         "paragraphs": [
           "All projects are of MIT or BSD-3-Clause licenses. Feel free to use them, report issues, and contribute.",
           "Github: https://github.com/AlexeyPerov — MIT: https://opensource.org/licenses/MIT — BSD-3-Clause: https://opensource.org/licenses/BSD-3-Clause"

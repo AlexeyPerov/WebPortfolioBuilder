@@ -14,7 +14,8 @@ pub fn default_serve_port() -> u16 {
 
 pub fn serve_static_dir(dir: &Path, port: u16, stdout: &mut dyn Write) -> CoreResult<()> {
     let addr = format!("127.0.0.1:{port}");
-    let server = Server::http(&addr).map_err(|e| CoreError::msg(format!("cannot bind {addr}: {e}")))?;
+    let server =
+        Server::http(&addr).map_err(|e| CoreError::msg(format!("cannot bind {addr}: {e}")))?;
     let running = Arc::new(AtomicBool::new(true));
     let running_ctrl = running.clone();
 

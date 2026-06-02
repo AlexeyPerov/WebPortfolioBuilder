@@ -12,7 +12,10 @@ fn prepare_destination_wipes_existing_tree() {
 
     prepare_destination(&dest).unwrap();
 
-    assert!(!dest.exists(), "destination dir should be removed before rebuild");
+    assert!(
+        !dest.exists(),
+        "destination dir should be removed before rebuild"
+    );
 }
 
 #[test]
@@ -31,7 +34,10 @@ fn copy_template_static_assets_skips_html_and_copies_other_files() {
 
     assert!(!dst.join("layout.html").exists());
     assert!(!dst.join("widgets/partial.html").exists());
-    assert_eq!(fs::read_to_string(dst.join("styles.css")).unwrap(), "body{}");
+    assert_eq!(
+        fs::read_to_string(dst.join("styles.css")).unwrap(),
+        "body{}"
+    );
     assert_eq!(
         fs::read_to_string(dst.join("js/app.js")).unwrap(),
         "console.log(1)"

@@ -10,11 +10,17 @@ use std::path::Path;
 struct Args {
     #[arg(long, help = "validate content bundle without writing output")]
     validate: bool,
-    #[arg(long, help = "treat unknown top-level keys and unknown widget props keys as errors")]
+    #[arg(
+        long,
+        help = "treat unknown top-level keys and unknown widget props keys as errors"
+    )]
     strict: bool,
     #[arg(long, help = "list content bundles under content/ and exit")]
     list_sites: bool,
-    #[arg(long, help = "after build, serve the output directory over HTTP on localhost")]
+    #[arg(
+        long,
+        help = "after build, serve the output directory over HTTP on localhost"
+    )]
     serve: bool,
     #[arg(long, default_value_t = 8080, help = "port for --serve (default 8080)")]
     port: u16,

@@ -6,7 +6,9 @@ use common::workspace_root;
 use portfoliowebsitebuilder_core::types::{
     ConfigWarning, SiteConfig, SubscribeBlock, SubscribeLink, WidgetNode,
 };
-use portfoliowebsitebuilder_core::widgets::{load_widget_env, render_widget_tree, WidgetRenderContext};
+use portfoliowebsitebuilder_core::widgets::{
+    load_widget_env, render_widget_tree, WidgetRenderContext,
+};
 use portfoliowebsitebuilder_core::{PageRoute, RouteIndex};
 use serde_json::{json, Value as JsonValue};
 use std::collections::HashMap;
@@ -144,10 +146,7 @@ fn render_widget_tree_layout_needs_children() {
     let site = SiteConfig::default();
     let err = render_widgets(PAGE_PATH, &site, &[widget("row", json!({}))]).unwrap_err();
     let msg = err.to_string();
-    assert!(
-        msg.contains(".props.children"),
-        "unexpected error: {msg}"
-    );
+    assert!(msg.contains(".props.children"), "unexpected error: {msg}");
 }
 
 #[test]
@@ -228,7 +227,10 @@ fn cover_banner_requires_src() {
     let site = SiteConfig::default();
     let err = render_widgets(PAGE_PATH, &site, &[widget("cover_banner", json!({}))]).unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("src"), "expected src required error, got: {msg}");
+    assert!(
+        msg.contains("src"),
+        "expected src required error, got: {msg}"
+    );
 }
 
 #[test]
@@ -317,10 +319,7 @@ fn apps_showcase_renders_cards_and_swiper_and_stores() {
         return;
     };
     let site = SiteConfig {
-        store_icons: HashMap::from([(
-            "google_play".into(),
-            "assets/icons/googleplay.png".into(),
-        )]),
+        store_icons: HashMap::from([("google_play".into(), "assets/icons/googleplay.png".into())]),
         subscribe_block: SubscribeBlock {
             title: "Stay updated".into(),
             links: vec![SubscribeLink {
@@ -382,10 +381,7 @@ fn apps_showcase_hides_subscribe_when_no_links() {
         return;
     };
     let site = SiteConfig {
-        store_icons: HashMap::from([(
-            "google_play".into(),
-            "assets/icons/googleplay.png".into(),
-        )]),
+        store_icons: HashMap::from([("google_play".into(), "assets/icons/googleplay.png".into())]),
         subscribe_block: SubscribeBlock {
             title: "Subscribe for news".into(),
             links: vec![],
@@ -536,7 +532,8 @@ fn render_widget_tree_recognizes_media_swiper() {
         "expected media_swiper marker: {html}"
     );
     assert!(
-        html.contains("data-catalog-carousel") && html.contains(r#"class="catalog-carousel__slide"#),
+        html.contains("data-catalog-carousel")
+            && html.contains(r#"class="catalog-carousel__slide"#),
         "expected catalog-carousel-compatible markup: {html}"
     );
 }
@@ -575,7 +572,10 @@ fn project_grid_renders_cards() {
         "<dt>year</dt>",
         "project-card__cta",
     ] {
-        assert!(html.contains(needle), "expected {needle:?} in output, got: {html}");
+        assert!(
+            html.contains(needle),
+            "expected {needle:?} in output, got: {html}"
+        );
     }
 }
 

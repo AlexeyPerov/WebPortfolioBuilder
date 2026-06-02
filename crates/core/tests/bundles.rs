@@ -2,11 +2,11 @@
 
 mod common;
 
+use common::{create_test_site_dir, workspace_root, write_json_file};
 use portfoliowebsitebuilder_core::{
     discover_content_bundles, resolve_project_root, resolve_site_dir,
 };
 use std::fs;
-use common::{create_test_site_dir, workspace_root, write_json_file};
 
 #[test]
 fn discover_content_bundles_finds_valid_sites() {

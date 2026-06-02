@@ -2,19 +2,19 @@
 
 mod common;
 
-use portfoliowebsitebuilder_core::{
-    build_rendered_page_data, build_route_index, load_site_bundle, validate_site,
-    validate_site_bundle, HTML_TEMPLATE_FAILURE_MARKER,
-};
+use common::workspace_root;
 use portfoliowebsitebuilder_core::types::{
     FooterConfig, HeaderBrand, HeaderConfig, NavItem, PageConfig, PageLayout, PageSeo, SiteBundle,
     SiteConfig, SitePageFile, WidgetNode,
 };
 use portfoliowebsitebuilder_core::widgets::load_widget_env;
+use portfoliowebsitebuilder_core::{
+    build_rendered_page_data, build_route_index, load_site_bundle, validate_site,
+    validate_site_bundle, HTML_TEMPLATE_FAILURE_MARKER,
+};
 use serde_json::json;
 use std::collections::HashMap;
 use std::fs;
-use common::workspace_root;
 
 fn template_dir() -> Option<std::path::PathBuf> {
     let t = workspace_root().join("Template");
@@ -87,25 +87,19 @@ fn build_rendered_page_data_applies_merge_model() {
     };
 
     let routes = build_route_index(&bundle).unwrap();
-    let about_route = routes
-        .ordered
-        .iter()
-        .find(|r| r.slug == "about")
-        .unwrap();
+    let about_route = routes.ordered.iter().find(|r| r.slug == "about").unwrap();
     let widget_env = load_widget_env(&template_dir).unwrap();
-    let (data, _) = build_rendered_page_data(
-        &bundle,
-        &bundle.pages[1],
-        about_route,
-        &routes,
-        &widget_env,
-    )
-    .unwrap();
+    let (data, _) =
+        build_rendered_page_data(&bundle, &bundle.pages[1], about_route, &routes, &widget_env)
+            .unwrap();
 
     assert_eq!(data["Title"], json!("demo-site"));
     assert_eq!(data["ShowHeader"], json!(false));
     assert_eq!(data["ShowFooter"], json!(false));
-    assert_eq!(data["CanonicalURL"], json!("https://example.com/repo/about/"));
+    assert_eq!(
+        data["CanonicalURL"],
+        json!("https://example.com/repo/about/")
+    );
 }
 
 #[test]
@@ -281,7 +275,15 @@ fn validate_site_demo_succeeds() {
 
     let mut stdout = Vec::new();
     let mut stderr = Vec::new();
-    validate_site(&ws, "content/demo", &template_dir, false, &mut stdout, &mut stderr).unwrap();
+    validate_site(
+        &ws,
+        "content/demo",
+        &template_dir,
+        false,
+        &mut stdout,
+        &mut stderr,
+    )
+    .unwrap();
     let stdout_s = String::from_utf8_lossy(&stdout);
     assert!(stdout_s.contains("Validation passed:"));
     let combined = format!("{stdout_s}{}", String::from_utf8_lossy(&stderr));

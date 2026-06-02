@@ -1,13 +1,15 @@
 use crate::config::widget_layout_children;
-use crate::html::configure_minijinja_html_escape;
 use crate::error::{CoreError, CoreResult};
+use crate::html::configure_minijinja_html_escape;
 use crate::html::{
-    aria_default_for_social_preset, build_apps_showcase_subscribe_data, build_careers_split_widget_html,
-    catalog_stat_line_or, catalog_store_url_warnings, external_link_attrs, html_escape,
-    render_vacancy_panel_html, resolve_catalog_store_entries, social_icon_preset_class,
-    social_icon_preset_svg,
+    aria_default_for_social_preset, build_apps_showcase_subscribe_data,
+    build_careers_split_widget_html, catalog_stat_line_or, catalog_store_url_warnings,
+    external_link_attrs, html_escape, render_vacancy_panel_html, resolve_catalog_store_entries,
+    social_icon_preset_class, social_icon_preset_svg,
 };
-use crate::routing::{resolve_asset_href_for_page, resolve_internal_slug_reference, PageRoute, RouteIndex};
+use crate::routing::{
+    resolve_asset_href_for_page, resolve_internal_slug_reference, PageRoute, RouteIndex,
+};
 use crate::types::{CatalogApp, ConfigWarning, SiteConfig, Vacancy, WidgetNode};
 use minijinja::Environment;
 use serde_json::{json, Value as JsonValue};
@@ -152,7 +154,9 @@ fn render_widget(
         return (
             String::new(),
             vec![],
-            Some(CoreError::msg(format!("{path}.type: required field missing"))),
+            Some(CoreError::msg(format!(
+                "{path}.type: required field missing"
+            ))),
         );
     }
     if widget_type == "columns" {
@@ -197,8 +201,15 @@ fn render_widget(
 fn is_leaf_widget(t: &str) -> bool {
     matches!(
         t,
-        "intro" | "apps_showcase" | "info_grid" | "images_grid" | "careers_tabs"
-            | "follow_us" | "cover_banner" | "project_grid" | "media_swiper"
+        "intro"
+            | "apps_showcase"
+            | "info_grid"
+            | "images_grid"
+            | "careers_tabs"
+            | "follow_us"
+            | "cover_banner"
+            | "project_grid"
+            | "media_swiper"
     )
 }
 
@@ -213,8 +224,11 @@ fn render_layout_widget(
             "{path}.props.children: required for layout widget {widget_type:?}"
         ))
     })?;
-    let children: Vec<WidgetNode> = serde_json::from_value(children_raw.clone())
-        .map_err(|e| CoreError::msg(format!("{path}.props.children: invalid children array: {e}")))?;
+    let children: Vec<WidgetNode> = serde_json::from_value(children_raw.clone()).map_err(|e| {
+        CoreError::msg(format!(
+            "{path}.props.children: invalid children array: {e}"
+        ))
+    })?;
     if children.is_empty() {
         return Err(CoreError::msg(format!(
             "{path}.props.children: must not be empty for layout widget {widget_type:?}"
@@ -239,7 +253,9 @@ fn render_layout_widget(
     let children_html = child_parts.join("\n");
     let widget_id = widget.id.trim();
     if !widget_id.is_empty() && !is_safe_html_id(widget_id) {
-        return Err(CoreError::msg(format!("{path}.id: invalid id {widget_id:?}")));
+        return Err(CoreError::msg(format!(
+            "{path}.id: invalid id {widget_id:?}"
+        )));
     }
 
     let mut ctx_map = json!({ "ID": widget_id, "Children": children_html });
@@ -291,10 +307,17 @@ fn render_leaf_widget(
             if data.is_none() {
                 return Ok((String::new(), vec![]));
             }
-            Ok((execute_widget_template(ctx.env, "intro", data.unwrap())?, vec![]))
+            Ok((
+                execute_widget_template(ctx.env, "intro", data.unwrap())?,
+                vec![],
+            ))
         }
         "cover_banner" => Ok((
-            execute_widget_template(ctx.env, "cover_banner", parse_cover_banner_props(ctx, widget, path)?)?,
+            execute_widget_template(
+                ctx.env,
+                "cover_banner",
+                parse_cover_banner_props(ctx, widget, path)?,
+            )?,
             vec![],
         )),
         "follow_us" => {
@@ -302,18 +325,32 @@ fn render_leaf_widget(
             if data.is_none() {
                 return Ok((String::new(), vec![]));
             }
-            Ok((execute_widget_template(ctx.env, "follow_us", data.unwrap())?, vec![]))
+            Ok((
+                execute_widget_template(ctx.env, "follow_us", data.unwrap())?,
+                vec![],
+            ))
         }
         "info_grid" => Ok((
-            execute_widget_template(ctx.env, "info_grid", parse_info_grid_props(ctx, widget, path)?)?,
+            execute_widget_template(
+                ctx.env,
+                "info_grid",
+                parse_info_grid_props(ctx, widget, path)?,
+            )?,
             vec![],
         )),
         "images_grid" => {
             let (data, warnings) = parse_images_grid_props(ctx, widget, path)?;
-            Ok((execute_widget_template(ctx.env, "images_grid", data)?, warnings))
+            Ok((
+                execute_widget_template(ctx.env, "images_grid", data)?,
+                warnings,
+            ))
         }
         "careers_tabs" => Ok((
-            execute_widget_template(ctx.env, "careers_tabs", parse_careers_tabs_props(ctx, widget, path)?)?,
+            execute_widget_template(
+                ctx.env,
+                "careers_tabs",
+                parse_careers_tabs_props(ctx, widget, path)?,
+            )?,
             vec![],
         )),
         "apps_showcase" => {
@@ -322,7 +359,10 @@ fn render_leaf_widget(
                 return Err(CoreError::msg(format!("{path}.id: invalid id {id:?}")));
             }
             let (data, warnings) = parse_apps_showcase_props(ctx, widget, path, id)?;
-            Ok((execute_widget_template(ctx.env, "apps_showcase", data)?, warnings))
+            Ok((
+                execute_widget_template(ctx.env, "apps_showcase", data)?,
+                warnings,
+            ))
         }
         "project_grid" => {
             let id = widget.id.trim();
@@ -330,7 +370,11 @@ fn render_leaf_widget(
                 return Err(CoreError::msg(format!("{path}.id: invalid id {id:?}")));
             }
             Ok((
-                execute_widget_template(ctx.env, "project_grid", parse_project_grid_props(ctx, widget, path)?)?,
+                execute_widget_template(
+                    ctx.env,
+                    "project_grid",
+                    parse_project_grid_props(ctx, widget, path)?,
+                )?,
                 vec![],
             ))
         }
@@ -340,7 +384,11 @@ fn render_leaf_widget(
                 return Err(CoreError::msg(format!("{path}.id: invalid id {id:?}")));
             }
             Ok((
-                execute_widget_template(ctx.env, "media_swiper", parse_media_swiper_props(ctx, widget, path)?)?,
+                execute_widget_template(
+                    ctx.env,
+                    "media_swiper",
+                    parse_media_swiper_props(ctx, widget, path)?,
+                )?,
                 vec![],
             ))
         }
@@ -386,7 +434,9 @@ fn parse_cover_banner_props(
     let p: Raw = props_to_struct(&widget.props, path)?;
     let src = p.src.trim();
     if src.is_empty() {
-        return Err(CoreError::msg(format!("{path}.props.src: required field missing")));
+        return Err(CoreError::msg(format!(
+            "{path}.props.src: required field missing"
+        )));
     }
     let alt = if p.alt.trim().is_empty() {
         "Cover".to_string()
@@ -504,7 +554,11 @@ fn parse_info_grid_props(
         } else {
             resolve_asset_href_for_page(it.image.trim(), ctx.route)
         };
-        let img_alt = if title.is_empty() { " ".into() } else { title.to_string() };
+        let img_alt = if title.is_empty() {
+            " ".into()
+        } else {
+            title.to_string()
+        };
         items.push(json!({
             "Image": img,
             "ImageAlt": img_alt,
@@ -521,7 +575,9 @@ fn parse_images_grid_props(
     path: &str,
 ) -> CoreResult<(JsonValue, Vec<ConfigWarning>)> {
     let raw = widget.props.get("images").ok_or_else(|| {
-        CoreError::msg(format!("{path}.props.images: required and must not be empty"))
+        CoreError::msg(format!(
+            "{path}.props.images: required and must not be empty"
+        ))
     })?;
     let (entries, warnings) =
         normalize_images_grid_raw(ctx.page_path, raw, &format!("{path}.props.images"))?;
@@ -544,7 +600,10 @@ fn parse_images_grid_props(
         title: String,
     }
     let top: Top = props_to_struct(&widget.props, path).unwrap_or_default();
-    Ok((json!({ "Title": top.title.trim(), "Images": images }), warnings))
+    Ok((
+        json!({ "Title": top.title.trim(), "Images": images }),
+        warnings,
+    ))
 }
 
 struct ImagesGridEntry {
@@ -565,7 +624,9 @@ fn normalize_images_grid_raw(
             for (i, v) in arr.iter().enumerate() {
                 let s = v.as_str().unwrap_or("").trim();
                 if s.is_empty() {
-                    return Err(CoreError::msg(format!("{cfg_path}[{i}]: empty string not allowed")));
+                    return Err(CoreError::msg(format!(
+                        "{cfg_path}[{i}]: empty string not allowed"
+                    )));
                 }
                 let alt = format!("photo {}", i + 1);
                 warnings.push(ConfigWarning::content(
@@ -588,7 +649,12 @@ fn normalize_images_grid_raw(
             if src.is_empty() {
                 return Err(CoreError::msg(format!("{cfg_path}[{i}].src: required")));
             }
-            let mut alt = v.get("alt").and_then(|s| s.as_str()).unwrap_or("").trim().to_string();
+            let mut alt = v
+                .get("alt")
+                .and_then(|s| s.as_str())
+                .unwrap_or("")
+                .trim()
+                .to_string();
             if is_generic_images_grid_alt(&alt, i) {
                 if alt.is_empty() {
                     alt = format!("photo {}", i + 1);
@@ -638,13 +704,28 @@ fn parse_careers_tabs_props(
     let mut req = "Requirements for this position:".to_string();
     let mut resp = "Responsibilities:".to_string();
     let mut adv = "Advantages of working with us:".to_string();
-    if let Some(v) = p.labels.get("requirements_title").map(|s| s.trim()).filter(|s| !s.is_empty()) {
+    if let Some(v) = p
+        .labels
+        .get("requirements_title")
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+    {
         req = v.to_string();
     }
-    if let Some(v) = p.labels.get("responsibilities_title").map(|s| s.trim()).filter(|s| !s.is_empty()) {
+    if let Some(v) = p
+        .labels
+        .get("responsibilities_title")
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+    {
         resp = v.to_string();
     }
-    if let Some(v) = p.labels.get("advantages_title").map(|s| s.trim()).filter(|s| !s.is_empty()) {
+    if let Some(v) = p
+        .labels
+        .get("advantages_title")
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+    {
         adv = v.to_string();
     }
     let mut entries = Vec::new();
@@ -691,7 +772,11 @@ fn parse_apps_showcase_props(
         let app_path = format!("{path}.props.apps[{i}]");
         let app: CatalogApp = serde_json::from_value(app_raw.clone())
             .map_err(|e| CoreError::msg(format!("{app_path}: invalid app entry: {e}")))?;
-        warnings.extend(catalog_store_url_warnings(ctx.page_path, &app_path, app_raw));
+        warnings.extend(catalog_store_url_warnings(
+            ctx.page_path,
+            &app_path,
+            app_raw,
+        ));
         cards.push(build_apps_showcase_card_data(
             ctx,
             &app,
@@ -719,7 +804,9 @@ fn build_apps_showcase_card_data(
 ) -> CoreResult<JsonValue> {
     let image = app.image.trim();
     if image.is_empty() {
-        return Err(CoreError::msg(format!("{app_path}.image: required field missing")));
+        return Err(CoreError::msg(format!(
+            "{app_path}.image: required field missing"
+        )));
     }
     let title = app.title.trim();
     let header_image = app.header_image.trim();
@@ -740,7 +827,12 @@ fn build_apps_showcase_card_data(
             },
         )
     } else if !title.is_empty() {
-        (String::new(), String::new(), title.to_string(), String::new())
+        (
+            String::new(),
+            String::new(),
+            title.to_string(),
+            String::new(),
+        )
     } else {
         (String::new(), String::new(), String::new(), String::new())
     };
@@ -860,7 +952,10 @@ fn parse_project_grid_props(
         }
         format!(r#" id="{}""#, html_escape(section_id))
     };
-    let min_w = parse_min_card_column_width(&widget.props, &format!("{path}.props.min_card_column_width"))?;
+    let min_w = parse_min_card_column_width(
+        &widget.props,
+        &format!("{path}.props.min_card_column_width"),
+    )?;
     let grid_style = format!(
         "--project-grid-min:{min_w};display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--project-grid-min)),1fr));gap:1.25rem;"
     );
@@ -869,16 +964,22 @@ fn parse_project_grid_props(
         let card_path = format!("{path}.props.cards[{i}]");
         let title = c.title.trim();
         if title.is_empty() {
-            return Err(CoreError::msg(format!("{card_path}.title: required field missing")));
+            return Err(CoreError::msg(format!(
+                "{card_path}.title: required field missing"
+            )));
         }
         let desc = c.description.trim();
         if desc.is_empty() {
-            return Err(CoreError::msg(format!("{card_path}.description: required field missing")));
+            return Err(CoreError::msg(format!(
+                "{card_path}.description: required field missing"
+            )));
         }
         let img = c.image.trim();
         let cta_url = c.cta.url.trim();
         if cta_url.is_empty() {
-            return Err(CoreError::msg(format!("{card_path}.cta.url: required field missing")));
+            return Err(CoreError::msg(format!(
+                "{card_path}.cta.url: required field missing"
+            )));
         }
         let cta_label = if c.cta.label.trim().is_empty() {
             "Learn more".to_string()
@@ -886,7 +987,8 @@ fn parse_project_grid_props(
             c.cta.label.trim().to_string()
         };
         let resolved_cta = resolve_project_grid_cta(ctx, cta_url)?;
-        let (meta_line, meta_pairs) = parse_project_grid_card_meta(&c.meta, &format!("{card_path}.meta"))?;
+        let (meta_line, meta_pairs) =
+            parse_project_grid_card_meta(&c.meta, &format!("{card_path}.meta"))?;
         let tags: Vec<String> = c
             .tags
             .iter()
@@ -926,7 +1028,9 @@ fn parse_media_swiper_props(
     path: &str,
 ) -> CoreResult<JsonValue> {
     let img_raw = widget.props.get("images").ok_or_else(|| {
-        CoreError::msg(format!("{path}.props.images: required and must not be empty"))
+        CoreError::msg(format!(
+            "{path}.props.images: required and must not be empty"
+        ))
     })?;
     #[derive(serde::Deserialize)]
     struct Slide {
@@ -991,7 +1095,9 @@ fn parse_project_grid_card_meta(
     meta_path: &str,
 ) -> CoreResult<(String, Vec<JsonValue>)> {
     if raw.is_null() {
-        return Err(CoreError::msg(format!("{meta_path}: required field missing")));
+        return Err(CoreError::msg(format!(
+            "{meta_path}: required field missing"
+        )));
     }
     if let Some(s) = raw.as_str() {
         let s = s.trim();
@@ -1004,13 +1110,17 @@ fn parse_project_grid_card_meta(
         let mut keys: Vec<_> = obj.keys().cloned().collect();
         keys.sort();
         if keys.is_empty() {
-            return Err(CoreError::msg(format!("{meta_path}: object must not be empty")));
+            return Err(CoreError::msg(format!(
+                "{meta_path}: object must not be empty"
+            )));
         }
         let mut pairs = Vec::new();
         for k in keys {
             let v = obj[&k].as_str().unwrap_or("").trim();
             if v.is_empty() {
-                return Err(CoreError::msg(format!("{meta_path}.{k}: value must not be empty")));
+                return Err(CoreError::msg(format!(
+                    "{meta_path}.{k}: value must not be empty"
+                )));
             }
             pairs.push(json!({ "Key": k, "Value": v }));
         }
@@ -1021,7 +1131,10 @@ fn parse_project_grid_card_meta(
     )))
 }
 
-fn parse_grid_min_column_width(props: &HashMap<String, JsonValue>, cfg_path: &str) -> CoreResult<String> {
+fn parse_grid_min_column_width(
+    props: &HashMap<String, JsonValue>,
+    cfg_path: &str,
+) -> CoreResult<String> {
     const DEFAULT: &str = "260px";
     match props.get("min_column_width") {
         None => Ok(DEFAULT.into()),
@@ -1038,7 +1151,10 @@ fn parse_grid_min_column_width(props: &HashMap<String, JsonValue>, cfg_path: &st
     }
 }
 
-fn parse_min_card_column_width(props: &HashMap<String, JsonValue>, cfg_path: &str) -> CoreResult<String> {
+fn parse_min_card_column_width(
+    props: &HashMap<String, JsonValue>,
+    cfg_path: &str,
+) -> CoreResult<String> {
     const DEFAULT: &str = "260px";
     match props.get("min_card_column_width") {
         None => Ok(DEFAULT.into()),
@@ -1078,7 +1194,9 @@ fn sanitize_css_gap_or_length(s: &str, cfg_path: &str) -> CoreResult<String> {
             || matches!(c, '%' | '.' | '-' | '_' | '/' | ',' | '(' | ')' | '#' | ' ')
             || c.is_alphabetic();
         if !ok {
-            return Err(CoreError::msg(format!("{cfg_path}: unsupported character in {s:?}")));
+            return Err(CoreError::msg(format!(
+                "{cfg_path}: unsupported character in {s:?}"
+            )));
         }
     }
     Ok(s.to_string())
