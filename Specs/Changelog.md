@@ -1,5 +1,69 @@
 # Specs / implementation changelog
 
+## 2026-06-03 — Composer — AlexeyPerov.io Tasks 9–11: hardening, prune, validate/QA
+
+- Marked **Tasks 9**, **10**, and **11** as `[DONE]` in [website-io/improvements-plan.md](./website-io/improvements-plan.md).
+- **Task 9:** Studio `project_grid` round-trip hardening — `writeProjectGridCard` always emits `meta`; safe meta mode switching via `projectGridCardWithMetaMode`; documented `project_grid_gradient` and `accent_muted` in `docs/schema/site.schema.json` and Studio theme labels.
+- **Task 10:** Pruned legacy `site.json` entries (unused Kometa gradients, empty `store_icons` / `subscribe_block`, empty `header.brand`).
+- **Task 11:** `--validate`, `--validate --strict`, and build passed for `content/alexeyperov-io`; AJV schema checks on all pages; QA confirmed five routes, cross-page nav, README project order, SpecOps screenshots, Vibe text-only.
+
+---
+
+## 2026-06-03 — Composer — AlexeyPerov.io Task 8: global visual redesign
+
+- Marked **Task 8** as `[DONE]` in [website-io/improvements-plan.md](./website-io/improvements-plan.md).
+- Refreshed `content/alexeyperov-io/site.json` theme: deeper dark palette, `#4d8dff` accent, radial intro/follow gradients, `project_grid_gradient`, and explicit social icon colors.
+- Strong shared CSS pass in `Template/styles.css`: modern typography/spacing, glass header, pill nav, project-grid section gradients, elevated project cards (fixed `--surface-strong`), pill CTAs, 2-column photos grid, larger follow-us tiles, reduced-motion-safe hovers.
+- Validated and built `content/alexeyperov-io`; `widget_render` tests pass (20/20).
+
+---
+
+## 2026-06-03 — Composer — AlexeyPerov.io Task 7: Tools page composition
+
+- Marked **Task 7** as `[DONE]` in [website-io/improvements-plan.md](./website-io/improvements-plan.md).
+- Populated `content/alexeyperov-io/pages/tools.json` with all 4 canonical non-Unity tools (Image Processing + Other Tools) in README order: SimilarTexturesFinder, crunch_textures, LogKeeper-Flutter-Firebase, proviso. GitHub CTA only; 2-column `project_grid` uses shared CSS from Task 4.
+
+---
+
+## 2026-06-03 — Composer — AlexeyPerov.io Tasks 5–6: SpecOps and Vibe pages
+
+- Marked **Tasks 5** and **6** as `[DONE]` in [website-io/improvements-plan.md](./website-io/improvements-plan.md).
+- **SpecOps** (`pages/specops.json`): product intro, GitHub + Docs CTAs via `project_grid`, 2-column `images_grid` with `main-screen.png` and `main-screen-split-view.png` copied to `content/alexeyperov-io/assets/`.
+- **Vibe** (`pages/vibe.json`): text-only intro aligned with SpecOps layout (headline + summary); no screenshots or CTAs until repo is public.
+
+---
+
+## 2026-06-03 — Composer — AlexeyPerov.io Task 4: Unity Tools page and 2-column grid
+
+- Marked **Task 4** as `[DONE]` in [website-io/improvements-plan.md](./website-io/improvements-plan.md).
+- Populated `content/alexeyperov-io/pages/unity-tools.json` with all 8 README Unity projects in canonical order (concise cards, tags, GitHub CTA).
+- Enforced hard 2-column desktop `project_grid` layout in `Template/styles.css` (single column below 640px); removed inline auto-fit columns from generator.
+
+---
+
+## 2026-06-03 — Composer — AlexeyPerov.io Task 3: main page rewrite
+
+- Marked **Task 3** as `[DONE]` in [website-io/improvements-plan.md](./website-io/improvements-plan.md).
+- Rewrote `content/alexeyperov-io/pages/home.json` intro to a 3-sentence profile summary aligned with README positioning (Unity, Flutter, developer tools).
+- Stripped legacy single-page project grids from home; page is now intro + `follow_us` (GitHub + LinkedIn from `site.json` only). Updated SEO description.
+
+---
+
+## 2026-06-03 — Composer — AlexeyPerov.io Task 2: multi-page routes and nav
+
+- Marked **Task 2** as `[DONE]` in [website-io/improvements-plan.md](./website-io/improvements-plan.md).
+- Added five-page route architecture for `content/alexeyperov-io/`: `home.json` (`slug: ""`), `unity-tools.json`, `specops.json`, `vibe.json`, `tools.json`.
+- Replaced hash-fragment header nav in `site.json` with cross-page slug links (`""`, `unity-tools`, `specops`, `vibe`, `tools`); footer unchanged across pages.
+
+---
+
+## 2026-06-03 — Composer — AlexeyPerov.io Task 1: canonical project map
+
+- Marked **Task 1** as `[DONE]` in [website-io/improvements-plan.md](./website-io/improvements-plan.md).
+- Added [website-io/canonical-project-map.md](./website-io/canonical-project-map.md): README-sourced project groups, page ownership (`unity-tools`, `specops`, `vibe`, `tools`, `main`), exact display order (14 projects), and audit of current `home.json` (7 to add, 10 to remove, 1 URL fix).
+
+---
+
 ## 2026-05-29 — Composer — Tauri Phase 3 Task 5: studio hardening and docs
 
 - Marked **Task 5** as `[DONE]` in [tauri/execution-plan-phase-3.md](./tauri/execution-plan-phase-3.md); Phase 3 exit criteria complete.

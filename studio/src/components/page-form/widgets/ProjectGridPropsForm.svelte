@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mergeWidgetProps } from '../../../lib/page-form'
   import {
+    projectGridCardWithMetaMode,
     readProjectGridCards,
     readString,
     writeProjectGridCard,
@@ -71,6 +72,12 @@
   function removeCard(index: number) {
     updateCards(cards.filter((_, i) => i !== index))
   }
+
+  function setMetaMode(index: number, nextMode: 'string' | 'object') {
+    const card = cards[index]
+    if (!card) return
+    updateCard(index, projectGridCardWithMetaMode(card, nextMode))
+  }
 </script>
 
 <div class="widget-props-form">
@@ -91,8 +98,8 @@
         <fieldset class="meta-fieldset">
           <legend>Meta</legend>
           <div class="meta-mode">
-            <label><input type="radio" checked={card.metaMode === 'string'} onchange={() => updateCard(index, { metaMode: 'string' })} /> Text line</label>
-            <label><input type="radio" checked={card.metaMode === 'object'} onchange={() => updateCard(index, { metaMode: 'object' })} /> Key-value pairs</label>
+            <label><input type="radio" checked={card.metaMode === 'string'} onchange={() => setMetaMode(index, 'string')} /> Text line</label>
+            <label><input type="radio" checked={card.metaMode === 'object'} onchange={() => setMetaMode(index, 'object')} /> Key-value pairs</label>
           </div>
           {#if card.metaMode === 'string'}
             <input type="text" value={card.metaString} oninput={(e) => updateCard(index, { metaString: e.currentTarget.value })} />

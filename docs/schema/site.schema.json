@@ -34,11 +34,19 @@
         "text_primary": { "type": "string" },
         "text_secondary": { "type": "string" },
         "accent": { "type": "string" },
+        "accent_muted": {
+          "type": "string",
+          "description": "Secondary accent for tags, borders, and subdued highlights."
+        },
         "line": { "type": "string" },
         "widget_gradient": { "type": "string" },
         "cover_background": { "type": "string" },
         "intro_gradient": { "type": "string" },
         "catalog_gradient": { "type": "string" },
+        "project_grid_gradient": {
+          "type": "string",
+          "description": "Project grid section background gradient (--project-grid-gradient)."
+        },
         "offers_gradient": { "type": "string" },
         "photos_gradient": { "type": "string" },
         "vacancies_gradient": { "type": "string" },

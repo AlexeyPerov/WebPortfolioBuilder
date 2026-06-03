@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix studio",
+    "build": "npm run build --prefix studio"
+  }
+}

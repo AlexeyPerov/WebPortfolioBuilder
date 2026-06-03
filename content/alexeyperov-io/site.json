@@ -3,56 +3,53 @@
   "output_folder": "Results/AlexeyPerovWebsite",
   "base_url": "https://alexeyperov.github.io",
   "theme": {
-    "page_bg": "#12141f",
-    "surface": "#1a1d2e",
-    "surface_strong": "#252836",
-    "text_primary": "#f0f2f8",
-    "text_secondary": "#a8adc4",
-    "accent": "#0061ff",
-    "line": "#3a4058",
-    "widget_gradient": "linear-gradient(to bottom, #1a1d2e, #12141f)",
-    "cover_background": "#ed6524",
-    "intro_gradient": "linear-gradient(to bottom, #252836 0, #12141f 70%)",
-    "catalog_gradient": "linear-gradient(to bottom, #1a1d2e 0, #12141f 70%)",
-    "offers_gradient": "linear-gradient(to bottom, #12141f 0, #1a1d2e 70%)",
-    "photos_gradient": "linear-gradient(to bottom, #1a1d2e 0, #12141f 70%)",
-    "vacancies_gradient": "linear-gradient(to bottom, #12141f 0, #1a1d2e 70%)",
-    "follow_us_gradient": "linear-gradient(to bottom, #252836 0, #12141f 70%)",
-    "footer_gradient": "linear-gradient(to bottom, #1a1d2e 0, #12141f 85%)"
-  },
-  "store_icons": {},
-  "subscribe_block": {
-    "title": "",
-    "links": []
+    "page_bg": "#0c0e14",
+    "surface": "#151821",
+    "surface_strong": "#1e2230",
+    "text_primary": "#f4f6fb",
+    "text_secondary": "#9aa3b8",
+    "accent": "#4d8dff",
+    "accent_muted": "#2a5fcc",
+    "line": "#2d3348",
+    "widget_gradient": "linear-gradient(145deg, #1a1f2e 0%, #12151f 100%)",
+    "intro_gradient": "radial-gradient(ellipse 120% 80% at 50% -20%, #1e2840 0%, #0c0e14 72%)",
+    "project_grid_gradient": "linear-gradient(180deg, #0c0e14 0%, #151821 50%, #0c0e14 100%)",
+    "photos_gradient": "linear-gradient(180deg, #151821 0%, #0c0e14 100%)",
+    "follow_us_gradient": "radial-gradient(ellipse 100% 60% at 50% 100%, #1a2240 0%, #0c0e14 70%)",
+    "footer_gradient": "linear-gradient(180deg, #151821 0%, #080a10 100%)",
+    "social_button_background": "linear-gradient(145deg, #1e2230 0%, #151821 100%)",
+    "social_icon_github": "#f4f6fb",
+    "social_icon_linkedin": "#4d8dff"
   },
   "social": {
     "github_url": "https://github.com/AlexeyPerov",
     "linkedin_url": "https://www.linkedin.com/in/alexey-perov-4669b375/"
   },
   "header": {
-    "brand": {
-      "logo": "",
-      "text": ""
-    },
     "nav": [
       {
-        "label": "Unity",
-        "href": "#unity-tools",
+        "label": "Home",
+        "href": "",
         "open_in_new_tab": false
       },
       {
-        "label": "Apps",
-        "href": "#apps",
+        "label": "Unity Tools",
+        "href": "unity-tools",
+        "open_in_new_tab": false
+      },
+      {
+        "label": "SpecOps",
+        "href": "specops",
+        "open_in_new_tab": false
+      },
+      {
+        "label": "Vibe",
+        "href": "vibe",
         "open_in_new_tab": false
       },
       {
         "label": "Tools",
-        "href": "#tools",
-        "open_in_new_tab": false
-      },
-      {
-        "label": "Contact",
-        "href": "#footer",
+        "href": "tools",
         "open_in_new_tab": false
       }
     ]

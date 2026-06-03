@@ -566,7 +566,7 @@ fn project_grid_renders_cards() {
     for needle in [
         r#"data-widget-type="project_grid""#,
         r#"id="portfolio""#,
-        "--project-grid-min:280px",
+        "project-grid__grid",
         "project-card__tags",
         "<dt>platform</dt>",
         "<dt>year</dt>",

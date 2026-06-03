@@ -1,0 +1,105 @@
+{
+  "slug": "unity-tools",
+  "title": "Unity Tools",
+  "seo": {
+    "description": "Open-source Unity editor tools for asset health, dependencies, textures, materials, and Addressables."
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "Unity Tools",
+        "paragraphs": [
+          "Tools that help keep Unity projects healthy — finding unused assets, missing references, texture issues, and Addressables problems."
+        ]
+      }
+    },
+    {
+      "type": "project_grid",
+      "props": {
+        "cards": [
+          {
+            "title": "Unity-Dependencies-Hunter",
+            "description": "Finds unreferenced assets by scanning all files in your Unity project.",
+            "tags": ["Unity", "Editor"],
+            "meta": "715 stars",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Dependencies-Hunter"
+            }
+          },
+          {
+            "title": "Unity-MissingReferences-Hunter",
+            "description": "Detects missing references by scanning asset GUIDs across the project.",
+            "tags": ["Unity", "Editor"],
+            "meta": "98 stars",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-MissingReferences-Hunter"
+            }
+          },
+          {
+            "title": "Unity-Textures-Hunter",
+            "description": "Summary of all textures and atlases in a Unity project.",
+            "tags": ["Unity", "Editor"],
+            "meta": "84 stars",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Textures-Hunter"
+            }
+          },
+          {
+            "title": "Unity-Scanner",
+            "description": "Unified Editor and MCP tool for project health analysis across dependencies, materials, textures, addressables, and more.",
+            "tags": ["Unity", "Editor", "MCP"],
+            "meta": "Unity Editor",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Scanner"
+            }
+          },
+          {
+            "title": "Unity-Addressables-BuildLayout-Inspector",
+            "description": "Analyze Addressables build layouts — bundles, groups, assets, duplicates, and cross-build comparisons.",
+            "tags": ["Unity", "Addressables"],
+            "meta": "Unity Editor",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Addressables-BuildLayout-Inspector"
+            }
+          },
+          {
+            "title": "Unity-Materials-Hunter",
+            "description": "Summary of all materials and renderers in a Unity project.",
+            "tags": ["Unity", "Editor"],
+            "meta": "Unity Editor",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Materials-Hunter"
+            }
+          },
+          {
+            "title": "Unity-Asset-Inspector",
+            "description": "Inspect asset references, serialized dependencies, and optional Addressables/bundle context.",
+            "tags": ["Unity", "Editor"],
+            "meta": "Unity Editor",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Asset-Inspector"
+            }
+          },
+          {
+            "title": "Unity-Lite-Editor-Coroutines",
+            "description": "Lightweight alternative to Unity Editor Coroutines.",
+            "tags": ["Unity", "Editor"],
+            "meta": "Unity Editor",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Lite-Editor-Coroutines"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,177 +1,26 @@
 {
   "slug": "",
-  "title": "AlexeyPerov.github.io",
+  "title": "Alexey Perov",
   "seo": {
-    "description": "Alexey Perov — open source Unity editor tools, apps, and utilities on GitHub.",
+    "description": "Alexey Perov — developer tools for Unity, Flutter, and the web. Open-source Editor utilities, desktop apps, and AI tooling.",
     "og_image": "assets/github-logo.png"
   },
   "widgets": [
     {
       "type": "intro",
       "props": {
-        "title": "",
+        "title": "Alexey Perov",
         "paragraphs": [
-          "All projects are of MIT or BSD-3-Clause licenses. Feel free to use them, report issues, and contribute.",
-          "Github: https://github.com/AlexeyPerov — MIT: https://opensource.org/licenses/MIT — BSD-3-Clause: https://opensource.org/licenses/BSD-3-Clause"
-        ]
-      }
-    },
-    {
-      "type": "project_grid",
-      "props": {
-        "heading": "Unity3D Editor Tools",
-        "subheading": "This tools aim to help to maintain assets in Unity projects. They help to find redundant assets, missing references, issues in settings and usages etc",
-        "section_id": "unity-tools",
-        "min_card_column_width": "280px",
-        "cards": [
-          {
-            "title": "Dependency Hunter",
-            "description": "Dependency Hunter is a tool which finds and/or deletes unreferenced assets in Unity project.",
-            "tags": ["Unity", "Editor"],
-            "meta": "Unity Editor",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/Unity-Dependencies-Hunter" }
-          },
-          {
-            "title": "Missing References Hunter",
-            "description": "Missing References Hunter is a tool that finds all missing references in your project. Reads contents of assets to detect whether GUIDs they contain exist within the project.",
-            "tags": ["Unity", "Editor"],
-            "meta": "Unity Editor",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/Unity-MissingReferences-Hunter" }
-          },
-          {
-            "title": "Textures Hunter",
-            "description": "Texture Hunter is a tool that provides summary of all textures and atlases in Unity project",
-            "tags": ["Unity", "Editor"],
-            "meta": "Unity Editor",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/Unity-Textures-Hunter" }
-          },
-          {
-            "title": "Lite Editor Coroutines",
-            "description": "This is an alternative version of Unity Editor Coroutines.",
-            "tags": ["Unity", "Editor"],
-            "meta": "Unity Editor",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/Unity-Lite-Editor-Coroutines" }
-          },
-          {
-            "title": "Pocket Editor Coroutines",
-            "description": "This is a simplified version of Unity Editor Coroutines.",
-            "tags": ["Unity", "Editor"],
-            "meta": "Unity Editor",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/Unity-Pocket-Editor-Coroutines" }
-          },
-          {
-            "title": "UPM Template Creator",
-            "description": "This is a simple Go console app to simplify process of UPM Editor plugins creation & editing.",
-            "tags": ["Unity", "Go"],
-            "meta": "Unity Editor",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/UPM-Template-Creator" }
-          }
-        ]
-      }
-    },
-    {
-      "type": "project_grid",
-      "props": {
-        "heading": "Apps",
-        "subheading": "Apps here are mostly related to .NET, Node.js, and Flutter",
-        "section_id": "apps",
-        "min_card_column_width": "280px",
-        "cards": [
-          {
-            "title": "Flutter Log Keeper (iOS/Android/Web/Dart Server)",
-            "description": "LogKeeper is a tool for storing logs that generates links to them after saving. Our applications automatically upload logs to it when errors are detected, and the resulting links are easier to share and attach to tasks than when using log files. It is made with Flutter using Bloc pattern and Firebase Firestore. It also demonstrates the usage of Dart on the backend and sharing code within a server and a client.",
-            "tags": ["Flutter", "Firebase"],
-            "meta": "iOS, Android, Web, Dart",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/Flutter-Log-Keeper-Tool" }
-          },
-          {
-            "title": "Proviso",
-            "description": "Proviso is a complete set of Flutter tools for conditional rendering (if-else and switch conditions), subtree wrapping with a parent widget, and some handy shortcuts (like DebugWidget, WebOnlyWidget, SafeBuilder, and many more). Published on https://pub.dev/packages/proviso",
-            "tags": ["Flutter", "Package"],
-            "meta": "pub.dev",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/proviso" }
-          },
-          {
-            "title": "Router.NET",
-            "description": "Router.NET is .NET Core AWS Lambda application with DynamoDB and MongoDB storage implementations. Can be used for routing your apps towards different servers.",
-            "tags": [".NET", "AWS Lambda"],
-            "meta": ".NET Core",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/Router.NET" }
-          },
-          {
-            "title": "FireShift",
-            "description": "Fireshift is a Flutter + Nest.js AWS Lambda + mongoDB (Mongoose) tool for getting user feedback",
-            "tags": ["Flutter", "Node.js"],
-            "meta": "AWS Lambda",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/FireShift" }
-          },
-          {
-            "title": "Flutter Notes Manager",
-            "description": "Notes is a simple notes management app built with Flutter (iOS/Android/Web). It is based on Async-Redux (https://pub.dev/packages/async_redux) and Firebase Firestore.",
-            "tags": ["Flutter", "Firebase"],
-            "meta": "iOS, Android, Web",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/Flutter-Notes" }
-          },
-          {
-            "title": "Notes Jetpack Compose",
-            "description": "NotesCompose is an implementation of Flutter Notes using Kotlin and JetPack Compose",
-            "tags": ["Kotlin", "Android"],
-            "meta": "Jetpack Compose",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/NotesCompose" }
-          },
-          {
-            "title": "Log Keeper JetPack Compose",
-            "description": "LogKeeperCompose is an implementation of Flutter LogKeeper using Kotlin and JetPack Compose",
-            "tags": ["Kotlin", "Android"],
-            "meta": "Jetpack Compose",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/LogKeeper-JetPackCompose" }
-          },
-          {
-            "title": "LogKeeper SwiftUI",
-            "description": "LogKeeper SwiftUI is a client of Flutter LogKeeper for an iOS built with SwiftUI, Redux, Swinject, SPM and Firestore.",
-            "tags": ["Swift", "iOS"],
-            "meta": "SwiftUI",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/LogKeeperSwift" }
-          }
-        ]
-      }
-    },
-    {
-      "type": "project_grid",
-      "props": {
-        "heading": "Various Tools",
-        "subheading": "Some tools to simplify everyday development tasks.",
-        "section_id": "tools",
-        "min_card_column_width": "280px",
-        "cards": [
-          {
-            "title": "A Flutter App that helps in resizing textures",
-            "description": "This app helps to resize textures for crunch format support.",
-            "tags": ["Flutter"],
-            "meta": "Flutter",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/crunch_textures" }
-          },
-          {
-            "title": "A Slack App that unfurls monday.com links",
-            "description": "A Slack app built for AWS Lambda.",
-            "tags": ["Node.js", "AWS Lambda"],
-            "meta": "Node.js",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/monday_slack_unfurl" }
-          },
-          {
-            "title": "Pulse Auto ID Generator WebHook for monday.com task manager",
-            "description": "monday.com lacks a feature of custom pulse id generation (see community feature request). Until the functionality is implemented, we use this WebHook tool based on Firebase, AWS Lambda and Node.js",
-            "tags": ["Node.js", "Firebase"],
-            "meta": "Node.js",
-            "cta": { "label": "View on GitHub", "url": "https://github.com/AlexeyPerov/Monday.com-Auto-ID-generator" }
-          }
+          "I build developer tools for Unity, Flutter, and the web — from Editor utilities that keep game projects healthy to desktop apps and open-source libraries.",
+          "My focus is practical tooling: asset pipelines, project diagnostics, and utilities teams use every day.",
+          "Everything on this site is open source under MIT or BSD-3-Clause; contributions and issue reports are welcome."
         ]
       }
     },
     {
       "type": "follow_us",
       "props": {
-        "title": "Contact"
+        "title": "Connect"
       }
     }
   ]

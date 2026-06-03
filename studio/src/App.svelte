@@ -499,8 +499,10 @@
     })
 
     getCurrentWindow()
-      .onCloseRequested(() => {
-        void persistStudioSettings()
+      .onCloseRequested(async () => {
+        await persistStudioSettings()
+        unlistenClose?.()
+        await getCurrentWindow().close()
       })
       .then((fn) => {
         unlistenClose = fn

@@ -229,6 +229,40 @@ function readProjectGridCta(raw: unknown): ProjectGridCta {
   }
 }
 
+/** Preserve meta when switching between string and key-value editor modes. */
+export function projectGridCardWithMetaMode(
+  card: ProjectGridCard,
+  nextMode: 'string' | 'object',
+): ProjectGridCard {
+  if (card.metaMode === nextMode) return card
+  if (nextMode === 'string') {
+    const fromPairs = card.metaPairs
+      .filter((p) => p.key.trim())
+      .map((p) => `${p.key.trim()}: ${p.value}`)
+      .join(' · ')
+    return {
+      ...card,
+      metaMode: 'string',
+      metaString: card.metaString.trim() || fromPairs,
+      metaPairs: [],
+    }
+  }
+  if (card.metaString.trim()) {
+    return {
+      ...card,
+      metaMode: 'object',
+      metaString: '',
+      metaPairs: [{ key: 'Note', value: card.metaString.trim() }],
+    }
+  }
+  return {
+    ...card,
+    metaMode: 'object',
+    metaString: '',
+    metaPairs: card.metaPairs.length > 0 ? card.metaPairs : [{ key: '', value: '' }],
+  }
+}
+
 export function writeProjectGridCard(card: ProjectGridCard): Record<string, unknown> {
   const row: Record<string, unknown> = {
     title: card.title,
@@ -241,13 +275,13 @@ export function writeProjectGridCard(card: ProjectGridCard): Record<string, unkn
   }
   if (card.image.trim()) row.image = card.image
   if (card.metaMode === 'string') {
-    if (card.metaString.trim()) row.meta = card.metaString
+    row.meta = card.metaString
   } else {
     const meta: Record<string, string> = {}
     for (const pair of card.metaPairs) {
       if (pair.key.trim()) meta[pair.key.trim()] = pair.value
     }
-    if (Object.keys(meta).length > 0) row.meta = meta
+    row.meta = meta
   }
   return row
 }

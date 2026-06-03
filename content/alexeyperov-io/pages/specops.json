@@ -1,0 +1,61 @@
+{
+  "slug": "specops",
+  "title": "SpecOps",
+  "seo": {
+    "description": "SpecOps — desktop workspace for specs, notes, and project files. Tauri + SvelteKit app with folder workspaces, markdown editing, and workspace-scoped AI agents."
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "SpecOps",
+        "paragraphs": [
+          "SpecOps is a desktop workspace for specs, notes, and project files — built with Tauri and SvelteKit. Open folder-backed workspaces, edit markdown in a tabbed editor, and work with AI agents scoped to your project. AI support is under active development."
+        ]
+      }
+    },
+    {
+      "type": "project_grid",
+      "props": {
+        "cards": [
+          {
+            "title": "GitHub",
+            "description": "Source code, issues, and release notes.",
+            "tags": ["Open source"],
+            "meta": "Repository",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/SpecOps"
+            }
+          },
+          {
+            "title": "Docs",
+            "description": "Architecture overview, persistence model, and coding-agent guide.",
+            "tags": ["Technical"],
+            "meta": "Documentation",
+            "cta": {
+              "label": "Docs",
+              "url": "https://github.com/AlexeyPerov/SpecOps/blob/master/docs/architecture.md"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "images_grid",
+      "props": {
+        "title": "Screenshots",
+        "images": [
+          {
+            "src": "assets/main-screen.png",
+            "alt": "SpecOps main workspace with editor tabs and project panel"
+          },
+          {
+            "src": "assets/main-screen-split-view.png",
+            "alt": "SpecOps split view with markdown editor and AI chat panel"
+          }
+        ]
+      }
+    }
+  ]
+}

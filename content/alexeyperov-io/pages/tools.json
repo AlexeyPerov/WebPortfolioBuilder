@@ -1,0 +1,65 @@
+{
+  "slug": "tools",
+  "title": "Tools",
+  "seo": {
+    "description": "Image processing utilities, cross-platform apps, logging tools, and other open-source projects."
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "Tools",
+        "paragraphs": [
+          "Desktop utilities for texture workflows and compression prep, plus cross-platform apps, logging libraries, and other open-source projects."
+        ]
+      }
+    },
+    {
+      "type": "project_grid",
+      "props": {
+        "cards": [
+          {
+            "title": "SimilarTexturesFinder",
+            "description": "Desktop app for finding duplicate and near-duplicate texture images.",
+            "tags": ["Desktop", "Textures"],
+            "meta": "Desktop",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/SimilarTexturesFinder"
+            }
+          },
+          {
+            "title": "crunch_textures",
+            "description": "Check and resize textures for Crunch compression (width/height multiple of 4).",
+            "tags": ["Desktop", "Textures"],
+            "meta": "11 stars",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/crunch_textures"
+            }
+          },
+          {
+            "title": "LogKeeper-Flutter-Firebase",
+            "description": "Cross-platform log snapshot sharing (Flutter/Dart, Bloc, Firebase Firestore).",
+            "tags": ["Flutter", "Logging"],
+            "meta": "5 stars",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/LogKeeper-Flutter-Firebase"
+            }
+          },
+          {
+            "title": "proviso",
+            "description": "Flutter toolkit for conditional rendering, subtree wrapping, and handy dev shortcuts.",
+            "tags": ["Flutter", "Toolkit"],
+            "meta": "3 stars",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/proviso"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

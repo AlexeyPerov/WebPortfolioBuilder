@@ -952,13 +952,11 @@ fn parse_project_grid_props(
         }
         format!(r#" id="{}""#, html_escape(section_id))
     };
-    let min_w = parse_min_card_column_width(
+    let _ = parse_min_card_column_width(
         &widget.props,
         &format!("{path}.props.min_card_column_width"),
     )?;
-    let grid_style = format!(
-        "--project-grid-min:{min_w};display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--project-grid-min)),1fr));gap:1.25rem;"
-    );
+    let grid_style = String::new();
     let mut cards = Vec::new();
     for (i, c) in tr.cards.iter().enumerate() {
         let card_path = format!("{path}.props.cards[{i}]");
