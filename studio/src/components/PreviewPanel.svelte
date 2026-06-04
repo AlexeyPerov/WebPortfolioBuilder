@@ -1,4 +1,8 @@
 <script lang="ts">
+  import { message } from '@tauri-apps/plugin-dialog'
+  import { openUrl } from '@tauri-apps/plugin-opener'
+  import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
+
   type Viewport = 'desktop' | 'phone'
 
   type Props = {
@@ -13,15 +17,43 @@
   const iframeSrc = $derived(
     previewUrl ? `${previewUrl}${previewUrl.includes('?') ? '&' : '?'}_r=${refreshKey}` : null,
   )
+
+  async function openInBrowser() {
+    if (!previewUrl) return
+    try {
+      await openUrl(previewUrl)
+    } catch (err: unknown) {
+      await message(String(err), { title: 'Open in browser failed', kind: 'error' })
+    }
+  }
+
+  async function openInMobileBrowser() {
+    if (!previewUrl) return
+    try {
+      const label = `mobile-preview-${Date.now()}`
+      new WebviewWindow(label, {
+        url: previewUrl,
+        title: 'Mobile preview',
+        width: 390,
+        height: 844,
+        resizable: true,
+        center: true,
+      })
+    } catch (err: unknown) {
+      await message(String(err), { title: 'Open mobile preview failed', kind: 'error' })
+    }
+  }
 </script>
 
 <section class="preview-panel" aria-label="Site preview">
   <header>
-    <h2>Preview</h2>
-    <div class="actions">
+    <div class="title-actions">
+      <h2>Preview</h2>
       <button type="button" disabled={!previewUrl} onclick={() => onrefresh?.()}>
         Refresh
       </button>
+    </div>
+    <div class="actions">
       <div class="viewport" role="group" aria-label="Viewport width">
         <button
           type="button"
@@ -38,6 +70,12 @@
           Phone
         </button>
       </div>
+      <button type="button" disabled={!previewUrl} onclick={() => void openInBrowser()}>
+        Open in browser
+      </button>
+      <button type="button" disabled={!previewUrl} onclick={() => void openInMobileBrowser()}>
+        Open in mobile browser
+      </button>
     </div>
   </header>
   <div class="frame-wrap" class:phone={viewport === 'phone'}>
@@ -70,6 +108,12 @@
     background: var(--color-surface-1);
   }
 
+  .title-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   h2 {
     margin: 0;
     font-size: 0.72rem;
@@ -83,6 +127,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   button {

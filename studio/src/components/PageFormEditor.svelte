@@ -7,6 +7,7 @@
     type PageSeo,
     type WidgetNode,
   } from '../lib/page-form'
+  import AssetPathField from './page-form/fields/AssetPathField.svelte'
   import WidgetListSection from './page-form/WidgetListSection.svelte'
 
   type Props = {
@@ -111,16 +112,14 @@
           ></textarea>
         </label>
 
-        <label class="field">
-          <span class="label">Open Graph image</span>
-          <span class="hint-inline">Asset path, e.g. <code>assets/logo.png</code></span>
-          <input
-            type="text"
+        <div class="field">
+          <AssetPathField
+            label="Open Graph image"
+            hint="Asset path, e.g. assets/logo.png"
             value={parsed.model.seo.og_image}
-            spellcheck="false"
-            oninput={(e) => updateSeo('og_image', e.currentTarget.value)}
+            onchange={(v) => updateSeo('og_image', v)}
           />
-        </label>
+        </div>
 
         <label class="field">
           <span class="label">Canonical URL</span>

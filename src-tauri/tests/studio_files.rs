@@ -43,3 +43,51 @@ fn read_kometa_image_preview() {
     assert_eq!(preview.relative_path, "assets/logo.png");
     assert!(preview.data_url.starts_with("data:image/png;base64,"));
 }
+
+#[test]
+fn import_and_delete_bundle_asset() {
+    let root = repo_root();
+    let root_str = root.to_string_lossy();
+    let site = "content/kometa";
+    let source = root.join("content/kometa/assets/logo.png");
+    assert!(source.is_file());
+
+    let imported = app_lib::studio_files::import_bundle_asset(
+        &root_str,
+        site,
+        &source.to_string_lossy(),
+    )
+    .expect("import");
+    assert!(imported.starts_with("assets/logo"));
+    assert!(imported.ends_with(".png"));
+
+    let dest = root.join(site).join(&imported);
+    assert!(dest.is_file());
+
+    // Second import should get a suffixed name
+    let imported2 = app_lib::studio_files::import_bundle_asset(
+        &root_str,
+        site,
+        &source.to_string_lossy(),
+    )
+    .expect("import again");
+    assert_ne!(imported, imported2);
+    assert!(imported2.contains('-'));
+
+    app_lib::studio_files::delete_bundle_asset(&root_str, site, &imported).expect("delete");
+    assert!(!dest.is_file());
+    app_lib::studio_files::delete_bundle_asset(&root_str, site, &imported2).expect("delete 2");
+}
+
+#[test]
+fn reject_delete_non_asset() {
+    let root = repo_root();
+    let root_str = root.to_string_lossy();
+    let err = app_lib::studio_files::delete_bundle_asset(
+        &root_str,
+        "content/kometa",
+        "site.json",
+    )
+    .expect_err("reject");
+    assert!(err.contains("assets"));
+}

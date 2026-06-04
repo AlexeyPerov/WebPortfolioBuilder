@@ -205,6 +205,81 @@ pub fn read_bundle_image(
     })
 }
 
+fn is_deletable_asset(relative_path: &str) -> bool {
+    let rel = relative_path.replace('\\', "/");
+    rel.starts_with("assets/") && is_image_file(relative_path)
+}
+
+fn unique_asset_filename(assets_dir: &Path, original_name: &str) -> String {
+    let path = Path::new(original_name);
+    let stem = path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("image");
+    let ext = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| format!(".{e}"))
+        .unwrap_or_default();
+
+    let mut candidate = original_name.to_string();
+    let mut n = 1u32;
+    while assets_dir.join(&candidate).exists() {
+        candidate = format!("{stem}-{n}{ext}");
+        n += 1;
+    }
+    candidate
+}
+
+pub fn import_bundle_asset(
+    project_root: &str,
+    site_path: &str,
+    source_path: &str,
+) -> Result<String, String> {
+    let source = PathBuf::from(source_path);
+    if !source.is_file() {
+        return Err(format!("source is not a file: {source_path}"));
+    }
+    let file_name = source
+        .file_name()
+        .and_then(|n| n.to_str())
+        .ok_or_else(|| "invalid source file name".to_string())?;
+    if !is_image_file(file_name) {
+        return Err("source is not a supported image file".into());
+    }
+
+    let project_root = parse_project_root(project_root)?;
+    let bundle = bundle_root(&project_root, site_path);
+    let assets_dir = bundle.join("assets");
+    fs::create_dir_all(&assets_dir).map_err(|e| e.to_string())?;
+
+    let dest_name = unique_asset_filename(&assets_dir, file_name);
+    let dest_path = assets_dir.join(&dest_name);
+    fs::copy(&source, &dest_path).map_err(|e| e.to_string())?;
+
+    Ok(format!("assets/{dest_name}"))
+}
+
+pub fn delete_bundle_asset(
+    project_root: &str,
+    site_path: &str,
+    relative_path: &str,
+) -> Result<(), String> {
+    if !is_deletable_asset(relative_path) {
+        return Err("only image files under assets/ can be deleted".into());
+    }
+    let project_root = parse_project_root(project_root)?;
+    let bundle = bundle_root(&project_root, site_path);
+    let path = resolve_bundle_relative(&bundle, relative_path)?;
+    if path.is_dir() {
+        return Err("cannot delete a directory".into());
+    }
+    if !path.is_file() {
+        return Err(format!("file not found: {relative_path}"));
+    }
+    fs::remove_file(&path).map_err(|e| e.to_string())
+}
+
 pub fn write_bundle_file(
     project_root: &str,
     site_path: &str,

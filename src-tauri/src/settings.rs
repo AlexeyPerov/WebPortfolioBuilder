@@ -11,12 +11,18 @@ pub struct WorkspaceLayout {
     pub sidebar_px: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub preview_px: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub log_collapsed: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub log_height_px: Option<u32>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct StudioSettings {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub last_project_root: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_selected_site: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub theme: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]

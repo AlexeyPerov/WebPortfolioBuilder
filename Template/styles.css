@@ -941,6 +941,8 @@ body.image-lightbox-open {
 .footer-copyright,
 .footer-cookie {
   text-align: center;
+  margin-left: auto;
+  margin-right: auto;
   color: var(--text-secondary);
   font-size: 0.9rem;
   margin-top: 1.5rem;

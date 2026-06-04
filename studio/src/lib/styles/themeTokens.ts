@@ -1,17 +1,22 @@
-export type BuiltinThemeId = 'dark-amber' | 'light-blue'
+export type BuiltinThemeId = 'dark' | 'light'
 
-export const BUILTIN_THEME_IDS: BuiltinThemeId[] = ['dark-amber', 'light-blue']
+export const BUILTIN_THEME_IDS: BuiltinThemeId[] = ['dark', 'light']
 
-export const DEFAULT_BUILTIN_THEME: BuiltinThemeId = 'dark-amber'
+export const DEFAULT_BUILTIN_THEME: BuiltinThemeId = 'dark'
+
+const LEGACY_THEME_IDS: Record<string, BuiltinThemeId> = {
+  'dark-amber': 'dark',
+  'light-blue': 'light',
+}
 
 const BUILTIN_LABELS: Record<BuiltinThemeId, string> = {
-  'dark-amber': 'Amber (Dark)',
-  'light-blue': 'Blue (Light)',
+  dark: 'Dark',
+  light: 'Light',
 }
 
 const BUILTIN_ACCENT_HEX: Record<BuiltinThemeId, string> = {
-  'dark-amber': '#d97706',
-  'light-blue': '#2376ff',
+  dark: '#2376ff',
+  light: '#2376ff',
 }
 
 export interface ThemeSyntaxPalette {
@@ -87,12 +92,17 @@ function mixHex(colorA: string, colorB: string, ratio: number): string {
   )
 }
 
+export function migrateBuiltinThemeId(value: string): BuiltinThemeId | null {
+  if (isBuiltinThemeId(value)) return value
+  return LEGACY_THEME_IDS[value] ?? null
+}
+
 export function getBuiltinThemeLabel(id: BuiltinThemeId): string {
   return BUILTIN_LABELS[id]
 }
 
 export function getBuiltinThemeMode(id: BuiltinThemeId): 'dark' | 'light' {
-  return id.startsWith('dark') ? 'dark' : 'light'
+  return id
 }
 
 export function getBuiltinAccentHex(id: BuiltinThemeId): string {

@@ -6,9 +6,10 @@
     sitePath: string
     relativePath: string
     onclose?: () => void
+    onremove?: () => void
   }
 
-  let { projectRoot, sitePath, relativePath, onclose }: Props = $props()
+  let { projectRoot, sitePath, relativePath, onclose, onremove }: Props = $props()
 
   let preview = $state<BundleImagePreview | null>(null)
   let error = $state<string | null>(null)
@@ -37,7 +38,12 @@
     <div class="title-wrap">
       <h2>{relativePath}</h2>
     </div>
-    <button type="button" class="close-btn" onclick={() => onclose?.()}>Close</button>
+    <div class="header-actions">
+      {#if onremove}
+        <button type="button" class="remove-btn" onclick={() => onremove?.()}>Remove</button>
+      {/if}
+      <button type="button" class="close-btn" onclick={() => onclose?.()}>Close</button>
+    </div>
   </header>
 
   <div class="preview-body">
@@ -80,6 +86,14 @@
     word-break: break-all;
   }
 
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .remove-btn,
   .close-btn {
     flex-shrink: 0;
     padding: 0.3rem 0.65rem;
@@ -90,6 +104,12 @@
     cursor: pointer;
   }
 
+  .remove-btn {
+    color: #e06c75;
+    border-color: color-mix(in srgb, #e06c75 40%, var(--color-border-subtle));
+  }
+
+  .remove-btn:hover,
   .close-btn:hover {
     background: var(--color-pressed);
   }

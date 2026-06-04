@@ -32,26 +32,21 @@ export type PreviewServerInfo = {
   output_dir: string
 }
 
-export type BuiltinThemeId = 'dark-amber' | 'light-blue'
+export type BuiltinThemeId = 'dark' | 'light'
 
 export type WorkspaceLayout = {
   sidebar_px?: number | null
   preview_px?: number | null
+  log_collapsed?: boolean | null
+  log_height_px?: number | null
 }
 
 export type StudioSettings = {
   last_project_root?: string | null
+  last_selected_site?: string | null
   theme?: BuiltinThemeId | null
   workspace_layout?: WorkspaceLayout | null
 }
-
-export type WatchRebuildComplete = {
-  build: BuildSiteResult
-  preview: PreviewServerInfo | null
-}
-
-/** Matches backend `WATCH_DEBOUNCE_MS` — see studio/README.md */
-export const AUTO_REBUILD_DEBOUNCE_MS = 500
 
 export type BundleFileEntry = {
   relative_path: string
@@ -138,22 +133,30 @@ export function writeBundleFile(
   })
 }
 
-export function createSiteFromTemplate(projectRoot: string, siteId: string) {
-  return invoke<string>('create_site_from_template', { projectRoot, siteId })
-}
-
-export function setAutoRebuild(
-  enabled: boolean,
+export function importBundleAsset(
   projectRoot: string,
   sitePath: string,
-  strict: boolean,
-  previewPort: number,
+  sourcePath: string,
 ) {
-  return invoke<void>('set_auto_rebuild', {
-    enabled,
+  return invoke<string>('import_bundle_asset_cmd', {
     projectRoot,
     sitePath,
-    strict,
-    previewPort,
+    sourcePath,
   })
+}
+
+export function deleteBundleAsset(
+  projectRoot: string,
+  sitePath: string,
+  relativePath: string,
+) {
+  return invoke<void>('delete_bundle_asset_cmd', {
+    projectRoot,
+    sitePath,
+    relativePath,
+  })
+}
+
+export function createSiteFromTemplate(projectRoot: string, siteId: string) {
+  return invoke<string>('create_site_from_template', { projectRoot, siteId })
 }

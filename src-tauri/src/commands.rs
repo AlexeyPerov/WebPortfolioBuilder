@@ -1,18 +1,17 @@
-use crate::content_watcher::ContentWatcherState;
 use crate::diagnostics::{BuildSiteResult, PreviewServerInfo, ProjectRootInfo, ValidateSiteResult};
 use crate::preview_server::PreviewServerState;
 use crate::settings::{load_settings, save_settings, StudioSettings};
 use crate::site_ops::{run_build, run_validate};
 use crate::site_template;
 use crate::studio_files::{
-    list_bundle_files, project_info_at, read_bundle_file, read_bundle_image, write_bundle_file,
-    BundleFileEntry, BundleImagePreview,
+    delete_bundle_asset, import_bundle_asset, list_bundle_files, project_info_at, read_bundle_file,
+    read_bundle_image, write_bundle_file, BundleFileEntry, BundleImagePreview,
 };
 use portfoliowebsitebuilder_core::{
     discover_content_bundles, resolve_project_root as core_resolve_project_root,
 };
 use std::path::PathBuf;
-use tauri::{AppHandle, State};
+use tauri::State;
 
 fn parse_project_root(project_root: &str) -> Result<PathBuf, String> {
     let path = PathBuf::from(project_root);
@@ -130,24 +129,6 @@ pub fn read_bundle_image_cmd(
 }
 
 #[tauri::command]
-pub fn set_auto_rebuild(
-    app: AppHandle,
-    enabled: bool,
-    project_root: String,
-    site_path: String,
-    strict: bool,
-    preview_port: u16,
-    watcher: State<'_, ContentWatcherState>,
-) -> Result<(), String> {
-    if !enabled {
-        watcher.stop();
-        return Ok(());
-    }
-    let project_root = parse_project_root(&project_root)?;
-    watcher.start(app, project_root, site_path, strict, preview_port)
-}
-
-#[tauri::command]
 pub fn create_site_from_template(project_root: String, site_id: String) -> Result<String, String> {
     let project_root = parse_project_root(&project_root)?;
     site_template::create_site_from_template(&project_root, &site_id)
@@ -161,4 +142,22 @@ pub fn write_bundle_file_cmd(
     content: String,
 ) -> Result<(), String> {
     write_bundle_file(&project_root, &site_path, &relative_path, &content)
+}
+
+#[tauri::command]
+pub fn import_bundle_asset_cmd(
+    project_root: String,
+    site_path: String,
+    source_path: String,
+) -> Result<String, String> {
+    import_bundle_asset(&project_root, &site_path, &source_path)
+}
+
+#[tauri::command]
+pub fn delete_bundle_asset_cmd(
+    project_root: String,
+    site_path: String,
+    relative_path: String,
+) -> Result<(), String> {
+    delete_bundle_asset(&project_root, &site_path, &relative_path)
 }

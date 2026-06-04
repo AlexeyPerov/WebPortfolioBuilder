@@ -15,6 +15,21 @@
       }
     },
     {
+      "type": "images_grid",
+      "props": {
+        "images": [
+          {
+            "src": "assets/main-screen.png",
+            "alt": "SpecOps main workspace with editor tabs and project panel"
+          },
+          {
+            "src": "assets/main-screen-split-view.png",
+            "alt": "SpecOps split view with markdown editor and AI chat panel"
+          }
+        ]
+      }
+    },
+    {
       "type": "project_grid",
       "props": {
         "cards": [
@@ -37,22 +52,6 @@
               "label": "Docs",
               "url": "https://github.com/AlexeyPerov/SpecOps/blob/master/docs/architecture.md"
             }
-          }
-        ]
-      }
-    },
-    {
-      "type": "images_grid",
-      "props": {
-        "title": "Screenshots",
-        "images": [
-          {
-            "src": "assets/main-screen.png",
-            "alt": "SpecOps main workspace with editor tabs and project panel"
-          },
-          {
-            "src": "assets/main-screen-split-view.png",
-            "alt": "SpecOps split view with markdown editor and AI chat panel"
           }
         ]
       }

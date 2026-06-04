@@ -1,10 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { listen } from '@tauri-apps/api/event'
   import { getCurrentWindow } from '@tauri-apps/api/window'
   import { message, open } from '@tauri-apps/plugin-dialog'
   import { revealItemInDir } from '@tauri-apps/plugin-opener'
-  import BuildLog from './components/BuildLog.svelte'
   import FileTree from './components/FileTree.svelte'
   import JsonEditor from './components/JsonEditor.svelte'
   import SiteFormEditor from './components/SiteFormEditor.svelte'
@@ -13,18 +11,19 @@
   import PreviewPanel from './components/PreviewPanel.svelte'
   import ProblemsPanel from './components/ProblemsPanel.svelte'
   import ResizableWorkspace from './components/ResizableWorkspace.svelte'
+  import LogPanel from './components/LogPanel.svelte'
+  import StudioBundleProvider from './components/StudioBundleProvider.svelte'
   import {
-    AUTO_REBUILD_DEBOUNCE_MS,
     buildSite,
     createSiteFromTemplate,
     getStudioSettings,
+    importBundleAsset,
     listBundleFiles,
     listContentBundles,
     projectInfoForRoot,
     readBundleFile,
     resolveProjectRoot,
     saveStudioSettings,
-    setAutoRebuild,
     startPreviewServer,
     validateSite,
     writeBundleFile,
@@ -34,7 +33,6 @@
     type Diagnostic,
     type ProjectRootInfo,
     type ValidateSiteResult,
-    type WatchRebuildComplete,
   } from './lib/studio-api'
   import {
     applyBuiltinTheme,
@@ -42,6 +40,7 @@
     DEFAULT_BUILTIN_THEME,
     getBuiltinThemeLabel,
     isBuiltinThemeId,
+    migrateBuiltinThemeId,
   } from './lib/styles/themeTokens'
   import {
     DEFAULT_SIDEBAR_PX,
@@ -53,9 +52,11 @@
     supportsFormView,
   } from './lib/editor-schema'
   import { isImageFile } from './lib/image-files'
+  import { IMAGE_DIALOG_FILTERS, removeAssetWithConfirm } from './lib/asset-actions'
 
   const DEFAULT_SITE = 'content/kometa'
   const PREVIEW_PORT = 8080
+  const DEFAULT_LOG_HEIGHT_PX = 112
 
   type SiteEditorView = 'json' | 'form'
 
@@ -91,16 +92,26 @@
   let previewRefreshKey = $state(0)
   let previewGeneration = $state(0)
   let busy = $state(false)
-  let autoRebuild = $state(false)
   let themeId = $state<BuiltinThemeId>(DEFAULT_BUILTIN_THEME)
   let sidebarWidth = $state(DEFAULT_SIDEBAR_PX)
   let previewWidth = $state(360)
+  let logCollapsed = $state(true)
+  let logHeightPx = $state(DEFAULT_LOG_HEIGHT_PX)
   let savedWorkspaceLayout = $state<WorkspaceLayout | null>(null)
 
-  let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+  const imageAssets = $derived(
+    fileEntries
+      .filter((e) => !e.is_dir && isImageFile(e.relative_path))
+      .map((e) => e.relative_path),
+  )
 
   function workspaceLayoutPayload(): WorkspaceLayout {
-    return { sidebar_px: sidebarWidth, preview_px: previewWidth }
+    return {
+      sidebar_px: sidebarWidth,
+      preview_px: previewWidth,
+      log_collapsed: logCollapsed,
+      log_height_px: logHeightPx,
+    }
   }
 
   function appendLog(line: string) {
@@ -122,6 +133,7 @@
 
   async function persistStudioSettings(overrides: {
     last_project_root?: string | null
+    last_selected_site?: string | null
     theme?: BuiltinThemeId
     workspace_layout?: WorkspaceLayout
   } = {}) {
@@ -130,12 +142,36 @@
         overrides.last_project_root !== undefined
           ? overrides.last_project_root
           : projectInfo?.project_root,
+      last_selected_site:
+        overrides.last_selected_site !== undefined
+          ? overrides.last_selected_site
+          : selectedSite,
       theme: overrides.theme ?? themeId,
       workspace_layout: overrides.workspace_layout ?? workspaceLayoutPayload(),
     })
   }
 
+  function applySiteSelection(savedSite: string | null | undefined) {
+    if (savedSite && bundles.includes(savedSite)) {
+      selectedSite = savedSite
+    } else if (bundles.includes(DEFAULT_SITE)) {
+      selectedSite = DEFAULT_SITE
+    } else if (bundles.length > 0) {
+      selectedSite = bundles[0]
+    }
+  }
+
   function onWorkspaceLayoutCommit() {
+    void persistStudioSettings()
+  }
+
+  function toggleLogPanel() {
+    logCollapsed = !logCollapsed
+    void persistStudioSettings()
+  }
+
+  function onLogHeightChange(heightPx: number) {
+    logHeightPx = heightPx
     void persistStudioSettings()
   }
 
@@ -149,15 +185,11 @@
     void persistStudioSettings({ theme: id })
   }
 
-  async function loadProject(root: string) {
+  async function loadProject(root: string, savedSite?: string | null) {
     projectInfo = await projectInfoForRoot(root)
     await persistProjectRoot(projectInfo.project_root)
     bundles = await listContentBundles(projectInfo.project_root)
-    if (bundles.includes(DEFAULT_SITE)) {
-      selectedSite = DEFAULT_SITE
-    } else if (bundles.length > 0) {
-      selectedSite = bundles[0]
-    }
+    applySiteSelection(savedSite)
     await refreshFileTree()
     appendLog(`Opened project: ${projectInfo.project_root}`)
   }
@@ -176,7 +208,8 @@
       })
       if (!picked || typeof picked !== 'string') return
       busy = true
-      await loadProject(picked)
+      const settings = await getStudioSettings()
+      await loadProject(picked, settings.last_selected_site)
     } catch (err: unknown) {
       appendLog(`Open project failed: ${String(err)}`)
     } finally {
@@ -197,6 +230,7 @@
     previewUrl = null
     lastOutputDir = null
     previewRefreshKey += 1
+    void persistStudioSettings({ last_selected_site: selectedSite })
     await refreshFileTree()
   }
 
@@ -243,42 +277,47 @@
     const path = activeTabPath
     if (!path) return
     tabs = tabs.map((t) => (t.relativePath === path ? { ...t, content } : t))
-    scheduleAutoSave()
   }
 
-  function scheduleAutoSave() {
-    if (!autoRebuild || !projectInfo) return
-    if (autoSaveTimer) clearTimeout(autoSaveTimer)
-    autoSaveTimer = setTimeout(async () => {
-      autoSaveTimer = null
-      if (tabs.some(isDirty)) {
-        await saveDirtyTabs()
-      }
-    }, AUTO_REBUILD_DEBOUNCE_MS)
-  }
-
-  async function syncAutoRebuildWatcher() {
+  async function onImportAsset() {
     if (!projectInfo) return
     try {
-      await setAutoRebuild(
-        autoRebuild,
+      const picked = await open({
+        multiple: false,
+        title: 'Import image to assets',
+        filters: IMAGE_DIALOG_FILTERS,
+      })
+      if (!picked || typeof picked !== 'string') return
+      const relativePath = await importBundleAsset(
         projectInfo.project_root,
         selectedSite,
-        strict,
-        PREVIEW_PORT,
+        picked,
       )
+      await refreshFileTree()
+      appendLog(`Imported asset → ${relativePath}`)
     } catch (err: unknown) {
-      appendLog(`Auto-rebuild watcher failed: ${String(err)}`)
+      appendLog(`Import asset failed: ${String(err)}`)
     }
   }
 
-  $effect(() => {
+  async function onRemoveAsset(relativePath: string) {
     if (!projectInfo) return
-    autoRebuild
-    selectedSite
-    strict
-    void syncAutoRebuildWatcher()
-  })
+    try {
+      const removed = await removeAssetWithConfirm(
+        projectInfo.project_root,
+        selectedSite,
+        relativePath,
+      )
+      if (!removed) return
+      if (imagePreviewPath === relativePath) {
+        imagePreviewPath = null
+      }
+      await refreshFileTree()
+      appendLog(`Removed asset ${relativePath}`)
+    } catch (err: unknown) {
+      appendLog(`Remove asset failed: ${String(err)}`)
+    }
+  }
 
   async function saveDirtyTabs(): Promise<boolean> {
     if (!projectInfo) return false
@@ -336,10 +375,6 @@
       return
     }
     busy = true
-    const wasAutoRebuild = autoRebuild
-    if (wasAutoRebuild) {
-      await setAutoRebuild(false, projectInfo.project_root, selectedSite, strict, PREVIEW_PORT)
-    }
     const buildGeneration = previewGeneration
     try {
       if (!(await saveDirtyTabs())) return
@@ -372,15 +407,6 @@
     } catch (err: unknown) {
       appendLog(`build failed: ${String(err)}`)
     } finally {
-      if (wasAutoRebuild && projectInfo) {
-        await setAutoRebuild(
-          true,
-          projectInfo.project_root,
-          selectedSite,
-          strict,
-          PREVIEW_PORT,
-        )
-      }
       busy = false
     }
   }
@@ -445,16 +471,27 @@
     try {
       const settings = await getStudioSettings()
       savedWorkspaceLayout = settings.workspace_layout ?? null
+      if (savedWorkspaceLayout?.log_collapsed !== undefined && savedWorkspaceLayout.log_collapsed !== null) {
+        logCollapsed = savedWorkspaceLayout.log_collapsed
+      }
+      if (savedWorkspaceLayout?.log_height_px) {
+        logHeightPx = savedWorkspaceLayout.log_height_px
+      }
+
+      const migratedTheme = settings.theme ? migrateBuiltinThemeId(settings.theme) : null
       const initialTheme =
-        settings.theme && isBuiltinThemeId(settings.theme)
+        migratedTheme ??
+        (settings.theme && isBuiltinThemeId(settings.theme)
           ? settings.theme
-          : DEFAULT_BUILTIN_THEME
+          : DEFAULT_BUILTIN_THEME)
       themeId = initialTheme
       applyBuiltinTheme(initialTheme, document.documentElement)
 
+      const savedSite = settings.last_selected_site
+
       if (settings.last_project_root) {
         try {
-          await loadProject(settings.last_project_root)
+          await loadProject(settings.last_project_root, savedSite)
           return
         } catch {
           appendLog('Saved project path invalid; using auto-detect.')
@@ -462,11 +499,7 @@
       }
       projectInfo = await resolveProjectRoot()
       bundles = await listContentBundles(projectInfo.project_root)
-      if (bundles.includes(DEFAULT_SITE)) {
-        selectedSite = DEFAULT_SITE
-      } else if (bundles.length > 0) {
-        selectedSite = bundles[0]
-      }
+      applySiteSelection(savedSite)
       await refreshFileTree()
       appendLog(`Project: ${projectInfo.project_root}`)
     } catch (err: unknown) {
@@ -477,26 +510,7 @@
   onMount(() => {
     initStudio()
 
-    let unlisten: (() => void) | undefined
     let unlistenClose: (() => void) | undefined
-
-    listen<WatchRebuildComplete>('watch-rebuild-complete', (event) => {
-      const { build, preview } = event.payload
-      setProblemsFromResult(build)
-      if (build.ok && build.output_dir) {
-        lastOutputDir = build.output_dir
-        appendLog(`Auto-rebuild OK → ${build.output_dir}`)
-        if (preview) {
-          previewUrl = preview.url
-          previewRefreshKey += 1
-          appendLog(`Preview: ${preview.url}`)
-        }
-      } else {
-        appendLog(`Auto-rebuild failed (${build.errors.length} error(s)).`)
-      }
-    }).then((fn) => {
-      unlisten = fn
-    })
 
     getCurrentWindow()
       .onCloseRequested(async () => {
@@ -509,16 +523,14 @@
       })
 
     return () => {
-      unlisten?.()
       unlistenClose?.()
-      if (autoSaveTimer) clearTimeout(autoSaveTimer)
     }
   })
 </script>
 
 <div class="studio">
   <header class="toolbar">
-    <button type="button" class="primary" disabled={busy} onclick={onOpenProject}>
+    <button type="button" disabled={busy} onclick={onOpenProject}>
       Open project
     </button>
 
@@ -558,11 +570,6 @@
       Strict
     </label>
 
-    <label class="strict" title="Watch content bundle and rebuild after saves (500 ms debounce)">
-      <input type="checkbox" bind:checked={autoRebuild} disabled={!projectInfo} />
-      Auto-rebuild
-    </label>
-
     <button type="button" disabled={!lastOutputDir} onclick={onOpenOutput}>
       Open output folder
     </button>
@@ -587,134 +594,152 @@
     {/if}
   </header>
 
-  <ResizableWorkspace
-    bind:sidebarWidth
-    bind:previewWidth
-    savedLayout={savedWorkspaceLayout}
-    onlayoutcommit={onWorkspaceLayoutCommit}
-  >
-    {#snippet sidebar()}
-      <div class="sidebar">
-        <FileTree
-          entries={fileEntries}
-          selectedPath={selectedTreePath()}
-          onselect={onTreeSelect}
-        />
-      </div>
-    {/snippet}
+  {#if projectInfo}
+    <StudioBundleProvider
+      projectRoot={projectInfo.project_root}
+      sitePath={selectedSite}
+      {imageAssets}
+      {refreshFileTree}
+    >
+      <ResizableWorkspace
+        bind:sidebarWidth
+        bind:previewWidth
+        savedLayout={savedWorkspaceLayout}
+        onlayoutcommit={onWorkspaceLayoutCommit}
+      >
+        {#snippet sidebar()}
+          <div class="sidebar">
+            <FileTree
+              entries={fileEntries}
+              selectedPath={selectedTreePath()}
+              onselect={onTreeSelect}
+              onimportasset={onImportAsset}
+              onremoveasset={(path) => void onRemoveAsset(path)}
+            />
+          </div>
+        {/snippet}
 
-    {#snippet main()}
-      <section class="center">
-        <div class="editor-area">
-          {#if tabs.length > 0 && !imagePreviewPath}
-            <div class="tab-bar" role="tablist">
-              {#each tabs as tab (tab.relativePath)}
-                <button
-                  type="button"
-                  role="tab"
-                  class:active={activeTabPath === tab.relativePath}
-                  aria-selected={activeTabPath === tab.relativePath}
-                  onclick={() => {
-                    imagePreviewPath = null
-                    activeTabPath = tab.relativePath
-                  }}
-                >
-                  {tab.relativePath}
-                  {#if isDirty(tab)}<span class="dirty">•</span>{/if}
-                  <span
-                    class="close"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Close tab"
-                    onclick={(e) => closeTab(tab.relativePath, e)}
-                    onkeydown={(e) => {
-                      if (e.key === 'Enter')
-                        closeTab(tab.relativePath, e as unknown as MouseEvent)
-                    }}>×</span
-                  >
-                </button>
-              {/each}
-            </div>
-          {/if}
-
-          <div class="editor-pane">
-            {#if imagePreviewPath && projectInfo}
-              <ImagePreviewPanel
-                projectRoot={projectInfo.project_root}
-                sitePath={selectedSite}
-                relativePath={imagePreviewPath}
-                onclose={closeImagePreview}
-              />
-            {:else if activeTab()}
-              {@const tab = activeTab()!}
-              {#if supportsFormView(tab.relativePath)}
-                <div class="site-view-bar" role="tablist" aria-label="Editor mode">
-                  <button
-                    type="button"
-                    role="tab"
-                    class:active={siteViewForTab(tab) === 'json'}
-                    aria-selected={siteViewForTab(tab) === 'json'}
-                    onclick={() => setSiteView(tab.relativePath, 'json')}
-                  >
-                    JSON
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    class:active={siteViewForTab(tab) === 'form'}
-                    aria-selected={siteViewForTab(tab) === 'form'}
-                    onclick={() => setSiteView(tab.relativePath, 'form')}
-                  >
-                    Form
-                  </button>
+        {#snippet main()}
+          <section class="center">
+            <div class="editor-area">
+              {#if tabs.length > 0 && !imagePreviewPath}
+                <div class="tab-bar" role="tablist">
+                  {#each tabs as tab (tab.relativePath)}
+                    <button
+                      type="button"
+                      role="tab"
+                      class:active={activeTabPath === tab.relativePath}
+                      aria-selected={activeTabPath === tab.relativePath}
+                      onclick={() => {
+                        imagePreviewPath = null
+                        activeTabPath = tab.relativePath
+                      }}
+                    >
+                      {tab.relativePath}
+                      {#if isDirty(tab)}<span class="dirty">•</span>{/if}
+                      <span
+                        class="close"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Close tab"
+                        onclick={(e) => closeTab(tab.relativePath, e)}
+                        onkeydown={(e) => {
+                          if (e.key === 'Enter')
+                            closeTab(tab.relativePath, e as unknown as MouseEvent)
+                        }}>×</span
+                      >
+                    </button>
+                  {/each}
                 </div>
               {/if}
-              <div class="editor-body">
-              {#key `${tab.relativePath}:${siteViewForTab(tab)}`}
-                {#if siteViewForTab(tab) === 'form'}
-                  {#if isSiteJson(tab.relativePath)}
-                    <SiteFormEditor value={tab.content} onchange={updateActiveContent} />
-                  {:else if isPageJson(tab.relativePath)}
-                    <PageFormEditor value={tab.content} onchange={updateActiveContent} />
-                  {:else}
-                    <JsonEditor
-                      relativePath={tab.relativePath}
-                      value={tab.content}
-                      onchange={updateActiveContent}
-                    />
-                  {/if}
-                {:else}
-                  <JsonEditor
-                    relativePath={tab.relativePath}
-                    value={tab.content}
-                    onchange={updateActiveContent}
+
+              <div class="editor-pane">
+                {#if imagePreviewPath}
+                  <ImagePreviewPanel
+                    projectRoot={projectInfo!.project_root}
+                    sitePath={selectedSite}
+                    relativePath={imagePreviewPath}
+                    onclose={closeImagePreview}
+                    onremove={() => void onRemoveAsset(imagePreviewPath!)}
                   />
+                {:else if activeTab()}
+                  {@const tab = activeTab()!}
+                  {#if supportsFormView(tab.relativePath)}
+                    <div class="site-view-bar" role="tablist" aria-label="Editor mode">
+                      <button
+                        type="button"
+                        role="tab"
+                        class:active={siteViewForTab(tab) === 'json'}
+                        aria-selected={siteViewForTab(tab) === 'json'}
+                        onclick={() => setSiteView(tab.relativePath, 'json')}
+                      >
+                        JSON
+                      </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        class:active={siteViewForTab(tab) === 'form'}
+                        aria-selected={siteViewForTab(tab) === 'form'}
+                        onclick={() => setSiteView(tab.relativePath, 'form')}
+                      >
+                        Form
+                      </button>
+                    </div>
+                  {/if}
+                  <div class="editor-body">
+                  {#key `${tab.relativePath}:${siteViewForTab(tab)}`}
+                    {#if siteViewForTab(tab) === 'form'}
+                      {#if isSiteJson(tab.relativePath)}
+                        <SiteFormEditor value={tab.content} onchange={updateActiveContent} />
+                      {:else if isPageJson(tab.relativePath)}
+                        <PageFormEditor value={tab.content} onchange={updateActiveContent} />
+                      {:else}
+                        <JsonEditor
+                          relativePath={tab.relativePath}
+                          value={tab.content}
+                          onchange={updateActiveContent}
+                        />
+                      {/if}
+                    {:else}
+                      <JsonEditor
+                        relativePath={tab.relativePath}
+                        value={tab.content}
+                        onchange={updateActiveContent}
+                      />
+                    {/if}
+                  {/key}
+                  </div>
+                {:else}
+                  <p class="editor-placeholder">Select a JSON or image file from the tree.</p>
                 {/if}
-              {/key}
               </div>
-            {:else}
-              <p class="editor-placeholder">Select a JSON or image file from the tree.</p>
-            {/if}
+            </div>
+            <ProblemsPanel items={problems} />
+          </section>
+        {/snippet}
+
+        {#snippet preview()}
+          <div class="preview">
+            <PreviewPanel
+              previewUrl={previewUrl}
+              refreshKey={previewRefreshKey}
+              onrefresh={() => (previewRefreshKey += 1)}
+            />
           </div>
-        </div>
-        <ProblemsPanel items={problems} />
-      </section>
-    {/snippet}
+        {/snippet}
+      </ResizableWorkspace>
+    </StudioBundleProvider>
+  {:else}
+    <div class="loading-placeholder">Loading project…</div>
+  {/if}
 
-    {#snippet preview()}
-      <div class="preview">
-        <PreviewPanel
-          previewUrl={previewUrl}
-          refreshKey={previewRefreshKey}
-          onrefresh={() => (previewRefreshKey += 1)}
-        />
-      </div>
-    {/snippet}
-  </ResizableWorkspace>
-
-  <footer class="log-footer">
-    <BuildLog lines={logs} />
-  </footer>
+  <LogPanel
+    lines={logs}
+    collapsed={logCollapsed}
+    heightPx={logHeightPx}
+    onTogglePanel={toggleLogPanel}
+    onheightchange={onLogHeightChange}
+  />
 </div>
 
 <style>
@@ -756,15 +781,10 @@
     cursor: not-allowed;
   }
 
-  .toolbar button.primary {
-    border-color: var(--color-accent);
-    background: var(--color-accent);
-    color: #fff;
-  }
-
   .theme-toggle {
     display: flex;
     gap: 0.2rem;
+    margin-left: auto;
   }
 
   .theme-toggle button {
@@ -797,7 +817,6 @@
   }
 
   .project-path {
-    margin-left: auto;
     max-width: 40%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -805,6 +824,15 @@
     font-size: 0.75rem;
     color: var(--color-text-secondary);
     font-family: ui-monospace, Consolas, monospace;
+  }
+
+  .loading-placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
   }
 
   .sidebar {
@@ -938,11 +966,5 @@
     border-left: 1px solid var(--color-border-subtle);
     min-height: 0;
     overflow: hidden;
-  }
-
-  .log-footer {
-    flex-shrink: 0;
-    height: 7rem;
-    min-height: 7rem;
   }
 </style>

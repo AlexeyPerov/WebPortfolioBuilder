@@ -10,6 +10,8 @@ export const DEFAULT_PREVIEW_RATIO = 0.38
 export type WorkspaceLayout = {
   sidebar_px?: number | null
   preview_px?: number | null
+  log_collapsed?: boolean | null
+  log_height_px?: number | null
 }
 
 export function defaultPreviewWidth(containerWidth: number): number {
