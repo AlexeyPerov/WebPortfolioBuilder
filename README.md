@@ -4,6 +4,10 @@ Create polished, multi-page portfolio websites without writing HTML by hand. Edi
 
 Each site lives in a **content folder** with simple JSON configuration, your images, and a shared design template. The app generates ready-to-upload HTML, CSS, and JavaScript.
 
+---
+![WebPortfolioBuilder-main-screen](Screenshots/web-portfolio-main.png)
+---
+
 ## Install
 
 Pre-built apps are produced on every successful build on the `main` branch.
