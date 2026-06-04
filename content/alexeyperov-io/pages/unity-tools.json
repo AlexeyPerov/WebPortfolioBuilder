@@ -15,19 +15,48 @@
       }
     },
     {
+      "type": "row",
+      "id": "dependencies-hunter-featured",
+      "props": {
+        "children": [
+          {
+            "type": "apps_showcase",
+            "props": {
+              "section_title": "",
+              "apps": [
+                {
+                  "image": "assets/github-logo.png",
+                  "title": "Unity Dependencies Hunter",
+                  "text_1": "Finds unreferenced assets by scanning all files in your Unity project.",
+                  "text_2": "Run from the Tools menu or project context menu; review full and unused-only analysis views before cleaning up.",
+                  "stat_left_line_1": "715+",
+                  "stat_left_line_2": "GitHub stars",
+                  "stat_right_line_1": "Unity",
+                  "stat_right_line_2": "Editor tool",
+                  "swiper_images": [
+                    "assets/dependencies-hunter-project-analysis-all.png",
+                    "assets/dependencies-hunter-project-analysis-unused.png",
+                    "assets/dependencies-hunter-context-menu-result.png"
+                  ],
+                  "card_background": "linear-gradient(145deg, #1e2840 0%, #151821 55%, #0c0e14 100%)",
+                  "store_links": [
+                    {
+                      "url": "https://github.com/AlexeyPerov/Unity-Dependencies-Hunter",
+                      "aria_label": "Unity Dependencies Hunter on GitHub",
+                      "icon_image": "assets/github-logo.png"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "type": "project_grid",
       "props": {
         "cards": [
-          {
-            "title": "Unity-Dependencies-Hunter",
-            "description": "Finds unreferenced assets by scanning all files in your Unity project.",
-            "tags": ["Unity", "Editor"],
-            "meta": "715 stars",
-            "cta": {
-              "label": "GitHub",
-              "url": "https://github.com/AlexeyPerov/Unity-Dependencies-Hunter"
-            }
-          },
           {
             "title": "Unity-MissingReferences-Hunter",
             "description": "Detects missing references by scanning asset GUIDs across the project.",
