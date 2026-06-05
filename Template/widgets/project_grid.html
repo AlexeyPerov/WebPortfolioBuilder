@@ -2,7 +2,7 @@
   <div class="container">
     {% if Heading %}<h2 class="center">{{ Heading }}</h2>{% endif %}
     {% if Subheading %}<p class="project-grid__sub center">{{ Subheading }}</p>{% endif %}
-    <div class="project-grid__grid" style="{{ GridStyle|safe }}">
+    <div class="project-grid__grid"{% if GridStyle %} style="{{ GridStyle }}"{% endif %}>
       {% for card in Cards %}
       <article class="project-card scroll-reveal{% if not card.HasImage %} project-card--no-media{% endif %}">
         {% if card.HasImage %}

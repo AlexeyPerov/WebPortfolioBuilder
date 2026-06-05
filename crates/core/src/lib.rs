@@ -26,8 +26,8 @@ pub use render::{
     validate_site, validate_site_bundle, validate_site_bundle_only,
 };
 pub use routing::{
-    build_route_index, normalized_slug, resolve_internal_slug_reference, resolve_nav_href,
-    PageRoute, RouteIndex,
+    build_route_index, is_nav_item_active, normalized_slug, resolve_internal_slug_reference,
+    resolve_nav_href, PageRoute, RouteIndex,
 };
 pub use strict::{enforce_strict_warnings, handle_config_warnings, print_config_warnings};
 pub use types::{ConfigWarning, SiteBundle};

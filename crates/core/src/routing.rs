@@ -68,6 +68,20 @@ pub fn normalized_slug(slug: &str) -> CoreResult<String> {
     Ok(s.replace('\\', "/"))
 }
 
+/// Whether a header nav item should be marked active on the server.
+/// Hash-only anchors are left to client scroll-spy (`nav.js`).
+pub fn is_nav_item_active(current: &PageRoute, raw_href: &str) -> CoreResult<bool> {
+    let href = raw_href.trim();
+    if href.starts_with('#') {
+        return Ok(false);
+    }
+    if is_external_or_special_href(href) {
+        return Ok(false);
+    }
+    let (target_slug, _) = parse_slug_reference(href)?;
+    Ok(target_slug == current.slug)
+}
+
 pub fn resolve_nav_href(
     current: &PageRoute,
     raw_href: &str,

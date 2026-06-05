@@ -50,7 +50,7 @@ use std::collections::HashSet;
 
 fn widget_allowed_keys(widget_type: &str) -> Option<HashSet<&'static str>> {
     let keys: &[&str] = match widget_type {
-        "intro" => &["title", "paragraphs"],
+        "intro" => &["title", "paragraphs", "cta"],
         "cover_banner" => &["src", "alt"],
         "follow_us" => &["title"],
         "info_grid" => &["title", "items"],

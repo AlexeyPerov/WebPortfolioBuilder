@@ -4,8 +4,9 @@ mod common;
 
 use common::workspace_root;
 use portfoliowebsitebuilder_core::{
-    build_route_index, load_site_bundle, normalized_slug, resolve_internal_slug_reference,
-    resolve_nav_href, validated_output_folder_for, PageRoute, SiteBundle,
+    build_route_index, is_nav_item_active, load_site_bundle, normalized_slug,
+    resolve_internal_slug_reference, resolve_nav_href, validated_output_folder_for, PageRoute,
+    SiteBundle,
 };
 use std::collections::HashMap;
 
@@ -90,6 +91,16 @@ fn resolve_nav_href_empty_href_is_home() {
     let routes = sample_routes();
     let from_about = resolve_nav_href(&routes["about"], "", &routes).unwrap();
     assert_eq!(from_about, "../");
+}
+
+#[test]
+fn is_nav_item_active_matches_page_slug() {
+    let routes = sample_routes();
+    assert!(is_nav_item_active(&routes["about"], "about").unwrap());
+    assert!(!is_nav_item_active(&routes["about"], "").unwrap());
+    assert!(is_nav_item_active(&routes[""], "").unwrap());
+    assert!(!is_nav_item_active(&routes[""], "about").unwrap());
+    assert!(!is_nav_item_active(&routes[""], "#intro").unwrap());
 }
 
 #[test]

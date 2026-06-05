@@ -60,7 +60,7 @@
         </button>
         <nav class="site-nav" id="site-nav" aria-label="Site navigation">
           {% for item in HeaderNav %}
-          <a class="site-nav__link" href="{{ item.Href }}"{% if item.OpenNewTab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ item.Label }}</a>
+          <a class="site-nav__link{% if item.IsActive %} site-nav__link--active{% endif %}" href="{{ item.Href }}"{% if item.OpenNewTab %} target="_blank" rel="noopener noreferrer"{% endif %}{% if item.IsActive %} aria-current="page"{% endif %}>{{ item.Label }}</a>
           {% endfor %}
         </nav>
         {% endif %}

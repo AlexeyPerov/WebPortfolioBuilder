@@ -136,7 +136,8 @@
         "paragraphs": {
           "type": "array",
           "items": { "type": "string" }
-        }
+        },
+        "cta": { "$ref": "#/$defs/projectGridCta" }
       }
     },
     "coverBannerProps": {

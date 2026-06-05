@@ -303,7 +303,11 @@ fn render_leaf_widget(
 ) -> CoreResult<(String, Vec<ConfigWarning>)> {
     match widget_type {
         "intro" => {
-            let data = parse_intro_props(widget, path)?;
+            let id = widget.id.trim();
+            if !id.is_empty() && !is_safe_html_id(id) {
+                return Err(CoreError::msg(format!("{path}.id: invalid id {id:?}")));
+            }
+            let data = parse_intro_props(ctx, widget, path, id)?;
             if data.is_none() {
                 return Ok((String::new(), vec![]));
             }
@@ -339,7 +343,11 @@ fn render_leaf_widget(
             vec![],
         )),
         "images_grid" => {
-            let (data, warnings) = parse_images_grid_props(ctx, widget, path)?;
+            let id = widget.id.trim();
+            if !id.is_empty() && !is_safe_html_id(id) {
+                return Err(CoreError::msg(format!("{path}.id: invalid id {id:?}")));
+            }
+            let (data, warnings) = parse_images_grid_props(ctx, widget, path, id)?;
             Ok((
                 execute_widget_template(ctx.env, "images_grid", data)?,
                 warnings,
@@ -398,13 +406,27 @@ fn render_leaf_widget(
     }
 }
 
-fn parse_intro_props(widget: &WidgetNode, path: &str) -> CoreResult<Option<JsonValue>> {
+fn parse_intro_props(
+    ctx: &WidgetRenderContext<'_>,
+    widget: &WidgetNode,
+    path: &str,
+    widget_id: &str,
+) -> CoreResult<Option<JsonValue>> {
+    #[derive(serde::Deserialize, Default)]
+    struct CtaRaw {
+        #[serde(default)]
+        label: String,
+        #[serde(default)]
+        url: String,
+    }
     #[derive(serde::Deserialize)]
     struct Raw {
         #[serde(default)]
         title: String,
         #[serde(default)]
         paragraphs: Vec<String>,
+        #[serde(default)]
+        cta: Option<CtaRaw>,
     }
     let p: Raw = props_to_struct(&widget.props, path)?;
     let title = p.title.trim();
@@ -418,7 +440,31 @@ fn parse_intro_props(widget: &WidgetNode, path: &str) -> CoreResult<Option<JsonV
         eprintln!("Warning: {path} -> intro: empty title and paragraphs; rendering nothing");
         return Ok(None);
     }
-    Ok(Some(json!({ "Title": title, "Paragraphs": paras })))
+    let section_attr = if widget_id.is_empty() {
+        String::new()
+    } else {
+        format!(r#" id="{}""#, html_escape(widget_id))
+    };
+    let mut data = json!({
+        "SectionIDAttr": section_attr,
+        "Title": title,
+        "Paragraphs": paras,
+    });
+    if let Some(cta) = p.cta {
+        let cta_url = cta.url.trim();
+        if !cta_url.is_empty() {
+            let resolved = resolve_project_grid_cta(ctx, cta_url)?;
+            let cta_label = if cta.label.trim().is_empty() {
+                "Learn more".to_string()
+            } else {
+                cta.label.trim().to_string()
+            };
+            data["CtaURL"] = json!(resolved);
+            data["CtaLabel"] = json!(cta_label);
+            data["CtaAttrs"] = json!(external_link_attrs(&resolved));
+        }
+    }
+    Ok(Some(data))
 }
 
 fn parse_cover_banner_props(
@@ -573,6 +619,7 @@ fn parse_images_grid_props(
     ctx: &WidgetRenderContext<'_>,
     widget: &WidgetNode,
     path: &str,
+    widget_id: &str,
 ) -> CoreResult<(JsonValue, Vec<ConfigWarning>)> {
     let raw = widget.props.get("images").ok_or_else(|| {
         CoreError::msg(format!(
@@ -600,8 +647,14 @@ fn parse_images_grid_props(
         title: String,
     }
     let top: Top = props_to_struct(&widget.props, path).unwrap_or_default();
+    let section_id = if widget_id.is_empty() { "photos" } else { widget_id };
+    let section_attr = format!(r#" id="{}""#, crate::html::html_escape(section_id));
     Ok((
-        json!({ "Title": top.title.trim(), "Images": images }),
+        json!({
+            "SectionIDAttr": section_attr,
+            "Title": top.title.trim(),
+            "Images": images,
+        }),
         warnings,
     ))
 }

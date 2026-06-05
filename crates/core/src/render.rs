@@ -231,10 +231,12 @@ pub fn render_header_nav_for_page(
                 CoreError::msg(format!("{} -> header.nav[{i}].href: {e}", bundle.site_path))
             })?;
         let open_new_tab = item.open_in_new_tab && resolved.to_lowercase().starts_with("http");
+        let is_active = crate::routing::is_nav_item_active(route, &item.href)?;
         out.push(json!({
             "Label": label,
             "Href": resolved,
             "OpenNewTab": open_new_tab,
+            "IsActive": is_active,
         }));
     }
     Ok(out)

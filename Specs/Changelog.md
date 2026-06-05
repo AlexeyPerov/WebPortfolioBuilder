@@ -1,5 +1,21 @@
 # Specs / implementation changelog
 
+## 2026-06-05 — Composer — AlexeyPerov.io Home CTA, Tools spacing
+
+- `intro` widgets accept optional `cta` (`label`, `url`) rendered as a pill button below paragraphs (`widgets.rs`, `Template/widgets/intro.html`, `Template/styles.css`).
+- Home page adds **View Projects** → `unity-tools`; Tools page halves vertical gap between intro and project grid via `#tools-intro` / `#tools-projects`.
+
+---
+
+## 2026-06-05 — Composer — AlexeyPerov.io nav, Unity Tools CTAs, SpecOps panels
+
+- Header nav marks the current page with `site-nav__link--active` server-side (`is_nav_item_active`, `layout.html`); hash-only anchors still use `nav.js` scroll-spy.
+- Unity Tools featured showcases: GitHub store links styled as blue pill CTAs matching `project_grid` (`Template/styles.css`).
+- SpecOps `images_grid` uses `id: specops-screenshots`; screenshots sit in gradient panels with halved vertical section spacing.
+- `images_grid` widgets accept optional top-level `id` for section targeting.
+
+---
+
 ## 2026-06-05 — Composer — Site favicon field (favicon without header logo)
 
 - Added top-level `favicon` in `site.json` (schema, `SiteConfig`, asset pipeline, render). `SiteIconHref` prefers `favicon`, then falls back to `header.brand.logo` for existing bundles.

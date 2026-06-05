@@ -16,6 +16,7 @@
     },
     {
       "type": "images_grid",
+      "id": "specops-screenshots",
       "props": {
         "images": [
           {

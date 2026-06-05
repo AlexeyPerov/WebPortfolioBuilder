@@ -103,6 +103,73 @@ fn build_rendered_page_data_applies_merge_model() {
 }
 
 #[test]
+fn build_rendered_page_data_marks_active_nav_item() {
+    let Some(template_dir) = template_dir() else {
+        eprintln!("skip active nav test: Template not present");
+        return;
+    };
+    let bundle = SiteBundle {
+        site_dir: "content/demo".into(),
+        site_path: "content/demo/site.json".into(),
+        site: SiteConfig {
+            site_id: "demo-site".into(),
+            header: HeaderConfig {
+                nav: vec![
+                    NavItem {
+                        label: "Home".into(),
+                        href: String::new(),
+                        open_in_new_tab: false,
+                    },
+                    NavItem {
+                        label: "About".into(),
+                        href: "about".into(),
+                        open_in_new_tab: false,
+                    },
+                ],
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        pages: vec![
+            SitePageFile {
+                path: "content/demo/pages/home.json".into(),
+                page: PageConfig {
+                    slug: String::new(),
+                    ..Default::default()
+                },
+                has_slug: true,
+                has_widgets: true,
+            },
+            SitePageFile {
+                path: "content/demo/pages/about.json".into(),
+                page: PageConfig {
+                    slug: "about".into(),
+                    ..Default::default()
+                },
+                has_slug: true,
+                has_widgets: true,
+            },
+        ],
+    };
+
+    let routes = build_route_index(&bundle).unwrap();
+    let widget_env = load_widget_env(&template_dir).unwrap();
+    let about_route = routes.ordered.iter().find(|r| r.slug == "about").unwrap();
+    let (data, _) = build_rendered_page_data(
+        &bundle,
+        &bundle.pages[1],
+        about_route,
+        &routes,
+        &widget_env,
+    )
+    .unwrap();
+
+    let nav = data["HeaderNav"].as_array().unwrap();
+    assert_eq!(nav[0]["IsActive"], json!(false));
+    assert_eq!(nav[1]["IsActive"], json!(true));
+}
+
+#[test]
 fn build_rendered_page_data_hides_empty_header_brand() {
     let Some(template_dir) = template_dir() else {
         eprintln!("skip header brand test: Template not present");
