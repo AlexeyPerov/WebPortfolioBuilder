@@ -2,6 +2,7 @@
   "site_id": "alexeyperov-io",
   "output_folder": "Results/AlexeyPerovWebsite",
   "base_url": "https://alexeyperov.github.io",
+  "favicon": "assets/github-logo.png",
   "theme": {
     "page_bg": "#0c0e14",
     "surface": "#151821",

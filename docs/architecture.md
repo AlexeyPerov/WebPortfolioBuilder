@@ -116,7 +116,7 @@ Template engine choice and escaping policy: [`crates/core/README.md`](../crates/
 
 ### `site.json`
 
-Site-wide configuration: identity, `output_folder`, `base_url`, `theme` (CSS custom properties), `typography`, `header` (brand + nav), `footer`, `social`, `store_icons`, optional `subscribe_block` and widget-level defaults.
+Site-wide configuration: identity, `output_folder`, `base_url`, `favicon`, `theme` (CSS custom properties), `typography`, `header` (brand + nav), `footer`, `social`, `store_icons`, optional `subscribe_block` and widget-level defaults.
 
 Schema: [`docs/schema/site.schema.json`](./schema/site.schema.json).
 

@@ -17,6 +17,7 @@ const SITE_TOP_LEVEL_KEYS: &[&str] = &[
     "header",
     "footer",
     "base_url",
+    "favicon",
     "widgets",
 ];
 

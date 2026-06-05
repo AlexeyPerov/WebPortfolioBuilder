@@ -1,5 +1,12 @@
 # Specs / implementation changelog
 
+## 2026-06-05 — Composer — Site favicon field (favicon without header logo)
+
+- Added top-level `favicon` in `site.json` (schema, `SiteConfig`, asset pipeline, render). `SiteIconHref` prefers `favicon`, then falls back to `header.brand.logo` for existing bundles.
+- Set `favicon` to `assets/github-logo.png` for `content/alexeyperov-io` without restoring a header brand image.
+
+---
+
 ## 2026-06-03 — Composer — AlexeyPerov.io Tasks 9–11: hardening, prune, validate/QA
 
 - Marked **Tasks 9**, **10**, and **11** as `[DONE]` in [website-io/improvements-plan.md](./website-io/improvements-plan.md).

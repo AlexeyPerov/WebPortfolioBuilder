@@ -64,6 +64,11 @@ fn collect_bundle_asset_references(bundle: &SiteBundle) -> CoreResult<Vec<Bundle
 
     add_known(
         &mut refs,
+        &bundle.site.favicon,
+        &format!("{} -> favicon", bundle.site_path),
+    )?;
+    add_known(
+        &mut refs,
         &bundle.site.header.brand.logo,
         &format!("{} -> header.brand.logo", bundle.site_path),
     )?;

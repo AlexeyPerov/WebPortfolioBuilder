@@ -64,6 +64,8 @@ pub struct SiteConfig {
     #[serde(default)]
     pub base_url: String,
     #[serde(default)]
+    pub favicon: String,
+    #[serde(default)]
     pub widgets: WidgetsConfig,
 }
 

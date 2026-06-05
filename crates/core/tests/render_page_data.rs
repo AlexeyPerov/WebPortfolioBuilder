@@ -158,6 +158,64 @@ fn build_rendered_page_data_hides_empty_header_brand() {
 }
 
 #[test]
+fn build_rendered_page_data_favicon_without_header_brand() {
+    let Some(template_dir) = template_dir() else {
+        eprintln!("skip favicon test: Template not present");
+        return;
+    };
+    let mut props = HashMap::new();
+    props.insert("title".to_string(), json!("Hi"));
+
+    let bundle = SiteBundle {
+        site_dir: "content/alexeyperov-io".into(),
+        site_path: "content/alexeyperov-io/site.json".into(),
+        site: SiteConfig {
+            site_id: "alexeyperov-io".into(),
+            favicon: "assets/github-logo.png".into(),
+            header: HeaderConfig {
+                brand: HeaderBrand::default(),
+                nav: vec![NavItem {
+                    label: "Home".into(),
+                    href: "".into(),
+                    open_in_new_tab: false,
+                }],
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        pages: vec![SitePageFile {
+            path: "content/alexeyperov-io/pages/home.json".into(),
+            page: PageConfig {
+                slug: String::new(),
+                widgets: vec![WidgetNode {
+                    widget_type: "intro".into(),
+                    id: String::new(),
+                    enabled: None,
+                    props,
+                }],
+                ..Default::default()
+            },
+            has_slug: true,
+            has_widgets: true,
+        }],
+    };
+
+    let routes = build_route_index(&bundle).unwrap();
+    let widget_env = load_widget_env(&template_dir).unwrap();
+    let (data, _) = build_rendered_page_data(
+        &bundle,
+        &bundle.pages[0],
+        &routes.ordered[0],
+        &routes,
+        &widget_env,
+    )
+    .unwrap();
+    assert_eq!(data["ShowHeaderBrand"], json!(false));
+    assert_eq!(data["SiteIconHref"], json!("assets/github-logo.png"));
+    assert_eq!(data["HeaderBrandLogo"], json!(""));
+}
+
+#[test]
 fn build_rendered_page_data_emits_social_meta_fields() {
     let Some(template_dir) = template_dir() else {
         eprintln!("skip social meta test: Template not present");

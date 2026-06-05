@@ -144,6 +144,12 @@ pub fn build_rendered_page_data(
     let header_brand_logo = resolve_asset_href_for_page(&bundle.site.header.brand.logo, route);
     let header_brand_text = bundle.site.header.brand.text.trim().to_string();
     let show_header_brand = !header_brand_logo.is_empty() || !header_brand_text.is_empty();
+    let favicon_href = resolve_asset_href_for_page(&bundle.site.favicon, route);
+    let site_icon_href = if !favicon_href.is_empty() {
+        favicon_href
+    } else {
+        header_brand_logo.clone()
+    };
 
     let header_nav = render_header_nav_for_page(bundle, route, routes)?;
 
@@ -177,7 +183,7 @@ pub fn build_rendered_page_data(
         "TypographyFontHeading": font_heading,
         "TypographyFontBody": font_body,
         "ThemeCSSVariables": theme_css,
-        "SiteIconHref": header_brand_logo,
+        "SiteIconHref": site_icon_href,
         "ShowHeader": show_header,
         "ShowFooter": show_footer,
         "ShowHeaderBrand": show_header_brand,

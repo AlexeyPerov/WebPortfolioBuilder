@@ -21,6 +21,10 @@
       "type": "string",
       "description": "Canonical site URL for Open Graph and absolute links. Placeholder values are fine until deployment."
     },
+    "favicon": {
+      "type": "string",
+      "description": "Browser tab icon path under assets/. When set, used for <link rel=\"icon\"> without requiring header.brand.logo."
+    },
     "theme": {
       "type": "object",
       "description": "CSS custom property tokens injected into :root (keys become --kebab-case variables).",
