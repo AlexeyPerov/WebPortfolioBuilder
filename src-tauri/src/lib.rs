@@ -7,7 +7,30 @@ pub mod site_template;
 pub mod studio_files;
 
 use preview_server::PreviewServerState;
-use tauri::Manager;
+use tauri::menu::{Menu, MenuItem, Submenu};
+use tauri::{Emitter, Manager};
+
+fn setup_studio_menu(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    let save = MenuItem::with_id(app, "file_save", "Save", true, Some("CmdOrCtrl+S"))?;
+    let save_all = MenuItem::with_id(app, "file_save_all", "Save All", true, None::<&str>)?;
+    let file = Submenu::with_items(app, "File", true, &[&save, &save_all])?;
+    let menu = Menu::with_items(app, &[&file])?;
+    app.set_menu(menu)?;
+
+    let handle = app.handle().clone();
+    app.on_menu_event(move |_app, event| {
+        let event_name = match event.id().as_ref() {
+            "file_save" => Some("studio-save"),
+            "file_save_all" => Some("studio-save-all"),
+            _ => None,
+        };
+        if let Some(name) = event_name {
+            let _ = handle.emit(name, ());
+        }
+    });
+
+    Ok(())
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -30,12 +53,14 @@ pub fn run() {
             commands::write_bundle_file_cmd,
             commands::import_bundle_asset_cmd,
             commands::delete_bundle_asset_cmd,
+            commands::rename_bundle_asset_cmd,
             commands::create_site_from_template,
         ])
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(|app| {
+            setup_studio_menu(app)?;
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()

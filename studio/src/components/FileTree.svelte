@@ -7,10 +7,20 @@
     selectedPath: string | null
     onselect?: (relativePath: string) => void
     onimportasset?: () => void
+    onrenameasset?: (relativePath: string) => void
+    oncopyassetpath?: (relativePath: string) => void
     onremoveasset?: (relativePath: string) => void
   }
 
-  let { entries, selectedPath, onselect, onimportasset, onremoveasset }: Props = $props()
+  let {
+    entries,
+    selectedPath,
+    onselect,
+    onimportasset,
+    onrenameasset,
+    oncopyassetpath,
+    onremoveasset,
+  }: Props = $props()
 
   let contextMenu = $state<{ path: string; x: number; y: number } | null>(null)
 
@@ -29,6 +39,18 @@
 
   function closeContextMenu() {
     contextMenu = null
+  }
+
+  function renameFromMenu() {
+    if (!contextMenu) return
+    onrenameasset?.(contextMenu.path)
+    closeContextMenu()
+  }
+
+  function copyPathFromMenu() {
+    if (!contextMenu) return
+    oncopyassetpath?.(contextMenu.path)
+    closeContextMenu()
   }
 
   function removeFromMenu() {
@@ -89,12 +111,17 @@
 </nav>
 
 {#if contextMenu}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="context-menu"
     style:left="{contextMenu.x}px"
     style:top="{contextMenu.y}px"
     role="menu"
+    onclick={(e) => e.stopPropagation()}
   >
+    <button type="button" role="menuitem" onclick={copyPathFromMenu}>Copy Path</button>
+    <button type="button" role="menuitem" onclick={renameFromMenu}>Rename</button>
     <button type="button" class="danger" role="menuitem" onclick={removeFromMenu}>Remove</button>
   </div>
 {/if}

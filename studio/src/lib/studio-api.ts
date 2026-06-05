@@ -157,6 +157,25 @@ export function deleteBundleAsset(
   })
 }
 
+export type RenameBundleAssetResult = {
+  new_relative_path: string
+  updated_sites: string[]
+}
+
+export function renameBundleAsset(
+  projectRoot: string,
+  sitePath: string,
+  relativePath: string,
+  newName: string,
+) {
+  return invoke<RenameBundleAssetResult>('rename_bundle_asset_cmd', {
+    projectRoot,
+    sitePath,
+    relativePath,
+    newName,
+  })
+}
+
 export function createSiteFromTemplate(projectRoot: string, siteId: string) {
   return invoke<string>('create_site_from_template', { projectRoot, siteId })
 }

@@ -19,7 +19,7 @@
       "props": {
         "cards": [
           {
-            "title": "SimilarTexturesFinder",
+            "title": "Similar Textures Finder",
             "description": "Desktop app for finding duplicate and near-duplicate texture images.",
             "tags": ["Desktop", "Textures"],
             "meta": "Desktop",
@@ -29,7 +29,7 @@
             }
           },
           {
-            "title": "crunch_textures",
+            "title": "Crunch Textures",
             "description": "Check and resize textures for Crunch compression (width/height multiple of 4).",
             "tags": ["Desktop", "Textures"],
             "meta": "11 stars",
@@ -39,7 +39,7 @@
             }
           },
           {
-            "title": "LogKeeper-Flutter-Firebase",
+            "title": "Log Keeper",
             "description": "Cross-platform log snapshot sharing (Flutter/Dart, Bloc, Firebase Firestore).",
             "tags": ["Flutter", "Logging"],
             "meta": "5 stars",

@@ -54,43 +54,130 @@
       }
     },
     {
+      "type": "row",
+      "id": "missing-references-hunter-featured",
+      "props": {
+        "children": [
+          {
+            "type": "apps_showcase",
+            "props": {
+              "section_title": "",
+              "apps": [
+                {
+                  "image": "assets/github-logo.png",
+                  "title": "Unity Missing References Hunter",
+                  "text_1": "Detects missing references by scanning asset GUIDs across the project.",
+                  "text_2": "Find broken links before they surface as runtime errors or build failures.",
+                  "stat_left_line_1": "98+",
+                  "stat_left_line_2": "GitHub stars",
+                  "stat_right_line_1": "Unity",
+                  "stat_right_line_2": "Editor tool",
+                  "swiper_images": [
+                    "assets/mrf-main_window.png"
+                  ],
+                  "card_background": "linear-gradient(145deg, #1e2840 0%, #151821 55%, #0c0e14 100%)",
+                  "store_links": [
+                    {
+                      "url": "https://github.com/AlexeyPerov/Unity-MissingReferences-Hunter",
+                      "aria_label": "Unity Missing References Hunter on GitHub",
+                      "icon_image": "assets/github-logo.png"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "row",
+      "id": "textures-hunter-featured",
+      "props": {
+        "children": [
+          {
+            "type": "apps_showcase",
+            "props": {
+              "section_title": "",
+              "apps": [
+                {
+                  "image": "assets/github-logo.png",
+                  "title": "Unity Textures Hunter",
+                  "text_1": "Summary of all textures and atlases in a Unity project.",
+                  "text_2": "Inspect sizes, formats, and atlas usage to optimize memory and build weight.",
+                  "stat_left_line_1": "84+",
+                  "stat_left_line_2": "GitHub stars",
+                  "stat_right_line_1": "Unity",
+                  "stat_right_line_2": "Editor tool",
+                  "swiper_images": [
+                    "assets/th_atlases_screen.png",
+                    "assets/th_textures_screen.png"
+                  ],
+                  "card_background": "linear-gradient(145deg, #1e2840 0%, #151821 55%, #0c0e14 100%)",
+                  "store_links": [
+                    {
+                      "url": "https://github.com/AlexeyPerov/Unity-Textures-Hunter",
+                      "aria_label": "Unity Textures Hunter on GitHub",
+                      "icon_image": "assets/github-logo.png"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "row",
+      "id": "unity-scanner-featured",
+      "props": {
+        "children": [
+          {
+            "type": "apps_showcase",
+            "props": {
+              "section_title": "",
+              "apps": [
+                {
+                  "image": "assets/github-logo.png",
+                  "title": "Unity Scanner",
+                  "text_1": "Unified Editor and MCP tool for project health analysis across dependencies, materials, textures, addressables, and more.",
+                  "text_2": "One entry point for the Hunter family of tools and automated project checks.",
+                  "stat_left_line_1": "2+",
+                  "stat_left_line_2": "GitHub stars",
+                  "stat_right_line_1": "Unity",
+                  "stat_right_line_2": "Editor & MCP",
+                  "swiper_images": [
+                    "assets/dependencies-hunter-project-analysis-all.png",
+                    "assets/dependencies-hunter-project-analysis-unused.png",
+                    "assets/dependencies-hunter-context-menu-result.png"
+                  ],
+                  "card_background": "linear-gradient(145deg, #1e2840 0%, #151821 55%, #0c0e14 100%)",
+                  "store_links": [
+                    {
+                      "url": "https://github.com/AlexeyPerov/Unity-Scanner",
+                      "aria_label": "Unity Scanner on GitHub",
+                      "icon_image": "assets/github-logo.png"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "type": "project_grid",
       "props": {
         "cards": [
           {
-            "title": "Unity-MissingReferences-Hunter",
-            "description": "Detects missing references by scanning asset GUIDs across the project.",
-            "tags": ["Unity", "Editor"],
-            "meta": "98 stars",
-            "cta": {
-              "label": "GitHub",
-              "url": "https://github.com/AlexeyPerov/Unity-MissingReferences-Hunter"
-            }
-          },
-          {
-            "title": "Unity-Textures-Hunter",
-            "description": "Summary of all textures and atlases in a Unity project.",
-            "tags": ["Unity", "Editor"],
-            "meta": "84 stars",
-            "cta": {
-              "label": "GitHub",
-              "url": "https://github.com/AlexeyPerov/Unity-Textures-Hunter"
-            }
-          },
-          {
-            "title": "Unity-Scanner",
-            "description": "Unified Editor and MCP tool for project health analysis across dependencies, materials, textures, addressables, and more.",
-            "tags": ["Unity", "Editor", "MCP"],
-            "meta": "Unity Editor",
-            "cta": {
-              "label": "GitHub",
-              "url": "https://github.com/AlexeyPerov/Unity-Scanner"
-            }
-          },
-          {
             "title": "Unity-Addressables-BuildLayout-Inspector",
             "description": "Analyze Addressables build layouts — bundles, groups, assets, duplicates, and cross-build comparisons.",
-            "tags": ["Unity", "Addressables"],
+            "tags": [
+              "Unity",
+              "Addressables"
+            ],
             "meta": "Unity Editor",
             "cta": {
               "label": "GitHub",
@@ -100,7 +187,10 @@
           {
             "title": "Unity-Materials-Hunter",
             "description": "Summary of all materials and renderers in a Unity project.",
-            "tags": ["Unity", "Editor"],
+            "tags": [
+              "Unity",
+              "Editor"
+            ],
             "meta": "Unity Editor",
             "cta": {
               "label": "GitHub",
@@ -110,7 +200,10 @@
           {
             "title": "Unity-Asset-Inspector",
             "description": "Inspect asset references, serialized dependencies, and optional Addressables/bundle context.",
-            "tags": ["Unity", "Editor"],
+            "tags": [
+              "Unity",
+              "Editor"
+            ],
             "meta": "Unity Editor",
             "cta": {
               "label": "GitHub",
@@ -120,7 +213,10 @@
           {
             "title": "Unity-Lite-Editor-Coroutines",
             "description": "Lightweight alternative to Unity Editor Coroutines.",
-            "tags": ["Unity", "Editor"],
+            "tags": [
+              "Unity",
+              "Editor"
+            ],
             "meta": "Unity Editor",
             "cta": {
               "label": "GitHub",

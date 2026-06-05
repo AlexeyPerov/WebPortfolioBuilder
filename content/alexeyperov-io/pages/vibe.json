@@ -10,8 +10,8 @@
       "props": {
         "title": "Vibe Tracker",
         "paragraphs": [
-          "Vibe Tracker is a self-hosted task management system you run on your own infrastructure. It combines a Fastify API backend, a Svelte 5 single-page app, and a Tauri launcher — deployed with Docker Compose and managed through an interactive CLI for setup, backups, SSL, and upgrades.",
-          "The repository is private until MVP release; screenshots will be added when the product is ready to share publicly."
+          "Right now I am vibe-coding the Vibe Tracker - a self-hosted open-source task management system. Tech: Fastify API backend, Drizzle ORM, a Svelte 5 single-page app.",
+          "The repository is private until MVP release."
         ]
       }
     }

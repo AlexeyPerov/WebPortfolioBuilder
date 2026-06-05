@@ -5,7 +5,8 @@ use crate::site_ops::{run_build, run_validate};
 use crate::site_template;
 use crate::studio_files::{
     delete_bundle_asset, import_bundle_asset, list_bundle_files, project_info_at, read_bundle_file,
-    read_bundle_image, write_bundle_file, BundleFileEntry, BundleImagePreview,
+    read_bundle_image, rename_bundle_asset, write_bundle_file, BundleFileEntry, BundleImagePreview,
+    RenameBundleAssetResult,
 };
 use portfoliowebsitebuilder_core::{
     discover_content_bundles, resolve_project_root as core_resolve_project_root,
@@ -160,4 +161,14 @@ pub fn delete_bundle_asset_cmd(
     relative_path: String,
 ) -> Result<(), String> {
     delete_bundle_asset(&project_root, &site_path, &relative_path)
+}
+
+#[tauri::command]
+pub fn rename_bundle_asset_cmd(
+    project_root: String,
+    site_path: String,
+    relative_path: String,
+    new_name: String,
+) -> Result<RenameBundleAssetResult, String> {
+    rename_bundle_asset(&project_root, &site_path, &relative_path, &new_name)
 }

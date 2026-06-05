@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { listen } from '@tauri-apps/api/event'
   import { getCurrentWindow } from '@tauri-apps/api/window'
   import { message, open } from '@tauri-apps/plugin-dialog'
   import { revealItemInDir } from '@tauri-apps/plugin-opener'
+  import AssetRenameModal from './components/AssetRenameModal.svelte'
   import FileTree from './components/FileTree.svelte'
   import JsonEditor from './components/JsonEditor.svelte'
   import SiteFormEditor from './components/SiteFormEditor.svelte'
@@ -18,6 +20,7 @@
     createSiteFromTemplate,
     getStudioSettings,
     importBundleAsset,
+    renameBundleAsset,
     listBundleFiles,
     listContentBundles,
     projectInfoForRoot,
@@ -52,7 +55,11 @@
     supportsFormView,
   } from './lib/editor-schema'
   import { isImageFile } from './lib/image-files'
-  import { IMAGE_DIALOG_FILTERS, removeAssetWithConfirm } from './lib/asset-actions'
+  import {
+    copyAssetPathToClipboard,
+    IMAGE_DIALOG_FILTERS,
+    removeAssetWithConfirm,
+  } from './lib/asset-actions'
 
   const DEFAULT_SITE = 'content/kometa'
   const PREVIEW_PORT = 8080
@@ -98,6 +105,7 @@
   let logCollapsed = $state(true)
   let logHeightPx = $state(DEFAULT_LOG_HEIGHT_PX)
   let savedWorkspaceLayout = $state<WorkspaceLayout | null>(null)
+  let renameAssetPath = $state<string | null>(null)
 
   const imageAssets = $derived(
     fileEntries
@@ -319,33 +327,147 @@
     }
   }
 
-  async function saveDirtyTabs(): Promise<boolean> {
-    if (!projectInfo) return false
+  async function onCopyAssetPath(relativePath: string) {
+    try {
+      await copyAssetPathToClipboard(relativePath)
+      appendLog(`Copied path: ${relativePath}`)
+    } catch (err: unknown) {
+      appendLog(`Copy path failed: ${String(err)}`)
+    }
+  }
+
+  function onRenameAsset(relativePath: string) {
+    renameAssetPath = relativePath
+  }
+
+  function closeRenameModal() {
+    renameAssetPath = null
+  }
+
+  async function confirmRenameAsset(newName: string) {
+    const relativePath = renameAssetPath
+    if (!projectInfo || !relativePath) return
+    renameAssetPath = null
+
+    try {
+      const result = await renameBundleAsset(
+        projectInfo.project_root,
+        selectedSite,
+        relativePath,
+        newName,
+      )
+      const newPath = result.new_relative_path
+
+      tabs = tabs.map((tab) => {
+        if (!tab.content.includes(relativePath)) return tab
+        const content = tab.content.split(relativePath).join(newPath)
+        const savedContent = tab.savedContent.split(relativePath).join(newPath)
+        return { ...tab, content, savedContent }
+      })
+
+      if (imagePreviewPath === relativePath) {
+        imagePreviewPath = newPath
+      }
+
+      await refreshFileTree()
+      const siteCount = result.updated_sites.length
+      appendLog(
+        siteCount > 0
+          ? `Renamed asset ${relativePath} → ${newPath} (updated ${siteCount} site(s))`
+          : `Renamed asset ${relativePath} → ${newPath}`,
+      )
+    } catch (err: unknown) {
+      appendLog(`Rename asset failed: ${String(err)}`)
+    }
+  }
+
+  async function persistTab(tab: EditorTab): Promise<EditorTab> {
+    if (!projectInfo) throw new Error('Open a project first.')
+    await writeBundleFile(
+      projectInfo.project_root,
+      selectedSite,
+      tab.relativePath,
+      tab.content,
+    )
+    return { ...tab, savedContent: tab.content }
+  }
+
+  function applySavedTabs(saved: EditorTab[]) {
+    const savedPaths = new Set(saved.map((t) => t.relativePath))
+    tabs = tabs.map((t) =>
+      savedPaths.has(t.relativePath)
+        ? (saved.find((s) => s.relativePath === t.relativePath) ?? t)
+        : t,
+    )
+  }
+
+  async function onSave() {
+    if (!projectInfo) {
+      appendLog('Open a project first.')
+      return
+    }
+    const tab = activeTab()
+    if (!tab) {
+      appendLog('No file open to save.')
+      return
+    }
+    if (!isDirty(tab)) {
+      appendLog(`Already saved: ${tab.relativePath}`)
+      return
+    }
+    try {
+      const saved = await persistTab(tab)
+      applySavedTabs([saved])
+      appendLog(`Saved ${saved.relativePath}`)
+    } catch (err: unknown) {
+      appendLog(`Save failed: ${String(err)}`)
+    }
+  }
+
+  async function onSaveAll() {
+    await saveAllDirtyTabs(true)
+  }
+
+  async function saveAllDirtyTabs(logWhenClean = false): Promise<boolean> {
+    if (!projectInfo) {
+      if (logWhenClean) appendLog('Open a project first.')
+      return false
+    }
     const dirty = tabs.filter(isDirty)
-    if (dirty.length === 0) return true
+    if (dirty.length === 0) {
+      if (logWhenClean) appendLog('No unsaved changes.')
+      return true
+    }
     try {
       const saved: EditorTab[] = []
       for (const tab of dirty) {
-        await writeBundleFile(
-          projectInfo.project_root,
-          selectedSite,
-          tab.relativePath,
-          tab.content,
-        )
-        saved.push({ ...tab, savedContent: tab.content })
+        saved.push(await persistTab(tab))
       }
-      const savedPaths = new Set(saved.map((t) => t.relativePath))
-      tabs = tabs.map((t) =>
-        savedPaths.has(t.relativePath)
-          ? (saved.find((s) => s.relativePath === t.relativePath) ?? t)
-          : t,
-      )
-      appendLog(`Saved ${dirty.length} file(s) before build.`)
+      applySavedTabs(saved)
+      if (logWhenClean) {
+        appendLog(`Saved ${dirty.length} file(s).`)
+      }
       return true
     } catch (err: unknown) {
       appendLog(`Save failed: ${String(err)}`)
       return false
     }
+  }
+
+  async function saveDirtyTabs(): Promise<boolean> {
+    if (!projectInfo) return false
+    const dirtyCount = tabs.filter(isDirty).length
+    if (dirtyCount === 0) return true
+    const ok = await saveAllDirtyTabs(false)
+    if (ok) appendLog(`Saved ${dirtyCount} file(s) before build.`)
+    return ok
+  }
+
+  function onSaveShortcut(event: KeyboardEvent) {
+    if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 's') return
+    if (event.shiftKey || event.altKey) return
+    event.preventDefault()
+    void onSave()
   }
 
   async function onValidate() {
@@ -511,6 +633,20 @@
     initStudio()
 
     let unlistenClose: (() => void) | undefined
+    let unlistenSave: (() => void) | undefined
+    let unlistenSaveAll: (() => void) | undefined
+
+    void listen('studio-save', () => {
+      void onSave()
+    }).then((fn) => {
+      unlistenSave = fn
+    })
+
+    void listen('studio-save-all', () => {
+      void onSaveAll()
+    }).then((fn) => {
+      unlistenSaveAll = fn
+    })
 
     getCurrentWindow()
       .onCloseRequested(async () => {
@@ -524,9 +660,13 @@
 
     return () => {
       unlistenClose?.()
+      unlistenSave?.()
+      unlistenSaveAll?.()
     }
   })
 </script>
+
+<svelte:window onkeydown={onSaveShortcut} />
 
 <div class="studio">
   <header class="toolbar">
@@ -614,6 +754,8 @@
               selectedPath={selectedTreePath()}
               onselect={onTreeSelect}
               onimportasset={onImportAsset}
+              onrenameasset={(path) => void onRenameAsset(path)}
+              oncopyassetpath={(path) => void onCopyAssetPath(path)}
               onremoveasset={(path) => void onRemoveAsset(path)}
             />
           </div>
@@ -740,6 +882,15 @@
     onTogglePanel={toggleLogPanel}
     onheightchange={onLogHeightChange}
   />
+
+  {#if renameAssetPath}
+    <AssetRenameModal
+      open={true}
+      relativePath={renameAssetPath}
+      onrename={(name) => void confirmRenameAsset(name)}
+      onclose={closeRenameModal}
+    />
+  {/if}
 </div>
 
 <style>

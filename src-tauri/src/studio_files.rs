@@ -1,4 +1,4 @@
-use portfoliowebsitebuilder_core::resolve_site_dir;
+use portfoliowebsitebuilder_core::{discover_content_bundles, resolve_site_dir};
 use serde::Serialize;
 use std::fs;
 use std::path::{Component, Path, PathBuf};
@@ -99,6 +99,12 @@ fn mime_for_image(relative_path: &str) -> &'static str {
 pub struct BundleImagePreview {
     pub relative_path: String,
     pub data_url: String,
+}
+
+#[derive(Clone, Serialize)]
+pub struct RenameBundleAssetResult {
+    pub new_relative_path: String,
+    pub updated_sites: Vec<String>,
 }
 
 pub fn list_bundle_files(
@@ -210,6 +216,23 @@ fn is_deletable_asset(relative_path: &str) -> bool {
     rel.starts_with("assets/") && is_image_file(relative_path)
 }
 
+fn import_asset_filename(source: &Path) -> String {
+    let file_name = source
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("image");
+    let folder_name = source
+        .parent()
+        .and_then(|p| p.file_name())
+        .and_then(|n| n.to_str())
+        .unwrap_or("");
+    if folder_name.is_empty() {
+        file_name.to_string()
+    } else {
+        format!("{folder_name}_{file_name}")
+    }
+}
+
 fn unique_asset_filename(assets_dir: &Path, original_name: &str) -> String {
     let path = Path::new(original_name);
     let stem = path
@@ -253,11 +276,131 @@ pub fn import_bundle_asset(
     let assets_dir = bundle.join("assets");
     fs::create_dir_all(&assets_dir).map_err(|e| e.to_string())?;
 
-    let dest_name = unique_asset_filename(&assets_dir, file_name);
+    let dest_name = unique_asset_filename(&assets_dir, &import_asset_filename(&source));
     let dest_path = assets_dir.join(&dest_name);
     fs::copy(&source, &dest_path).map_err(|e| e.to_string())?;
 
     Ok(format!("assets/{dest_name}"))
+}
+
+fn replace_asset_path_in_text(content: &str, old_path: &str, new_path: &str) -> String {
+    content.replace(old_path, new_path)
+}
+
+fn update_bundle_asset_references(
+    bundle: &Path,
+    old_relative_path: &str,
+    new_relative_path: &str,
+) -> Result<bool, String> {
+    let old_norm = old_relative_path.replace('\\', "/");
+    let new_norm = new_relative_path.replace('\\', "/");
+    let mut changed = false;
+
+    let site_json = bundle.join("site.json");
+    if site_json.is_file() {
+        let content = fs::read_to_string(&site_json).map_err(|e| e.to_string())?;
+        let updated = replace_asset_path_in_text(&content, &old_norm, &new_norm);
+        if updated != content {
+            fs::write(&site_json, updated).map_err(|e| e.to_string())?;
+            changed = true;
+        }
+    }
+
+    let pages_dir = bundle.join("pages");
+    if pages_dir.is_dir() {
+        for entry in fs::read_dir(&pages_dir).map_err(|e| e.to_string())? {
+            let entry = entry.map_err(|e| e.to_string())?;
+            let path = entry.path();
+            if !path.extension().is_some_and(|ext| ext == "json") {
+                continue;
+            }
+            let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+            let updated = replace_asset_path_in_text(&content, &old_norm, &new_norm);
+            if updated != content {
+                fs::write(&path, updated).map_err(|e| e.to_string())?;
+                changed = true;
+            }
+        }
+    }
+
+    Ok(changed)
+}
+
+pub fn rename_bundle_asset(
+    project_root: &str,
+    site_path: &str,
+    relative_path: &str,
+    new_name: &str,
+) -> Result<RenameBundleAssetResult, String> {
+    if !is_deletable_asset(relative_path) {
+        return Err("only image files under assets/ can be renamed".into());
+    }
+
+    let new_name = new_name.trim();
+    if new_name.is_empty() {
+        return Err("new name is empty".into());
+    }
+    if new_name.contains('/') || new_name.contains('\\') {
+        return Err("name must not contain path separators".into());
+    }
+    if !is_image_file(new_name) {
+        return Err("new name must be a supported image file".into());
+    }
+
+    let project_root = parse_project_root(project_root)?;
+    let bundle = bundle_root(&project_root, site_path);
+    let old_path = resolve_bundle_relative(&bundle, relative_path)?;
+    if !old_path.is_file() {
+        return Err(format!("file not found: {relative_path}"));
+    }
+
+    let old_norm = relative_path.replace('\\', "/");
+    let new_relative_path = format!("assets/{new_name}");
+    if new_relative_path == old_norm {
+        return Ok(RenameBundleAssetResult {
+            new_relative_path,
+            updated_sites: vec![],
+        });
+    }
+
+    let new_path = resolve_bundle_relative(&bundle, &new_relative_path)?;
+    if new_path.exists() {
+        return Err(format!("asset already exists: {new_relative_path}"));
+    }
+
+    let site_norm = site_path.replace('\\', "/");
+    let bundles = discover_content_bundles(&project_root).map_err(|e| e.to_string())?;
+    let mut updated_sites = Vec::new();
+
+    for site in &bundles {
+        let site_bundle = bundle_root(&project_root, site);
+        let old_file = site_bundle.join(&old_norm);
+        let new_file = site_bundle.join(&new_relative_path);
+        let mut touched = false;
+
+        if old_file.is_file() {
+            if new_file.exists() {
+                return Err(format!("asset already exists in {site}: {new_relative_path}"));
+            }
+            fs::rename(&old_file, &new_file).map_err(|e| e.to_string())?;
+            touched = true;
+        } else if site == &site_norm {
+            return Err(format!("file not found: {relative_path}"));
+        }
+
+        if update_bundle_asset_references(&site_bundle, &old_norm, &new_relative_path)? {
+            touched = true;
+        }
+
+        if touched {
+            updated_sites.push(site.clone());
+        }
+    }
+
+    Ok(RenameBundleAssetResult {
+        new_relative_path,
+        updated_sites,
+    })
 }
 
 pub fn delete_bundle_asset(

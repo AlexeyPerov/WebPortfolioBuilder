@@ -1,10 +1,16 @@
 # Portfolio Web Builder
 
-This project can be either used to create a website without coding at all or as a foundation for you to start vibe-coding a site (+ editor for it). So anyway it can help save some time and / or tokens.
-
 Edit your site in a desktop app, build static pages, and preview them locally before publishing anywhere that hosts static files (GitHub Pages, Netlify, your own server, and more).
 
 Each site lives in a **content folder** with simple JSON configuration, your images, and a shared design template. The app generates ready-to-upload HTML, CSS, and JavaScript.
+
+This project can be either used 
+- to create a website using built-in features
+- or as a foundation for you to start vibe-coding you own custom site (and editor for it) and save some time/tokens by using this project as a foundation.
+
+Websites built with it:
+- https://alexeyperov.github.io/
+- https://kometa.games/
 
 ---
 ![WebPortfolioBuilder-main-screen](Screenshots/web-portfolio-main.png)

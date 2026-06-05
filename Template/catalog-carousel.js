@@ -38,6 +38,10 @@
     var cfg = readSiteWidgetsConfig();
     var prevBtn = root.querySelector(".catalog-carousel__arrow--prev");
     var nextBtn = root.querySelector(".catalog-carousel__arrow--next");
+    if (slides.length <= 1) {
+      if (prevBtn) prevBtn.hidden = true;
+      if (nextBtn) nextBtn.hidden = true;
+    }
     var active = 0;
     var threshold = swipeThresholdPx(cfg);
     var status = null;

@@ -1,6 +1,11 @@
 import { confirm } from '@tauri-apps/plugin-dialog'
 import { deleteBundleAsset } from './studio-api'
 
+export async function copyAssetPathToClipboard(relativePath: string): Promise<void> {
+  const path = relativePath.replace(/\\/g, '/')
+  await navigator.clipboard.writeText(path)
+}
+
 export async function removeAssetWithConfirm(
   projectRoot: string,
   sitePath: string,
