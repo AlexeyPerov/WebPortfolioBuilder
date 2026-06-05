@@ -65,6 +65,8 @@ The build output is a normal static website. Upload the contents of your site’
 
 Compose each page from an ordered list of **widgets**. Layout widgets can nest other widgets inside them.
 
+Full reference (props, nesting, examples): [`docs/widgets.md`](docs/widgets.md).
+
 ### Content widgets
 
 | Widget | What it does |
@@ -84,7 +86,7 @@ Compose each page from an ordered list of **widgets**. Layout widgets can nest o
 | Widget | What it does |
 |--------|----------------|
 | **Row** | Places child widgets side by side |
-| **Column** / **Columns** | Stacks child widgets vertically (both names work) |
+| **Column** | Stacks child widgets vertically |
 | **Grid** | Arranges child widgets in a responsive CSS grid |
 
 Site-wide settings (theme colors, header navigation, footer, store icons, and social links) are configured in `site.json` for each site under `content/<site-name>/`.
@@ -102,6 +104,8 @@ Template/           # Shared layout, styles, and widget designs (do not remove)
 
 Generated sites are written to the folder named in `output_folder` inside `site.json` (by default under `Results/` when working in this repository).
 
+System overview and repo map: [`docs/architecture.md`](docs/architecture.md).
+
 ---
 
-**Contributors:** implementation details, CLI usage, and development setup live in [`studio/README.md`](studio/README.md) and the [`Specs/`](Specs/) folder.
+**Contributors:** [`docs/architecture.md`](docs/architecture.md) · [`docs/widgets.md`](docs/widgets.md) · [`docs/AGENTS.md`](docs/AGENTS.md) · [`studio/README.md`](studio/README.md) · [`Specs/Changelog.md`](Specs/Changelog.md)
