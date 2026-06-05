@@ -7,14 +7,29 @@ pub mod site_template;
 pub mod studio_files;
 
 use preview_server::PreviewServerState;
-use tauri::menu::{Menu, MenuItem, Submenu};
+use tauri::menu::{Menu, MenuItem, PredefinedMenuItem, Submenu};
 use tauri::{Emitter, Manager};
 
 fn setup_studio_menu(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let save = MenuItem::with_id(app, "file_save", "Save", true, Some("CmdOrCtrl+S"))?;
     let save_all = MenuItem::with_id(app, "file_save_all", "Save All", true, None::<&str>)?;
     let file = Submenu::with_items(app, "File", true, &[&save, &save_all])?;
-    let menu = Menu::with_items(app, &[&file])?;
+    // macOS routes Cmd+C/V/X/A/Z through native Edit menu items; without them paste fails in the webview.
+    let edit = Submenu::with_items(
+        app,
+        "Edit",
+        true,
+        &[
+            &PredefinedMenuItem::undo(app, None)?,
+            &PredefinedMenuItem::redo(app, None)?,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::cut(app, None)?,
+            &PredefinedMenuItem::copy(app, None)?,
+            &PredefinedMenuItem::paste(app, None)?,
+            &PredefinedMenuItem::select_all(app, None)?,
+        ],
+    )?;
+    let menu = Menu::with_items(app, &[&file, &edit])?;
     app.set_menu(menu)?;
 
     let handle = app.handle().clone();

@@ -148,9 +148,9 @@
                   "stat_right_line_1": "Unity",
                   "stat_right_line_2": "Editor & MCP",
                   "swiper_images": [
-                    "assets/dependencies-hunter-project-analysis-all.png",
-                    "assets/dependencies-hunter-project-analysis-unused.png",
-                    "assets/dependencies-hunter-context-menu-result.png"
+                    "assets/us-summary-table.png",
+                    "assets/us-menu-shaders.png",
+                    "assets/us-buildlayout.png"
                   ],
                   "card_background": "linear-gradient(145deg, #1e2840 0%, #151821 55%, #0c0e14 100%)",
                   "store_links": [

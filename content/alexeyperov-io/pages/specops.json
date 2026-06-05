@@ -19,12 +19,20 @@
       "props": {
         "images": [
           {
-            "src": "assets/main-screen.png",
-            "alt": "SpecOps main workspace with editor tabs and project panel"
+            "src": "assets/spec-ops-main-screen-split-view.png",
+            "alt": "SpecOps split view with markdown editor and AI chat panel"
           },
           {
-            "src": "assets/main-screen-split-view.png",
-            "alt": "SpecOps split view with markdown editor and AI chat panel"
+            "src": "assets/spec-ops-main-screen-themes.png",
+            "alt": "SpecOps themes panel"
+          },
+          {
+            "src": "assets/spec-ops-main-screen-logs.png",
+            "alt": "SpecOps logs panel"
+          },
+          {
+            "src": "assets/spec-ops-main-screen.png",
+            "alt": "SpecOps main workspace with editor tabs and project panel"
           }
         ]
       }
