@@ -19,10 +19,30 @@
       "props": {
         "cards": [
           {
+            "title": "Web Portfolio Builder",
+            "description": "Desktop app for editing portfolio and studio sites — build static pages and preview locally before publishing.",
+            "tags": ["Desktop", "SiteBuilder"],
+            "meta": "Web",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/WebPortfolioBuilder"
+            }
+          },
+          {
+            "title": "SOCKS Proxy",
+            "description": "Minimal macOS app to manage SSH SOCKS proxy connections with health checks and auto-reconnect.",
+            "tags": ["Desktop", "Proxy"],
+            "meta": "Proxy",
+            "cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/MacOS-SOCKS-Proxy"
+            }
+          },
+          {
             "title": "Similar Textures Finder",
             "description": "Desktop app for finding duplicate and near-duplicate texture images.",
             "tags": ["Desktop", "Textures"],
-            "meta": "Desktop",
+            "meta": "Images",
             "cta": {
               "label": "GitHub",
               "url": "https://github.com/AlexeyPerov/SimilarTexturesFinder"
