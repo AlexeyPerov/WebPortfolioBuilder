@@ -100,6 +100,10 @@ p {
   padding: clamp(72px, 10vw, 104px) 0;
 }
 
+body.compact-sections .section {
+  padding: clamp(36px, 5vw, 52px) 0;
+}
+
 .cover-banner {
   width: 100%;
   margin: 0;
@@ -1658,7 +1662,14 @@ body.has-bg-effect {
   height: 100%;
 }
 
-body.has-bg-effect .site-header,
+body.has-bg-effect .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+
 body.has-bg-effect main,
 body.has-bg-effect .footer {
   position: relative;

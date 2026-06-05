@@ -117,6 +117,8 @@ pub struct PageLayout {
     pub hide_footer: bool,
     #[serde(default)]
     pub background_effect: String,
+    #[serde(default)]
+    pub compact_sections: bool,
 }
 
 #[derive(Debug, Clone, Deserialize)]

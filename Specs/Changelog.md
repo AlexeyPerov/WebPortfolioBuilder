@@ -1,5 +1,13 @@
 # Specs / implementation changelog
 
+## 2026-06-05 — Composer — Sticky header + compact home sections (alexeyperov-io)
+
+- Background-effect pages no longer override `.site-header` to `position: relative`; header stays sticky with blur.
+- Added `layout.compact_sections` (halves `.section` vertical padding); enabled on alexeyperov-io home.
+- `PageLayout`, `render.rs` (`BodyClass`), `page.schema.json`, `Template/layout.html`, `Template/styles.css`.
+
+---
+
 ## 2026-06-05 — Composer — Background effect visibility fix
 
 - Section gradient overlays (`::before` at 82% opacity) hid animations under widget panels; `body.has-bg-effect` now keeps sections and layout wrappers fully transparent so light leaks / magic dust show across the page. Slightly brighter magic-dust particles.

@@ -37,6 +37,10 @@
           "type": "string",
           "enum": ["", "light_leak", "magic_dust"],
           "description": "Full-viewport animated background behind page content."
+        },
+        "compact_sections": {
+          "type": "boolean",
+          "description": "Halves default vertical padding between page sections."
         }
       }
     },

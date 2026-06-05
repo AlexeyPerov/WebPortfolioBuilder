@@ -175,6 +175,15 @@ pub fn build_rendered_page_data(
     let has_background_effect = !background_effect.is_empty();
     let background_effect_class = background_effect_css_class(&background_effect);
     let load_background_effects_script = background_effect == "magic_dust";
+    let mut body_classes = Vec::new();
+    if has_background_effect {
+        body_classes.push("has-bg-effect".to_string());
+        body_classes.push(format!("has-bg-effect--{background_effect_class}"));
+    }
+    if page.layout.compact_sections {
+        body_classes.push("compact-sections".to_string());
+    }
+    let body_class = body_classes.join(" ");
 
     let brand_href = resolve_internal_slug_reference(route, "", &routes.by_slug)
         .map_err(|e| CoreError::msg(format!("{} -> header.brand: {e}", bundle.site_path)))?;
@@ -245,6 +254,7 @@ pub fn build_rendered_page_data(
         "BackgroundEffect": background_effect,
         "BackgroundEffectClass": background_effect_class,
         "HasBackgroundEffect": has_background_effect,
+        "BodyClass": body_class,
         "LoadBackgroundEffectsScript": load_background_effects_script,
         "BackgroundEffectsScriptHref": format!("{}background-effects.js", asset_prefix),
     });

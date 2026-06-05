@@ -6,7 +6,8 @@
     "og_image": "assets/github-logo.png"
   },
   "layout": {
-    "background_effect": "light_leak"
+    "background_effect": "light_leak",
+    "compact_sections": true
   },
   "widgets": [
     {

@@ -130,7 +130,7 @@ Each file defines one page:
 | `slug` | URL segment; `""` is the site root |
 | `title` | Document title |
 | `seo` | `description`, `og_image`, `canonical_url` |
-| `layout` | `hide_header`, `hide_footer`, optional `background_effect` (`light_leak`, `magic_dust`) |
+| `layout` | `hide_header`, `hide_footer`, optional `background_effect` (`light_leak`, `magic_dust`), optional `compact_sections` (halves section vertical padding) |
 | `widgets` | Ordered top-level widget list |
 
 Schema: [`docs/schema/page.schema.json`](./schema/page.schema.json).
