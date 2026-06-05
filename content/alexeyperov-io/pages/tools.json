@@ -4,6 +4,9 @@
   "seo": {
     "description": "Image processing utilities, cross-platform apps, logging tools, and other open-source projects."
   },
+  "layout": {
+    "background_effect": "magic_dust"
+  },
   "widgets": [
     {
       "type": "intro",

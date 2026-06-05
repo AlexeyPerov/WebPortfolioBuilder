@@ -5,13 +5,16 @@
     "description": "Developer tools for Unity, Flutter, and the web. Open-source Editor utilities, desktop apps, and AI tooling.",
     "og_image": "assets/github-logo.png"
   },
+  "layout": {
+    "background_effect": "light_leak"
+  },
   "widgets": [
     {
       "type": "intro",
       "props": {
         "title": "",
         "paragraphs": [
-          "Here you can find developer tools for Unity, Flutter, and the web — from Editor utilities that keep projects healthy to image processing apps and open-source text-editor.",
+          "Hi! Here you can find all my open-source projects: from developer tools for Unity to open-source text-editor with AI support.",
           "Focus is practical tooling: asset pipelines, project diagnostics, and utilities teams use every day.",
           "Everything on this site is open source under MIT or BSD-3-Clause; contributions and issue reports are welcome."
         ],

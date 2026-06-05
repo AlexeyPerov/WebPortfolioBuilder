@@ -4,6 +4,9 @@
   "seo": {
     "description": "Open-source Unity editor tools for asset health, dependencies, textures, materials, and Addressables."
   },
+  "layout": {
+    "background_effect": "magic_dust"
+  },
   "widgets": [
     {
       "type": "intro",

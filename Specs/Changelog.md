@@ -1,5 +1,19 @@
 # Specs / implementation changelog
 
+## 2026-06-05 — Composer — Background effect visibility fix
+
+- Section gradient overlays (`::before` at 82% opacity) hid animations under widget panels; `body.has-bg-effect` now keeps sections and layout wrappers fully transparent so light leaks / magic dust show across the page. Slightly brighter magic-dust particles.
+
+---
+
+## 2026-06-05 — Composer — Page background effects (alexeyperov-io)
+
+- Added `layout.background_effect` on pages (`light_leak`, `magic_dust`): fixed viewport layer in `layout.html`, semi-transparent section gradients via `body.has-bg-effect`, magic-dust canvas in `Template/background-effects.js`.
+- Wired alexeyperov-io: home → light leaks; unity-tools, specops, tools, vibe → magic dust.
+- Schema (`page.schema.json`), `PageLayout` / `render.rs`, `docs/architecture.md`.
+
+---
+
 ## 2026-06-05 — Composer — AlexeyPerov.io Home CTA, Tools spacing
 
 - `intro` widgets accept optional `cta` (`label`, `url`) rendered as a pill button below paragraphs (`widgets.rs`, `Template/widgets/intro.html`, `Template/styles.css`).

@@ -77,6 +77,7 @@ fn build_rendered_page_data_applies_merge_model() {
                     layout: PageLayout {
                         hide_header: true,
                         hide_footer: true,
+                        ..Default::default()
                     },
                     ..Default::default()
                 },
@@ -364,6 +365,112 @@ fn validate_site_bundle_dry_run_does_not_write_files() {
         .map(|rd| rd.filter_map(|e| e.ok()).collect())
         .unwrap_or_default();
     assert_eq!(before.len(), after.len());
+}
+
+#[test]
+fn build_rendered_page_data_sets_background_effect_flags() {
+    let Some(template_dir) = template_dir() else {
+        eprintln!("skip background effect test: Template not present");
+        return;
+    };
+
+    let make_page = |effect: &str| SitePageFile {
+        path: "content/demo/pages/home.json".into(),
+        page: PageConfig {
+            slug: String::new(),
+            layout: PageLayout {
+                background_effect: effect.into(),
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        has_slug: true,
+        has_widgets: true,
+    };
+
+    let bundle = SiteBundle {
+        site_dir: "content/demo".into(),
+        site_path: "content/demo/site.json".into(),
+        site: SiteConfig {
+            site_id: "demo-site".into(),
+            ..Default::default()
+        },
+        pages: vec![make_page("")],
+    };
+
+    let routes = build_route_index(&bundle).unwrap();
+    let home_route = routes.ordered.first().unwrap();
+    let widget_env = load_widget_env(&template_dir).unwrap();
+
+    let (data, warnings) = build_rendered_page_data(
+        &bundle,
+        &bundle.pages[0],
+        home_route,
+        &routes,
+        &widget_env,
+    )
+    .unwrap();
+    assert_eq!(data["BackgroundEffect"], json!(""));
+    assert_eq!(data["HasBackgroundEffect"], json!(false));
+    assert_eq!(data["LoadBackgroundEffectsScript"], json!(false));
+    assert!(warnings.is_empty());
+
+    let light_bundle = SiteBundle {
+        pages: vec![make_page("light_leak")],
+        ..bundle.clone()
+    };
+    let (data, warnings) = build_rendered_page_data(
+        &light_bundle,
+        &light_bundle.pages[0],
+        home_route,
+        &routes,
+        &widget_env,
+    )
+    .unwrap();
+    assert_eq!(data["BackgroundEffect"], json!("light_leak"));
+    assert_eq!(data["BackgroundEffectClass"], json!("light-leak"));
+    assert_eq!(data["HasBackgroundEffect"], json!(true));
+    assert_eq!(data["LoadBackgroundEffectsScript"], json!(false));
+    assert!(warnings.is_empty());
+
+    let dust_bundle = SiteBundle {
+        pages: vec![make_page("magic_dust")],
+        ..bundle
+    };
+    let (data, warnings) = build_rendered_page_data(
+        &dust_bundle,
+        &dust_bundle.pages[0],
+        home_route,
+        &routes,
+        &widget_env,
+    )
+    .unwrap();
+    assert_eq!(data["BackgroundEffect"], json!("magic_dust"));
+    assert_eq!(data["BackgroundEffectClass"], json!("magic-dust"));
+    assert_eq!(data["HasBackgroundEffect"], json!(true));
+    assert_eq!(data["LoadBackgroundEffectsScript"], json!(true));
+    assert_eq!(
+        data["BackgroundEffectsScriptHref"],
+        json!("background-effects.js")
+    );
+    assert!(warnings.is_empty());
+
+    let unknown_bundle = SiteBundle {
+        pages: vec![make_page("sparkles")],
+        ..dust_bundle
+    };
+    let (data, warnings) = build_rendered_page_data(
+        &unknown_bundle,
+        &unknown_bundle.pages[0],
+        home_route,
+        &routes,
+        &widget_env,
+    )
+    .unwrap();
+    assert_eq!(data["BackgroundEffect"], json!(""));
+    assert_eq!(data["HasBackgroundEffect"], json!(false));
+    assert_eq!(warnings.len(), 1);
+    assert!(warnings[0].detail.contains("unknown layout.background_effect"));
 }
 
 #[test]

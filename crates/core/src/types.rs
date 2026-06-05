@@ -115,6 +115,8 @@ pub struct PageLayout {
     pub hide_header: bool,
     #[serde(default)]
     pub hide_footer: bool,
+    #[serde(default)]
+    pub background_effect: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]

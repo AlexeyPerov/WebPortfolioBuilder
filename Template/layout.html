@@ -29,7 +29,19 @@
   </style>
   <link rel="stylesheet" href="{{ StylesHref }}">
 </head>
-<body>
+<body{% if HasBackgroundEffect %} class="has-bg-effect has-bg-effect--{{ BackgroundEffectClass }}"{% endif %}>
+  {% if HasBackgroundEffect %}
+  <div class="page-bg-effect page-bg-effect--{{ BackgroundEffectClass }}" aria-hidden="true">
+    {% if BackgroundEffect == "light_leak" %}
+    <span class="light-leak light-leak--1"></span>
+    <span class="light-leak light-leak--2"></span>
+    <span class="light-leak light-leak--3"></span>
+    <span class="light-leak light-leak--4"></span>
+    {% elif BackgroundEffect == "magic_dust" %}
+    <canvas class="page-bg-effect__canvas"></canvas>
+    {% endif %}
+  </div>
+  {% endif %}
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <noscript>
     <style>
@@ -79,6 +91,7 @@
   {% if LoadCatalogCarouselScript %}<script src="{{ CatalogCarouselScriptHref }}" defer></script>{% endif %}
   {% if LoadSplitWidgetScript %}<script src="{{ SplitWidgetScriptHref }}" defer></script>{% endif %}
   {% if LoadImageLightboxScript %}<script src="{{ ImageLightboxScriptHref }}" defer></script>{% endif %}
+  {% if LoadBackgroundEffectsScript %}<script src="{{ BackgroundEffectsScriptHref }}" defer></script>{% endif %}
   {% if HeaderNav %}<script src="{{ NavScriptHref }}" defer></script>{% endif %}
 </body>
 </html>

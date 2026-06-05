@@ -32,7 +32,12 @@
       "additionalProperties": false,
       "properties": {
         "hide_header": { "type": "boolean" },
-        "hide_footer": { "type": "boolean" }
+        "hide_footer": { "type": "boolean" },
+        "background_effect": {
+          "type": "string",
+          "enum": ["", "light_leak", "magic_dust"],
+          "description": "Full-viewport animated background behind page content."
+        }
       }
     },
     "widgets": {

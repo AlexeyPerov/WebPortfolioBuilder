@@ -4,6 +4,9 @@
   "seo": {
     "description": "Vibe Tracker — self-hosted task management with a Fastify API, Svelte 5 SPA, and Tauri launcher. Docker Compose deployment with CLI setup wizard."
   },
+  "layout": {
+    "background_effect": "magic_dust"
+  },
   "widgets": [
     {
       "type": "intro",

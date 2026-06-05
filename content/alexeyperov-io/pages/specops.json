@@ -4,6 +4,9 @@
   "seo": {
     "description": "SpecOps — desktop workspace for specs, notes, and project files. Tauri + SvelteKit app with folder workspaces, markdown editing, and workspace-scoped AI agents."
   },
+  "layout": {
+    "background_effect": "magic_dust"
+  },
   "widgets": [
     {
       "type": "intro",

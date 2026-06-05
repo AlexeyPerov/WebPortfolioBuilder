@@ -13,6 +13,37 @@ use crate::routing::{
     resolve_internal_slug_reference, PageRoute, RouteIndex,
 };
 use crate::types::{ConfigWarning, SiteBundle, SitePageFile};
+
+fn normalize_background_effect(
+    raw: &str,
+    page_path: &str,
+) -> (String, Option<ConfigWarning>) {
+    let normalized = raw.trim().to_lowercase();
+    if normalized.is_empty() {
+        return (String::new(), None);
+    }
+    match normalized.as_str() {
+        "light_leak" | "magic_dust" => (normalized, None),
+        _ => (
+            String::new(),
+            Some(ConfigWarning::content(
+                page_path,
+                format!(
+                    "unknown layout.background_effect {:?}; ignored",
+                    raw.trim()
+                ),
+            )),
+        ),
+    }
+}
+
+fn background_effect_css_class(effect: &str) -> &'static str {
+    match effect {
+        "light_leak" => "light-leak",
+        "magic_dust" => "magic-dust",
+        _ => "",
+    }
+}
 use crate::widgets::{
     collect_page_script_needs, load_widget_env, render_widget_tree, WidgetRenderContext,
 };
@@ -139,6 +170,12 @@ pub fn build_rendered_page_data(
     let show_header = !page.layout.hide_header;
     let show_footer = bundle.site.footer.is_enabled() && !page.layout.hide_footer;
 
+    let (background_effect, layout_warnings) =
+        normalize_background_effect(&page.layout.background_effect, &page_file.path);
+    let has_background_effect = !background_effect.is_empty();
+    let background_effect_class = background_effect_css_class(&background_effect);
+    let load_background_effects_script = background_effect == "magic_dust";
+
     let brand_href = resolve_internal_slug_reference(route, "", &routes.by_slug)
         .map_err(|e| CoreError::msg(format!("{} -> header.brand: {e}", bundle.site_path)))?;
     let header_brand_logo = resolve_asset_href_for_page(&bundle.site.header.brand.logo, route);
@@ -160,7 +197,8 @@ pub fn build_rendered_page_data(
         routes,
         env: widget_env,
     };
-    let (main_content, widget_warnings) = render_widget_tree(&wctx, &page.widgets)?;
+    let (main_content, mut widget_warnings) = render_widget_tree(&wctx, &page.widgets)?;
+    widget_warnings.extend(layout_warnings);
 
     let footer_html = if show_footer {
         build_footer_outer_html(&bundle.site.footer)
@@ -204,6 +242,11 @@ pub fn build_rendered_page_data(
         "SplitWidgetScriptHref": format!("{}split-widget.js", asset_prefix),
         "NavScriptHref": format!("{}nav.js", asset_prefix),
         "ImageLightboxScriptHref": format!("{}image-lightbox.js", asset_prefix),
+        "BackgroundEffect": background_effect,
+        "BackgroundEffectClass": background_effect_class,
+        "HasBackgroundEffect": has_background_effect,
+        "LoadBackgroundEffectsScript": load_background_effects_script,
+        "BackgroundEffectsScriptHref": format!("{}background-effects.js", asset_prefix),
     });
 
     if script_needs.needs_widgets_config() {
