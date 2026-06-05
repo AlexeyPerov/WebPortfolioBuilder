@@ -1,5 +1,14 @@
 # Specs / implementation changelog
 
+## 2026-06-06 — Composer — GitHub Pages bg-effect fix; remove light_leak
+
+- Inlined critical CSS in `Template/layout.html` so `.page-bg-effect` is `position: fixed` before `styles.css` loads (fixes canvas pushing header below the fold on slow/static hosts).
+- Inlined `scroll-reveal--immediate` visibility in layout head; `project_grid` sections use `scroll-reveal--immediate` for above-the-fold content.
+- Removed `light_leak` background effect (CSS, template branch, schema enum, docs); only `magic_dust` remains.
+- alexeyperov-io home now uses `magic_dust` like all other pages.
+
+---
+
 ## 2026-06-05 — Composer — Sticky header + compact home sections (alexeyperov-io)
 
 - Background-effect pages no longer override `.site-header` to `position: relative`; header stays sticky with blur.

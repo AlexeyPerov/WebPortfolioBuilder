@@ -415,23 +415,23 @@ fn build_rendered_page_data_sets_background_effect_flags() {
     assert_eq!(data["LoadBackgroundEffectsScript"], json!(false));
     assert!(warnings.is_empty());
 
-    let light_bundle = SiteBundle {
+    let legacy_light_leak_bundle = SiteBundle {
         pages: vec![make_page("light_leak")],
         ..bundle.clone()
     };
     let (data, warnings) = build_rendered_page_data(
-        &light_bundle,
-        &light_bundle.pages[0],
+        &legacy_light_leak_bundle,
+        &legacy_light_leak_bundle.pages[0],
         home_route,
         &routes,
         &widget_env,
     )
     .unwrap();
-    assert_eq!(data["BackgroundEffect"], json!("light_leak"));
-    assert_eq!(data["BackgroundEffectClass"], json!("light-leak"));
-    assert_eq!(data["HasBackgroundEffect"], json!(true));
+    assert_eq!(data["BackgroundEffect"], json!(""));
+    assert_eq!(data["HasBackgroundEffect"], json!(false));
     assert_eq!(data["LoadBackgroundEffectsScript"], json!(false));
-    assert!(warnings.is_empty());
+    assert_eq!(warnings.len(), 1);
+    assert!(warnings[0].detail.contains("unknown layout.background_effect"));
 
     let dust_bundle = SiteBundle {
         pages: vec![make_page("magic_dust")],

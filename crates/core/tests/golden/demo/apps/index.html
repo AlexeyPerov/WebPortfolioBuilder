@@ -41,6 +41,12 @@
       --vacancies-gradient: linear-gradient(to bottom, #ffffff 0, #eef2f7 70%);
       --widget-gradient: linear-gradient(to bottom, #eef2f7, #ffffff);
     }
+    .scroll-reveal--immediate,
+    .scroll-reveal--immediate.scroll-reveal--visible {
+      opacity: 1;
+      transform: none;
+    }
+
   </style>
   <link rel="stylesheet" href="../styles.css">
 </head>
@@ -276,7 +282,7 @@
 </section>
 
 
-<section class="project-grid section section-gradient scroll-reveal" data-widget-type="project_grid">
+<section class="project-grid section section-gradient scroll-reveal scroll-reveal--immediate" data-widget-type="project_grid">
   <div class="container">
     <h2 class="center">More to explore</h2>
     

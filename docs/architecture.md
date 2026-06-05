@@ -109,7 +109,7 @@ Key invoke commands are documented in [`studio/README.md`](../studio/README.md).
 - Only layout widgets (`row`, `column`, `grid`) may contain `children`.
 - Rust builds HTML for each widget in `crates/core/src/widgets.rs` (data prep + Minijinja or inline HTML helpers in `html.rs`).
 - Page-level JS is included based on `PageScriptNeeds` (carousel, split-widget tabs, scroll reveal, lightbox).
-- Optional `layout.background_effect` injects a fixed back-layer in `layout.html` (`light_leak` is CSS-only; `magic_dust` loads `background-effects.js`). When active, `body.has-bg-effect` keeps section panels transparent so the animation stays visible behind widgets (cards and media keep their own surfaces).
+- Optional `layout.background_effect` (`magic_dust`) injects a fixed canvas back-layer in `layout.html` and loads `background-effects.js`. When active, `body.has-bg-effect` keeps section panels transparent so the animation stays visible behind widgets (cards and media keep their own surfaces). Critical positioning CSS is inlined in the layout `<head>` so the canvas never participates in document flow before `styles.css` loads.
 
 Template engine choice and escaping policy: [`crates/core/README.md`](../crates/core/README.md).
 
@@ -130,7 +130,7 @@ Each file defines one page:
 | `slug` | URL segment; `""` is the site root |
 | `title` | Document title |
 | `seo` | `description`, `og_image`, `canonical_url` |
-| `layout` | `hide_header`, `hide_footer`, optional `background_effect` (`light_leak`, `magic_dust`), optional `compact_sections` (halves section vertical padding) |
+| `layout` | `hide_header`, `hide_footer`, optional `background_effect` (`magic_dust`), optional `compact_sections` (halves section vertical padding) |
 | `widgets` | Ordered top-level widget list |
 
 Schema: [`docs/schema/page.schema.json`](./schema/page.schema.json).

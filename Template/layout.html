@@ -26,20 +26,33 @@
       --font-body: {{ TypographyFontBody|safe }};
 {{ ThemeCSSVariables|safe }}
     }
+    .scroll-reveal--immediate,
+    .scroll-reveal--immediate.scroll-reveal--visible {
+      opacity: 1;
+      transform: none;
+    }
+{% if HasBackgroundEffect %}
+    body.has-bg-effect { position: relative; }
+    .page-bg-effect {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .page-bg-effect__canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+{% endif %}
   </style>
   <link rel="stylesheet" href="{{ StylesHref }}">
 </head>
 <body{% if BodyClass %} class="{{ BodyClass }}"{% endif %}>
   {% if HasBackgroundEffect %}
   <div class="page-bg-effect page-bg-effect--{{ BackgroundEffectClass }}" aria-hidden="true">
-    {% if BackgroundEffect == "light_leak" %}
-    <span class="light-leak light-leak--1"></span>
-    <span class="light-leak light-leak--2"></span>
-    <span class="light-leak light-leak--3"></span>
-    <span class="light-leak light-leak--4"></span>
-    {% elif BackgroundEffect == "magic_dust" %}
     <canvas class="page-bg-effect__canvas"></canvas>
-    {% endif %}
   </div>
   {% endif %}
   <a class="skip-link" href="#main-content">Skip to main content</a>

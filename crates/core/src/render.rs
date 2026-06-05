@@ -23,7 +23,7 @@ fn normalize_background_effect(
         return (String::new(), None);
     }
     match normalized.as_str() {
-        "light_leak" | "magic_dust" => (normalized, None),
+        "magic_dust" => (normalized, None),
         _ => (
             String::new(),
             Some(ConfigWarning::content(
@@ -39,7 +39,6 @@ fn normalize_background_effect(
 
 fn background_effect_css_class(effect: &str) -> &'static str {
     match effect {
-        "light_leak" => "light-leak",
         "magic_dust" => "magic-dust",
         _ => "",
     }
@@ -174,7 +173,7 @@ pub fn build_rendered_page_data(
         normalize_background_effect(&page.layout.background_effect, &page_file.path);
     let has_background_effect = !background_effect.is_empty();
     let background_effect_class = background_effect_css_class(&background_effect);
-    let load_background_effects_script = background_effect == "magic_dust";
+    let load_background_effects_script = has_background_effect;
     let mut body_classes = Vec::new();
     if has_background_effect {
         body_classes.push("has-bg-effect".to_string());
