@@ -12,7 +12,7 @@ Pages are built from an ordered list of **widgets**. Each widget node has a `typ
 
 - Unknown widget `type` → **build error** with a path to the node.
 - `enabled: false` skips rendering (node stays in JSON).
-- `id` (optional) sets a stable DOM id / anchor on the widget root.
+- `id` (optional) sets a stable DOM id on the widget root. For `images_grid`, this becomes the `<section>` id (default `photos` when omitted). Other widgets use it on their root element when supported.
 - User-facing strings are HTML-escaped; authors do not inject raw HTML in v1.
 - Only **layout widgets** may contain `children` (nested widget arrays).
 - Canonical layout type is **`column`** (not `columns` — rejected by the generator).
@@ -101,10 +101,11 @@ Centered heading and one or more paragraphs.
 |------|----------|-------|
 | `title` | no | Main heading |
 | `paragraphs` | no | Array of strings; empty entries omitted |
+| `cta` | no | `{ label?, url }` — pill button below paragraphs; default label `"Learn more"` when `url` is set |
 
-If both `title` and `paragraphs` are empty, the section is skipped (warning).
+If both `title` and `paragraphs` are empty, the section is skipped (warning). `cta` is omitted when `url` is empty.
 
-Template: `Template/widgets/intro.html` · Studio form: yes
+Template: `Template/widgets/intro.html` · Studio form: yes (`cta` via JSON / Props tab only)
 
 ### `cover_banner`
 
@@ -146,6 +147,8 @@ Photo wall / gallery grid.
 |------|----------|-------|
 | `title` | no | Section heading |
 | `images` | yes | Array of asset path strings or `{ src, alt? }`, min length 1 |
+
+Set widget-level `id` (not a prop) to override the section anchor; defaults to `photos`.
 
 Template: `Template/widgets/images_grid.html` · Studio form: yes
 
@@ -260,4 +263,4 @@ When introducing a new widget or breaking props:
 6. Add studio form support in `studio/src/` when appropriate
 7. Record the change in [`Specs/Changelog.md`](../Specs/Changelog.md)
 
-See [`AGENTS.md`](./AGENTS.md) for the full maintenance checklist.
+See [`AGENTS.md`](../AGENTS.md) for the full maintenance checklist.

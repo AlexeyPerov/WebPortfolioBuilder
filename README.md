@@ -108,4 +108,4 @@ System overview and repo map: [`docs/architecture.md`](docs/architecture.md).
 
 ---
 
-**Contributors:** [`docs/architecture.md`](docs/architecture.md) · [`docs/widgets.md`](docs/widgets.md) · [`docs/AGENTS.md`](docs/AGENTS.md) · [`studio/README.md`](studio/README.md) · [`Specs/Changelog.md`](Specs/Changelog.md)
+**Contributors:** [`docs/architecture.md`](docs/architecture.md) · [`docs/widgets.md`](docs/widgets.md) · [`AGENTS.md`](AGENTS.md) · [`studio/README.md`](studio/README.md) · [`Specs/Changelog.md`](Specs/Changelog.md)

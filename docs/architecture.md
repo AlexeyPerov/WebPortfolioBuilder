@@ -26,12 +26,13 @@ Template/                 # Shared render templates (all sites)
   layout.html             # Page shell: head, header, main, footer, scripts
   widgets/*.html          # One Minijinja partial per widget type
   styles.css              # Shared site styles
-  *.js                    # Optional page scripts (carousel, tabs, lightbox, …)
+  *.js                    # Page scripts (carousel, tabs, scroll reveal, lightbox, bg effects)
+
+AGENTS.md                 # Agent maintenance rules (repo root)
 
 docs/
   architecture.md         # This file
   widgets.md              # Widget reference for authors and contributors
-  AGENTS.md                 # Agent maintenance rules
   schema/
     site.schema.json      # JSON Schema for site.json (studio AJV lint)
     page.schema.json      # JSON Schema for pages/*.json
@@ -145,10 +146,11 @@ Paths in JSON are relative to the site’s `assets/` folder (or site root as doc
 
 | Bundle | Purpose |
 |--------|---------|
-| `content/kometa/` | Full sample portfolio (apps, careers, social) |
-| `content/demo/` | Every widget type across multiple pages |
-| `content/_template/` | Starter bundle for new sites |
+| `content/demo/` | Every widget type across multiple pages (always in repo) |
 | `content/alexeyperov-io/` | Production author site in this repo |
+| `content/my-studio/` | Studio dev / golden-test bundle |
+| `content/_template/` | Starter bundle for new sites in the studio |
+| `content/kometa/` | Full sample portfolio (local only — gitignored; used in CI when present) |
 
 ## Development entry points
 
@@ -156,8 +158,8 @@ Paths in JSON are relative to the site’s `assets/` folder (or site root as doc
 |------|--------------------------|
 | Desktop app (dev) | `cargo tauri dev` |
 | Frontend only | `npm run dev --prefix studio` |
-| CLI validate | `cargo run -p portfoliowebsitebuilder-cli -- --validate --site content/kometa` |
-| CLI build | `cargo run -p portfoliowebsitebuilder-cli -- --site content/kometa` |
+| CLI validate | `cargo run -p portfoliowebsitebuilder-cli -- --validate --site content/demo` |
+| CLI build | `cargo run -p portfoliowebsitebuilder-cli -- --site content/demo` |
 | Core tests | `cargo test -p portfoliowebsitebuilder-core` |
 | Release build | `cargo tauri build` |
 
@@ -177,6 +179,6 @@ Full studio setup and platform notes: [`studio/README.md`](../studio/README.md).
 ## Related docs
 
 - [`widgets.md`](./widgets.md) — widget types, props, examples
-- [`AGENTS.md`](./AGENTS.md) — rules for AI agents and doc maintenance
+- [`AGENTS.md`](../AGENTS.md) — rules for AI agents and doc maintenance
 - [`README.md`](../README.md) — install, run, author quick start
 - [`Specs/Changelog.md`](../Specs/Changelog.md) — implementation history

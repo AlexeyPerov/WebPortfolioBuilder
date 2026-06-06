@@ -175,4 +175,4 @@ content/          ← author bundles
 docs/schema/      ← JSON Schema for editors
 ```
 
-See [`../docs/architecture.md`](../docs/architecture.md) and [`../docs/AGENTS.md`](../docs/AGENTS.md) for system map and contributor rules.
+See [`../docs/architecture.md`](../docs/architecture.md) and [`../AGENTS.md`](../AGENTS.md) for system map and contributor rules.

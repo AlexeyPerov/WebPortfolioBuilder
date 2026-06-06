@@ -1,5 +1,20 @@
 # Specs / implementation changelog
 
+## 2026-06-06 — Composer — AGENTS doc rules; architecture & widgets sync
+
+- Expanded `AGENTS.md` with explicit maintenance rules for `docs/architecture.md` and `docs/widgets.md`, plus a doc-sync checklist before finishing widget/pipeline changes.
+- `docs/architecture.md`: fixed `AGENTS.md` location (repo root), updated example-sites table (`demo`, `my-studio`, gitignored `kometa`), CLI examples use `content/demo`.
+- `docs/widgets.md`: documented `intro` `cta` prop and `images_grid` widget-level `id` (default section id `photos`).
+- Fixed broken `AGENTS.md` link in `README.md`.
+
+---
+
+## 2026-06-06 — Composer — Softer magic_dust background
+
+- Halved particle count (120 → 60) and reduced draw alpha by ~30% in `Template/background-effects.js`.
+
+---
+
 ## 2026-06-06 — Composer — GitHub Pages bg-effect fix; remove light_leak
 
 - Inlined critical CSS in `Template/layout.html` so `.page-bg-effect` is `position: fixed` before `styles.css` loads (fixes canvas pushing header below the fold on slow/static hosts).
