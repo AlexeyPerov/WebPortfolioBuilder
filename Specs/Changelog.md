@@ -1,5 +1,36 @@
 # Specs / implementation changelog
 
+## 2026-06-06 — Composer — alexeyperov.io home featured grid: Missing References Hunter
+
+- `content/alexeyperov-io/pages/home.json`: added Unity Missing References Hunter card next to Dependencies Hunter (four featured projects total).
+
+---
+
+## 2026-06-06 — Composer — alexeyperov.io home page content refresh
+
+- `content/alexeyperov-io/pages/home.json`: rewrote intro (about the author, GitHub CTA); removed duplicate `link_buttons`; added featured `project_grid` (Dependencies Hunter, Unity Scanner, SpecOps) and `info_grid` (What I build).
+- `content/alexeyperov-io/site.json`: nav label About → Home.
+
+---
+
+## 2026-06-06 — Composer — alexeyperov.io home nav and intro link buttons
+
+- `intro` gains optional `link_buttons` (`title` + `items[]`) for a square button row below paragraphs.
+- `content/alexeyperov-io`: nav label Home → About; home page replaces View Projects CTA with Projects link buttons; nowrap intro paragraphs via `#about-intro`.
+- `#unity-scanner-summary` project grid card centered on Unity Tools page.
+
+---
+
+## 2026-06-06 — Composer — Unity Scanner page; reference_panel widget
+
+- New `reference_panel` widget: sidebar detail panels for API/MCP docs, mobile dropdown, `Template/reference-panel.js`.
+- `intro` gains optional `pre` monospace block; `project_grid` cards gain optional `secondary_cta`.
+- `content/alexeyperov-io/pages/unity-scanner.json`: intro, screenshot swiper, Batch API (23 runners), MCP architecture, MCP tools (8), footer links.
+- Nav entry and Unity Tools summary card link to `unity-scanner`; removed full `apps_showcase` for Unity Scanner on `unity-tools`.
+- Docs/schema/tests updated for new widget and props.
+
+---
+
 ## 2026-06-06 — Composer — AGENTS doc rules; architecture & widgets sync
 
 - Expanded `AGENTS.md` with explicit maintenance rules for `docs/architecture.md` and `docs/widgets.md`, plus a doc-sync checklist before finishing widget/pipeline changes.

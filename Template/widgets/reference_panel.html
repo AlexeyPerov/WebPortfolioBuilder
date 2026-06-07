@@ -1,0 +1,7 @@
+<section class="reference-panel-section section section-gradient scroll-reveal scroll-reveal--immediate"{{ SectionIDAttr|safe }} data-widget-type="reference_panel">
+  <div class="container">
+    {% if Title %}<h2 class="center">{{ Title }}</h2>{% endif %}
+    {% if HasIntro %}<p class="reference-panel-section__intro center">{{ Intro }}</p>{% endif %}
+    {{ SplitHTML|safe }}
+  </div>
+</section>

@@ -39,6 +39,11 @@
         "open_in_new_tab": false
       },
       {
+        "label": "Unity Scanner",
+        "href": "unity-scanner",
+        "open_in_new_tab": false
+      },
+      {
         "label": "SpecOps",
         "href": "specops",
         "open_in_new_tab": false

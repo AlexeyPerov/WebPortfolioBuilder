@@ -63,6 +63,7 @@
         "cover_banner",
         "project_grid",
         "media_swiper",
+        "reference_panel",
         "row",
         "column",
         "grid"
@@ -124,6 +125,10 @@
           "then": { "properties": { "props": { "$ref": "#/$defs/mediaSwiperProps" } } }
         },
         {
+          "if": { "properties": { "type": { "const": "reference_panel" } }, "required": ["type"] },
+          "then": { "properties": { "props": { "$ref": "#/$defs/referencePanelProps" } } }
+        },
+        {
           "if": { "properties": { "type": { "const": "row" } }, "required": ["type"] },
           "then": { "properties": { "props": { "$ref": "#/$defs/rowProps" } } }
         },
@@ -146,7 +151,36 @@
           "type": "array",
           "items": { "type": "string" }
         },
-        "cta": { "$ref": "#/$defs/projectGridCta" }
+        "cta": { "$ref": "#/$defs/projectGridCta" },
+        "link_buttons": { "$ref": "#/$defs/introLinkButtons" },
+        "pre": {
+          "type": "string",
+          "description": "Optional monospace block rendered below paragraphs (e.g. architecture diagram)."
+        }
+      }
+    },
+    "introLinkButtons": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "title": {
+          "type": "string",
+          "default": "Projects"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/introLinkButtonItem" }
+        }
+      }
+    },
+    "introLinkButtonItem": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "type": "string" },
+        "url": { "type": "string" }
       }
     },
     "coverBannerProps": {
@@ -357,7 +391,8 @@
             }
           ]
         },
-        "cta": { "$ref": "#/$defs/projectGridCta" }
+        "cta": { "$ref": "#/$defs/projectGridCta" },
+        "secondary_cta": { "$ref": "#/$defs/projectGridCta" }
       }
     },
     "projectGridCta": {
@@ -380,6 +415,46 @@
           "minItems": 1,
           "items": { "$ref": "#/$defs/imageWithAlt" }
         }
+      }
+    },
+    "referencePanelProps": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["entries"],
+      "properties": {
+        "title": { "type": "string" },
+        "intro": { "type": "string" },
+        "entries": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/referencePanelEntry" }
+        }
+      }
+    },
+    "referencePanelEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "description"],
+      "properties": {
+        "label": { "type": "string" },
+        "method": { "type": "string" },
+        "signature": { "type": "string" },
+        "description": { "type": "string" },
+        "arguments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/referencePanelArgument" }
+        },
+        "example": { "type": "string" }
+      }
+    },
+    "referencePanelArgument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" }
       }
     },
     "rowProps": {

@@ -19,7 +19,7 @@
   }
 
   var particles = [];
-  var particleCount = 120;
+  var particleCount = 60;
   var running = true;
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
@@ -80,7 +80,7 @@
         p.x = -4;
       }
 
-      var alpha = 0.32 + Math.sin(p.phase) * 0.22;
+      var alpha = (0.32 + Math.sin(p.phase) * 0.22) * 0.7;
       if (p.accent) {
         ctx.fillStyle = "rgba(77, 141, 255, " + alpha.toFixed(3) + ")";
       } else {

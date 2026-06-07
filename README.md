@@ -80,6 +80,7 @@ Full reference (props, nesting, examples): [`docs/widgets.md`](docs/widgets.md).
 | **Follow us** | Row of social profile buttons |
 | **Project grid** | Portfolio or project cards with images, tags, and links |
 | **Media swiper** | Image carousel with swipe and keyboard navigation |
+| **Reference panel** | Sidebar API/MCP reference with selectable entries and code examples |
 
 ### Layout widgets
 

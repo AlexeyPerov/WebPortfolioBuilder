@@ -2,7 +2,7 @@
   "slug": "",
   "title": "Alexey Perov",
   "seo": {
-    "description": "Developer tools for Unity, Flutter, and the web. Open-source Editor utilities, desktop apps, and AI tooling.",
+    "description": "Open-source Unity Editor utilities, desktop apps, and AI tooling.",
     "og_image": "assets/github-logo.png"
   },
   "layout": {
@@ -12,17 +12,107 @@
   "widgets": [
     {
       "type": "intro",
+      "id": "about-intro",
       "props": {
-        "title": "",
+        "title": "Alexey Perov",
         "paragraphs": [
-          "Hi! Here you can find all my open-source projects: from developer tools for Unity to open-source text-editor with AI support.",
-          "Focus is practical tooling: asset pipelines, project diagnostics, and utilities teams use every day.",
-          "Everything on this site is open source under MIT or BSD-3-Clause; contributions and issue reports are welcome."
+          "I build open-source developer tools — mostly for Unity, plus desktop apps and AI-assisted workflows.",
+          "My focus is practical tooling: project diagnostics, asset health checks, and utilities you can reach for every day.",
+          "Everything here is MIT or BSD-3-Clause. Contributions and issue reports are welcome."
         ],
         "cta": {
-          "label": "View Projects",
-          "url": "unity-tools"
+          "label": "GitHub",
+          "url": "https://github.com/AlexeyPerov"
         }
+      }
+    },
+    {
+      "type": "project_grid",
+      "props": {
+        "heading": "Featured projects",
+        "subheading": "Start here — full catalogs are in the nav",
+        "section_id": "featured",
+        "cards": [
+          {
+            "title": "Unity Dependencies Hunter",
+            "description": "Finds unreferenced assets by scanning every file in your Unity project — run from the Tools menu or project context menu.",
+            "tags": ["Unity", "Editor"],
+            "image": "assets/dependencies-hunter-project-analysis-unused.png",
+            "meta": "715+ GitHub stars",
+            "cta": {
+              "label": "Unity Tools",
+              "url": "unity-tools"
+            },
+            "secondary_cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Dependencies-Hunter"
+            }
+          },
+          {
+            "title": "Unity Missing References Hunter",
+            "description": "Detects missing references by scanning asset GUIDs across the project — find broken links before they surface as runtime errors or build failures.",
+            "tags": ["Unity", "Editor"],
+            "image": "assets/mrf-main_window.png",
+            "meta": "98+ GitHub stars",
+            "cta": {
+              "label": "Unity Tools",
+              "url": "unity-tools"
+            },
+            "secondary_cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-MissingReferences-Hunter"
+            }
+          },
+          {
+            "title": "Unity Scanner",
+            "description": "Unified Editor and MCP tool for project health — dependencies, materials, shaders, Addressables, and automated CI gates.",
+            "tags": ["Unity", "Editor", "MCP"],
+            "image": "assets/us-summary-table.png",
+            "meta": "Editor & MCP",
+            "cta": {
+              "label": "Documentation",
+              "url": "unity-scanner"
+            },
+            "secondary_cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Scanner"
+            }
+          },
+          {
+            "title": "SpecOps",
+            "description": "Desktop workspace for specs, notes, and project files — folder-backed workspaces, markdown editing, and workspace-scoped AI agents.",
+            "tags": ["Desktop", "Tauri", "AI"],
+            "image": "assets/spec-ops-main-screen-split-view.png",
+            "meta": "Tauri + SvelteKit",
+            "cta": {
+              "label": "Learn more",
+              "url": "specops"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "info_grid",
+      "props": {
+        "title": "What I build",
+        "items": [
+          {
+            "image": "assets/dependencies-hunter-project-analysis-all.png",
+            "title": "Unity project health",
+            "text": "Editor tools for unused assets, missing references, texture issues, shaders, Addressables layouts, and unified scanning."
+          },
+          {
+            "image": "assets/spec-ops-main-screen.png",
+            "title": "Desktop tooling",
+            "text": "Cross-platform apps built with Tauri and Svelte — workspaces, markdown editors, and utilities for everyday dev workflows."
+          },
+          {
+            "image": "assets/us-menu-shaders.png",
+            "title": "AI-assisted workflows",
+            "text": "MCP servers and editor integrations so assistants can run project scans, diagnostics, and batch checks on real codebases."
+          }
+        ]
       }
     },
     {

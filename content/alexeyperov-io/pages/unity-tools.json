@@ -132,39 +132,27 @@
       }
     },
     {
-      "type": "row",
-      "id": "unity-scanner-featured",
+      "type": "project_grid",
+      "id": "unity-scanner-summary",
       "props": {
-        "children": [
+        "cards": [
           {
-            "type": "apps_showcase",
-            "props": {
-              "section_title": "",
-              "apps": [
-                {
-                  "image": "assets/github-logo.png",
-                  "title": "Unity Scanner",
-                  "text_1": "Unified Editor and MCP tool for project health analysis across dependencies, materials, textures, addressables, and more.",
-                  "text_2": "One entry point for the Hunter family of tools and automated project checks.",
-                  "stat_left_line_1": "2+",
-                  "stat_left_line_2": "GitHub stars",
-                  "stat_right_line_1": "Unity",
-                  "stat_right_line_2": "Editor & MCP",
-                  "swiper_images": [
-                    "assets/us-summary-table.png",
-                    "assets/us-menu-shaders.png",
-                    "assets/us-buildlayout.png"
-                  ],
-                  "card_background": "linear-gradient(145deg, #1e2840 0%, #151821 55%, #0c0e14 100%)",
-                  "store_links": [
-                    {
-                      "url": "https://github.com/AlexeyPerov/Unity-Scanner",
-                      "aria_label": "Unity Scanner on GitHub",
-                      "icon_image": "assets/github-logo.png"
-                    }
-                  ]
-                }
-              ]
+            "title": "Unity Scanner",
+            "description": "Unified Editor and MCP tool for project health — dependencies, materials, shaders, Addressables, platform readiness, and more.",
+            "tags": [
+              "Unity",
+              "Editor",
+              "MCP"
+            ],
+            "image": "assets/us-summary-table.png",
+            "meta": "Editor & MCP",
+            "cta": {
+              "label": "Documentation",
+              "url": "unity-scanner"
+            },
+            "secondary_cta": {
+              "label": "GitHub",
+              "url": "https://github.com/AlexeyPerov/Unity-Scanner"
             }
           }
         ]

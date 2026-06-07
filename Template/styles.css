@@ -126,7 +126,7 @@ body.compact-sections .section {
 
 .site-header {
   border-bottom: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
-  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
   position: sticky;
   top: 0;
   backdrop-filter: blur(14px) saturate(1.2);
@@ -645,6 +645,63 @@ body.compact-sections .section {
   box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
+.intro__link-section {
+  margin-top: 1.75rem;
+}
+
+.intro__link-section-title {
+  margin-bottom: 0;
+}
+
+.intro__link-buttons {
+  margin-top: 36px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.intro__link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10.5rem;
+  height: 10.5rem;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  background: var(--social-button-background, var(--widget-gradient));
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+  box-sizing: border-box;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.intro__link-btn:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  color: var(--text-primary);
+}
+
+#about-intro .container > p {
+  white-space: nowrap;
+  max-width: none;
+}
+
+#unity-scanner-summary .project-grid__grid {
+  grid-template-columns: minmax(0, 560px);
+  justify-content: center;
+}
+
 .section-gradient.catalog-showcase { background: var(--catalog-gradient); }
 .section-gradient.project-grid { background: var(--project-grid-gradient, var(--catalog-gradient)); }
 .section-gradient.media-swiper-widget { background: var(--catalog-gradient); }
@@ -883,6 +940,132 @@ body.image-lightbox-open {
   display: block;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.code-block {
+  display: block;
+  margin: 1.25rem auto 0;
+  max-width: 100%;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.intro__pre {
+  max-width: 720px;
+}
+
+.reference-panel-section__intro {
+  max-width: 720px;
+  margin: 0 auto 8px;
+  color: var(--text-secondary);
+}
+
+.reference-panel {
+  margin-top: 28px;
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--widget-gradient);
+  border: 1px solid var(--line);
+}
+
+.reference-panel__select-wrap {
+  display: none;
+  margin-bottom: 16px;
+}
+
+.reference-panel__select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+.reference-panel__detail h3,
+.reference-panel__method {
+  margin-top: 0;
+  font-size: 1.35rem;
+}
+
+.reference-panel__signature {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+.reference-panel__description {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.reference-panel__args {
+  margin: 0 0 1rem;
+}
+
+.reference-panel__arg {
+  margin-bottom: 12px;
+}
+
+.reference-panel__arg dt {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.reference-panel__arg-type {
+  margin: 4px 0 0;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.reference-panel__arg-desc {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+}
+
+.reference-panel__code {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+.project-card__cta--secondary {
+  margin-left: 10px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text-secondary);
+}
+
+.project-card__cta--secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-muted);
+}
+
 .vacancy-detail h3 {
   margin-top: 0;
   font-size: 1.35rem;
@@ -1063,6 +1246,12 @@ body.image-lightbox-open {
   .photos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   .split-widget__layout {
     grid-template-columns: 1fr;
+  }
+  .reference-panel__select-wrap {
+    display: block;
+  }
+  .reference-panel .split-widget__nav {
+    display: none;
   }
 }
 
@@ -1643,6 +1832,45 @@ body.image-lightbox-open {
   }
 }
 
+/* Unity Scanner page: halved vertical gap between neighboring sections */
+.section.intro:has(+ #unity-scanner-featured) {
+  padding-bottom: clamp(18px, 2.5vw, 26px);
+}
+
+#unity-scanner-featured.section {
+  padding-top: clamp(18px, 2.5vw, 26px);
+  padding-bottom: clamp(18px, 2.5vw, 26px);
+}
+
+#unity-scanner-featured.section + .reference-panel.section {
+  padding-top: clamp(18px, 2.5vw, 26px);
+}
+
+#unity-scanner-featured.section + .reference-panel.section + .intro.section {
+  padding-top: clamp(18px, 2.5vw, 26px);
+}
+
+#unity-scanner-featured.section + .reference-panel.section + .intro.section + .reference-panel.section {
+  padding-top: clamp(18px, 2.5vw, 26px);
+}
+
+@media (max-width: 640px) {
+  .section.intro:has(+ #unity-scanner-featured) {
+    padding-bottom: 16px;
+  }
+
+  #unity-scanner-featured.section {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  #unity-scanner-featured.section + .reference-panel.section,
+  #unity-scanner-featured.section + .reference-panel.section + .intro.section,
+  #unity-scanner-featured.section + .reference-panel.section + .intro.section + .reference-panel.section {
+    padding-top: 16px;
+  }
+}
+
 /* Page background effects (layout.background_effect) */
 body.has-bg-effect {
   position: relative;
@@ -1666,7 +1894,7 @@ body.has-bg-effect .site-header {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
   backdrop-filter: blur(14px) saturate(1.2);
 }
 

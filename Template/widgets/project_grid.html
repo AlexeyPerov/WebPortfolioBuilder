@@ -18,7 +18,7 @@
           <h3 class="project-card__title">{{ card.Title }}</h3>
           <p class="project-card__desc">{{ card.Description }}</p>
           {% if card.Tags %}<ul class="project-card__tags">{% for tag in card.Tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
-          {% if card.CtaURL %}<p class="project-card__cta-wrap"><a class="project-card__cta" href="{{ card.CtaURL }}"{{ card.CtaAttrs|safe }}>{{ card.CtaLabel }}</a></p>{% endif %}
+          {% if card.CtaURL or card.HasSecondaryCta %}<p class="project-card__cta-wrap">{% if card.CtaURL %}<a class="project-card__cta" href="{{ card.CtaURL }}"{{ card.CtaAttrs|safe }}>{{ card.CtaLabel }}</a>{% endif %}{% if card.HasSecondaryCta %} <a class="project-card__cta project-card__cta--secondary" href="{{ card.SecondaryCtaURL }}"{{ card.SecondaryCtaAttrs|safe }}>{{ card.SecondaryCtaLabel }}</a>{% endif %}</p>{% endif %}
         </div>
       </article>
       {% endfor %}

@@ -109,7 +109,7 @@ Key invoke commands are documented in [`studio/README.md`](../studio/README.md).
 - Widget types are a **closed registry** (see [`widgets.md`](./widgets.md)).
 - Only layout widgets (`row`, `column`, `grid`) may contain `children`.
 - Rust builds HTML for each widget in `crates/core/src/widgets.rs` (data prep + Minijinja or inline HTML helpers in `html.rs`).
-- Page-level JS is included based on `PageScriptNeeds` (carousel, split-widget tabs, scroll reveal, lightbox).
+- Page-level JS is included based on `PageScriptNeeds` (carousel, split-widget tabs, reference-panel tabs/dropdown, scroll reveal, lightbox). `reference_panel` loads `Template/reference-panel.js`.
 - Optional `layout.background_effect` (`magic_dust`) injects a fixed canvas back-layer in `layout.html` and loads `background-effects.js`. When active, `body.has-bg-effect` keeps section panels transparent so the animation stays visible behind widgets (cards and media keep their own surfaces). Critical positioning CSS is inlined in the layout `<head>` so the canvas never participates in document flow before `styles.css` loads.
 
 Template engine choice and escaping policy: [`crates/core/README.md`](../crates/core/README.md).

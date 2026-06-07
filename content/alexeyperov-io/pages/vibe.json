@@ -13,8 +13,8 @@
       "props": {
         "title": "Vibe Tracker",
         "paragraphs": [
-          "Right now I am vibe-coding the Vibe Tracker - a self-hosted open-source task management system. Tech: Fastify API backend, Drizzle ORM, a Svelte 5 single-page app.",
-          "The repository is private until MVP release."
+          "Right now I am making the Vibe Tracker - an open-source task management system.",
+          "Tech: Fastify API backend, Drizzle ORM, a Svelte 5 single-page app."
         ]
       }
     }

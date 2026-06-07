@@ -514,6 +514,55 @@ fn render_widget_tree_skips_disabled_widgets() {
 }
 
 #[test]
+fn reference_panel_renders_tabs_and_example() {
+    let Some(_) = template_dir() else {
+        eprintln!("skip: Template not present");
+        return;
+    };
+    let site = SiteConfig::default();
+    let widgets = vec![widget(
+        "reference_panel",
+        json!({
+            "title": "Batch API",
+            "entries": [
+                {
+                    "label": "RunAll",
+                    "method": "UnityScannerBatch.RunAll",
+                    "signature": "BatchResult RunAll(BatchOptions options = null)",
+                    "description": "Runs all enabled categories.",
+                    "arguments": [{
+                        "name": "options",
+                        "type": "BatchOptions",
+                        "description": "Optional batch configuration."
+                    }],
+                    "example": "var result = UnityScannerBatch.RunAll();"
+                },
+                {
+                    "label": "RunDependencies",
+                    "method": "UnityScannerBatch.RunDependencies",
+                    "description": "Scans dependencies category."
+                }
+            ]
+        }),
+    )];
+    let (html, _) = render_widgets(PAGE_PATH, &site, &widgets).unwrap();
+    for needle in [
+        r#"data-widget-type="reference_panel""#,
+        "data-reference-panel",
+        "split-widget__tab is-active",
+        "UnityScannerBatch.RunAll",
+        r#"<pre class="reference-panel__code code-block""#,
+        "var result = UnityScannerBatch.RunAll();",
+        "reference-panel__select",
+    ] {
+        assert!(
+            html.contains(needle),
+            "expected {needle:?} in output, got: {html}"
+        );
+    }
+}
+
+#[test]
 fn render_widget_tree_recognizes_media_swiper() {
     let Some(_) = template_dir() else {
         eprintln!("skip: Template not present");

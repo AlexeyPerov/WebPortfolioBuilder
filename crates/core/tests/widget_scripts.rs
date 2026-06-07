@@ -24,9 +24,27 @@ fn collect_page_script_needs_intro_only() {
     let needs = collect_page_script_needs(&[widget("intro", json!({}))]);
     assert!(needs.scroll_reveal, "intro should require scroll-reveal.js");
     assert!(
-        !needs.catalog_carousel && !needs.split_widget && !needs.image_lightbox,
-        "intro-only page should not need carousel/split/lightbox scripts: {needs:?}"
+        !needs.catalog_carousel
+            && !needs.split_widget
+            && !needs.reference_panel
+            && !needs.image_lightbox,
+        "intro-only page should not need carousel/split/reference/lightbox scripts: {needs:?}"
     );
+}
+
+#[test]
+fn collect_page_script_needs_reference_panel() {
+    let needs = collect_page_script_needs(&[widget(
+        "reference_panel",
+        json!({
+            "entries": [{
+                "label": "RunAll",
+                "description": "Runs all categories."
+            }]
+        }),
+    )]);
+    assert!(needs.reference_panel, "reference_panel should require reference-panel.js");
+    assert!(needs.scroll_reveal);
 }
 
 #[test]

@@ -3,8 +3,9 @@ use crate::error::{CoreError, CoreResult};
 use crate::html::configure_minijinja_html_escape;
 use crate::html::{
     aria_default_for_social_preset, build_apps_showcase_subscribe_data,
-    build_careers_split_widget_html, catalog_stat_line_or, catalog_store_url_warnings,
-    external_link_attrs, html_escape, render_vacancy_panel_html, resolve_catalog_store_entries,
+    build_careers_split_widget_html, build_reference_panel_html, catalog_stat_line_or,
+    catalog_store_url_warnings, external_link_attrs, html_escape, render_reference_panel_detail_html,
+    render_vacancy_panel_html, resolve_catalog_store_entries,
     social_icon_preset_class, social_icon_preset_svg,
 };
 use crate::routing::{
@@ -47,6 +48,7 @@ pub struct PageScriptNeeds {
     pub scroll_reveal: bool,
     pub catalog_carousel: bool,
     pub split_widget: bool,
+    pub reference_panel: bool,
     pub image_lightbox: bool,
 }
 
@@ -92,6 +94,10 @@ fn accumulate_widget_script_needs(widget: &WidgetNode, needs: &mut PageScriptNee
         "apps_showcase" | "media_swiper" => {
             needs.scroll_reveal = true;
             needs.catalog_carousel = true;
+        }
+        "reference_panel" => {
+            needs.scroll_reveal = true;
+            needs.reference_panel = true;
         }
         _ => {}
     }
@@ -210,6 +216,7 @@ fn is_leaf_widget(t: &str) -> bool {
             | "cover_banner"
             | "project_grid"
             | "media_swiper"
+            | "reference_panel"
     )
 }
 
@@ -400,6 +407,20 @@ fn render_leaf_widget(
                 vec![],
             ))
         }
+        "reference_panel" => {
+            let id = widget.id.trim();
+            if !id.is_empty() && !is_safe_html_id(id) {
+                return Err(CoreError::msg(format!("{path}.id: invalid id {id:?}")));
+            }
+            Ok((
+                execute_widget_template(
+                    ctx.env,
+                    "reference_panel",
+                    parse_reference_panel_props(widget, path, id)?,
+                )?,
+                vec![],
+            ))
+        }
         _ => Err(CoreError::msg(format!(
             "{path}.type: unsupported leaf widget {widget_type:?}"
         ))),
@@ -419,6 +440,20 @@ fn parse_intro_props(
         #[serde(default)]
         url: String,
     }
+    #[derive(serde::Deserialize, Default)]
+    struct LinkButtonItemRaw {
+        #[serde(default)]
+        label: String,
+        #[serde(default)]
+        url: String,
+    }
+    #[derive(serde::Deserialize, Default)]
+    struct LinkButtonsRaw {
+        #[serde(default)]
+        title: String,
+        #[serde(default)]
+        items: Vec<LinkButtonItemRaw>,
+    }
     #[derive(serde::Deserialize)]
     struct Raw {
         #[serde(default)]
@@ -426,7 +461,11 @@ fn parse_intro_props(
         #[serde(default)]
         paragraphs: Vec<String>,
         #[serde(default)]
+        pre: String,
+        #[serde(default)]
         cta: Option<CtaRaw>,
+        #[serde(default)]
+        link_buttons: Option<LinkButtonsRaw>,
     }
     let p: Raw = props_to_struct(&widget.props, path)?;
     let title = p.title.trim();
@@ -436,8 +475,9 @@ fn parse_intro_props(
         .map(|l| l.trim().to_string())
         .filter(|l| !l.is_empty())
         .collect();
-    if title.is_empty() && paras.is_empty() {
-        eprintln!("Warning: {path} -> intro: empty title and paragraphs; rendering nothing");
+    let pre = p.pre.trim();
+    if title.is_empty() && paras.is_empty() && pre.is_empty() {
+        eprintln!("Warning: {path} -> intro: empty title, paragraphs, and pre; rendering nothing");
         return Ok(None);
     }
     let section_attr = if widget_id.is_empty() {
@@ -449,6 +489,8 @@ fn parse_intro_props(
         "SectionIDAttr": section_attr,
         "Title": title,
         "Paragraphs": paras,
+        "Pre": pre,
+        "HasPre": !pre.is_empty(),
     });
     if let Some(cta) = p.cta {
         let cta_url = cta.url.trim();
@@ -462,6 +504,38 @@ fn parse_intro_props(
             data["CtaURL"] = json!(resolved);
             data["CtaLabel"] = json!(cta_label);
             data["CtaAttrs"] = json!(external_link_attrs(&resolved));
+        }
+    }
+    if let Some(link_buttons) = p.link_buttons {
+        let section_title = link_buttons.title.trim();
+        let mut buttons = Vec::new();
+        for (i, item) in link_buttons.items.iter().enumerate() {
+            let label = item.label.trim();
+            let url = item.url.trim();
+            if label.is_empty() || url.is_empty() {
+                continue;
+            }
+            let resolved = resolve_project_grid_cta(ctx, url).map_err(|e| {
+                CoreError::msg(format!(
+                    "{path}.props.link_buttons.items[{i}].url: {}",
+                    e
+                ))
+            })?;
+            buttons.push(format!(
+                r#"<a class="intro__link-btn" href="{href}"{attrs}>{label}</a>"#,
+                href = html_escape(&resolved),
+                attrs = external_link_attrs(&resolved),
+                label = html_escape(label),
+            ));
+        }
+        if !buttons.is_empty() {
+            data["HasLinkButtons"] = json!(true);
+            data["LinkButtonsTitle"] = json!(if section_title.is_empty() {
+                "Projects".to_string()
+            } else {
+                section_title.to_string()
+            });
+            data["LinkButtonsHTML"] = json!(buttons.join(""));
         }
     }
     Ok(Some(data))
@@ -976,6 +1050,8 @@ fn parse_project_grid_props(
         image: String,
         #[serde(default)]
         cta: CtaRaw,
+        #[serde(default)]
+        secondary_cta: Option<CtaRaw>,
         meta: JsonValue,
     }
     #[derive(serde::Deserialize)]
@@ -1057,7 +1133,23 @@ fn parse_project_grid_props(
             "CtaLabel": cta_label,
             "CtaURL": resolved_cta,
             "CtaAttrs": external_link_attrs(&resolved_cta),
+            "HasSecondaryCta": false,
         });
+        if let Some(sec) = &c.secondary_cta {
+            let sec_url = sec.url.trim();
+            if !sec_url.is_empty() {
+                let sec_label = if sec.label.trim().is_empty() {
+                    "Learn more".to_string()
+                } else {
+                    sec.label.trim().to_string()
+                };
+                let resolved_sec = resolve_project_grid_cta(ctx, sec_url)?;
+                card["HasSecondaryCta"] = json!(true);
+                card["SecondaryCtaLabel"] = json!(sec_label);
+                card["SecondaryCtaURL"] = json!(resolved_sec);
+                card["SecondaryCtaAttrs"] = json!(external_link_attrs(&resolved_sec));
+            }
+        }
         if !img.is_empty() {
             card["ImageSrc"] = json!(resolve_asset_href_for_page(img, ctx.route));
             card["ImageAlt"] = json!(title);
@@ -1128,6 +1220,113 @@ fn parse_media_swiper_props(
         })
         .collect::<CoreResult<Vec<_>>>()?;
     Ok(json!({ "AriaLabel": aria, "Slides": out_slides }))
+}
+
+fn parse_reference_panel_props(
+    widget: &WidgetNode,
+    path: &str,
+    widget_id: &str,
+) -> CoreResult<JsonValue> {
+    #[derive(serde::Deserialize, Default)]
+    struct ArgRaw {
+        name: String,
+        #[serde(rename = "type", default)]
+        arg_type: String,
+        #[serde(default)]
+        description: String,
+    }
+    #[derive(serde::Deserialize)]
+    struct EntryRaw {
+        label: String,
+        #[serde(default)]
+        method: String,
+        #[serde(default)]
+        signature: String,
+        description: String,
+        #[serde(default)]
+        arguments: Vec<ArgRaw>,
+        #[serde(default)]
+        example: String,
+    }
+    #[derive(serde::Deserialize)]
+    struct TopRaw {
+        #[serde(default)]
+        title: String,
+        #[serde(default)]
+        intro: String,
+        entries: Vec<EntryRaw>,
+    }
+    let p: TopRaw = props_to_struct(&widget.props, path)?;
+    if p.entries.is_empty() {
+        return Err(CoreError::msg(format!(
+            "{path}.props.entries: required and must not be empty"
+        )));
+    }
+    let id_prefix = if widget_id.is_empty() {
+        "ref-panel".to_string()
+    } else {
+        widget_id.to_string()
+    };
+    let aria_label = if p.title.trim().is_empty() {
+        "Reference".to_string()
+    } else {
+        p.title.trim().to_string()
+    };
+    let mut built: Vec<(String, String)> = Vec::new();
+    for (i, e) in p.entries.iter().enumerate() {
+        let entry_path = format!("{path}.props.entries[{i}]");
+        let label = e.label.trim();
+        if label.is_empty() {
+            return Err(CoreError::msg(format!(
+                "{entry_path}.label: required field missing"
+            )));
+        }
+        let description = e.description.trim();
+        if description.is_empty() {
+            return Err(CoreError::msg(format!(
+                "{entry_path}.description: required field missing"
+            )));
+        }
+        let method = e.method.trim();
+        let signature = e.signature.trim();
+        let example = e.example.trim();
+        let mut args: Vec<(String, String, String)> = Vec::new();
+        for (j, a) in e.arguments.iter().enumerate() {
+            let arg_path = format!("{entry_path}.arguments[{j}]");
+            let name = a.name.trim();
+            if name.is_empty() {
+                return Err(CoreError::msg(format!(
+                    "{arg_path}.name: required field missing"
+                )));
+            }
+            args.push((
+                name.to_string(),
+                a.arg_type.trim().to_string(),
+                a.description.trim().to_string(),
+            ));
+        }
+        let body = render_reference_panel_detail_html(
+            method,
+            signature,
+            description,
+            &args,
+            example,
+        );
+        built.push((label.to_string(), body));
+    }
+    let section_attr = if widget_id.is_empty() {
+        String::new()
+    } else {
+        format!(r#" id="{}""#, html_escape(widget_id))
+    };
+    let split_html = build_reference_panel_html(&aria_label, &id_prefix, &built);
+    Ok(json!({
+        "SectionIDAttr": section_attr,
+        "Title": p.title.trim(),
+        "Intro": p.intro.trim(),
+        "HasIntro": !p.intro.trim().is_empty(),
+        "SplitHTML": split_html,
+    }))
 }
 
 fn resolve_project_grid_cta(ctx: &WidgetRenderContext<'_>, raw: &str) -> CoreResult<String> {

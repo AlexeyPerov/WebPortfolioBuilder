@@ -1,0 +1,482 @@
+{
+  "slug": "unity-scanner",
+  "title": "Unity Scanner",
+  "seo": {
+    "description": "Unity Scanner — unified Editor and MCP tool for project health analysis across dependencies, materials, shaders, Addressables, and more."
+  },
+  "layout": {
+    "background_effect": "magic_dust",
+    "compact_sections": true
+  },
+  "widgets": [
+    {
+      "type": "intro",
+      "props": {
+        "title": "Unity Scanner",
+        "paragraphs": [
+          "Unified Unity Editor and MCP tool for project health — one window for dependency scans, material and shader audits, Addressables layout checks, and automated CI gates.",
+          "Run from Tools > Unity Scanner, batch mode, or AI assistants via the MCP server."
+        ],
+        "cta": {
+          "label": "GitHub",
+          "url": "https://github.com/AlexeyPerov/Unity-Scanner"
+        }
+      }
+    },
+    {
+      "type": "row",
+      "id": "unity-scanner-featured",
+      "props": {
+        "children": [
+          {
+            "type": "apps_showcase",
+            "props": {
+              "section_title": "",
+              "apps": [
+                {
+                  "image": "assets/github-logo.png",
+                  "title": "Unity Scanner",
+                  "text_1": "Unified Editor and MCP scanner for Unity project health.",
+                  "text_2": "Analyze dependencies, shaders, Addressables, and many other categories from one tool.",
+                  "stat_left_line_1": "Unity",
+                  "stat_left_line_2": "Editor",
+                  "stat_right_line_1": "MCP",
+                  "stat_right_line_2": "Server",
+                  "swiper_images": [
+                    "assets/us-summary-table.png",
+                    "assets/us-menu-shaders.png",
+                    "assets/us-buildlayout.png"
+                  ],
+                  "card_background": "linear-gradient(145deg, #1e2840 0%, #151821 55%, #0c0e14 100%)",
+                  "store_links": [
+                    {
+                      "url": "https://github.com/AlexeyPerov/Unity-Scanner",
+                      "aria_label": "Unity Scanner on GitHub",
+                      "icon_image": "assets/github-logo.png"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "reference_panel",
+      "id": "batch-api",
+      "props": {
+        "title": "Batch API",
+        "intro": "Programmatic entry points for CI and batch mode. All runners return BatchResult and accept an optional BatchOptions.",
+        "entries": [
+          {
+            "label": "RunAll",
+            "method": "UnityScannerBatch.RunAll",
+            "signature": "BatchResult RunAll(BatchOptions options = null)",
+            "description": "Runs all enabled analysis categories sequentially and aggregates results.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration (categories, platform profile, fail severity, output path)."
+              }
+            ],
+            "example": "using UnityScanner.Batch;\n\nvar result = UnityScannerBatch.RunAll(new BatchOptions {\n    Categories = new[] { \"dependencies\", \"missing_references\", \"materials\" },\n    PlatformProfile = \"mobile\",\n    FailOnSeverity = \"warn\"\n});"
+          },
+          {
+            "label": "RunDependencies",
+            "method": "UnityScannerBatch.RunDependencies",
+            "signature": "BatchResult RunDependencies(BatchOptions options = null)",
+            "description": "Scans the dependencies category — finds unreferenced and unused assets via reverse-dependency map.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ],
+            "example": "UnityScannerBatch.RunDependencies();"
+          },
+          {
+            "label": "RunMissingReferences",
+            "method": "UnityScannerBatch.RunMissingReferences",
+            "signature": "BatchResult RunMissingReferences(BatchOptions options = null)",
+            "description": "Scans scenes, prefabs, and ScriptableObjects for broken GUID/FileID references and missing scripts.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ],
+            "example": "UnityScannerBatch.RunMissingReferences();"
+          },
+          {
+            "label": "RunMaterials",
+            "method": "UnityScannerBatch.RunMaterials",
+            "signature": "BatchResult RunMaterials(BatchOptions options = null)",
+            "description": "Scans the materials category — null/builtin materials, missing shaders, duplicates, and SRP batcher compatibility.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ]
+          },
+          {
+            "label": "RunTextures",
+            "method": "UnityScannerBatch.RunTextures",
+            "signature": "BatchResult RunTextures(BatchOptions options = null)",
+            "description": "Scans SpriteAtlases and Texture2D assets for atlas duplicates, compression issues, and oversized textures.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ]
+          },
+          {
+            "label": "RunAddressables",
+            "method": "UnityScannerBatch.RunAddressables",
+            "signature": "BatchResult RunAddressables(BatchOptions options = null)",
+            "description": "Parses Addressables Build Layout for circular dependencies, remote dependency issues, and duplicate assets.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Set BuildLayoutPath for the layout file to analyze."
+              }
+            ],
+            "example": "var result = UnityScannerBatch.RunAddressables(new BatchOptions {\n    BuildLayoutPath = \"BuildReports/BuildLayout.txt\",\n    FailOnSeverity = \"warn\"\n});"
+          },
+          {
+            "label": "RunShaderAnalysis",
+            "method": "UnityScannerBatch.RunShaderAnalysis",
+            "signature": "BatchResult RunShaderAnalysis(BatchOptions options = null)",
+            "description": "Finds error shaders, variant explosion, expensive keywords, and render pipeline mismatches.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration; PlatformProfile adjusts variant thresholds."
+              }
+            ],
+            "example": "UnityScannerBatch.RunShaderAnalysis(new BatchOptions { PlatformProfile = \"mobile\" });"
+          },
+          {
+            "label": "RunTerrainAnalysis",
+            "method": "UnityScannerBatch.RunTerrainAnalysis",
+            "signature": "BatchResult RunTerrainAnalysis(BatchOptions options = null)",
+            "description": "Checks terrain colliders, layers, control map memory, and density overages.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ]
+          },
+          {
+            "label": "RunFontTextAnalysis",
+            "method": "UnityScannerBatch.RunFontTextAnalysis",
+            "signature": "BatchResult RunFontTextAnalysis(BatchOptions options = null)",
+            "description": "Detects TMP atlas growth risks, oversized atlases, and deep fallback chains.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ]
+          },
+          {
+            "label": "RunAudioAnalysis",
+            "method": "UnityScannerBatch.RunAudioAnalysis",
+            "signature": "BatchResult RunAudioAnalysis(BatchOptions options = null)",
+            "description": "Finds load-type mismatches, oversized clips, and duplicate audio files.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ]
+          },
+          {
+            "label": "RunAnimationAnalysis",
+            "method": "UnityScannerBatch.RunAnimationAnalysis",
+            "signature": "BatchResult RunAnimationAnalysis(BatchOptions options = null)",
+            "description": "Detects unreachable states, missing clips, state machine complexity, and duplicate clips.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ]
+          },
+          {
+            "label": "RunScenePrefabHealth",
+            "method": "UnityScannerBatch.RunScenePrefabHealth",
+            "signature": "BatchResult RunScenePrefabHealth(BatchOptions options = null)",
+            "description": "Checks deep nesting, override explosion, broken references, and inactive object anti-patterns.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ]
+          },
+          {
+            "label": "RunBuildPlatformReadiness",
+            "method": "UnityScannerBatch.RunBuildPlatformReadiness",
+            "signature": "BatchResult RunBuildPlatformReadiness(BatchOptions options = null)",
+            "description": "Validates import policies, platform compatibility, stripping risks, and startup budgets.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "PlatformProfile and FailOnSeverity are commonly set for CI gates."
+              }
+            ],
+            "example": "var result = UnityScannerBatch.RunBuildPlatformReadiness(new BatchOptions {\n    PlatformProfile = \"mobile\",\n    FailOnSeverity = \"error\"\n});"
+          },
+          {
+            "label": "RunParticleAnalysis",
+            "method": "UnityScannerBatch.RunParticleAnalysis",
+            "signature": "BatchResult RunParticleAnalysis(BatchOptions options = null)",
+            "description": "Audits particle systems for emission limits, module count, trails, collision, and overdraw risks.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration with particle-specific thresholds."
+              }
+            ]
+          },
+          {
+            "label": "RunUICanvasAnalysis",
+            "method": "UnityScannerBatch.RunUICanvasAnalysis",
+            "signature": "BatchResult RunUICanvasAnalysis(BatchOptions options = null)",
+            "description": "Checks UI canvases for raycast targets, TMP mixing, vertex count, and nesting depth.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration with UI-specific thresholds."
+              }
+            ]
+          },
+          {
+            "label": "RunLightingAnalysis",
+            "method": "UnityScannerBatch.RunLightingAnalysis",
+            "signature": "BatchResult RunLightingAnalysis(BatchOptions options = null)",
+            "description": "Audits lighting for emissive GI, mixed-mode consistency, realtime light counts, and probe usage.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration with lighting-specific thresholds."
+              }
+            ]
+          },
+          {
+            "label": "RunLODAnalysis",
+            "method": "UnityScannerBatch.RunLODAnalysis",
+            "signature": "BatchResult RunLODAnalysis(BatchOptions options = null)",
+            "description": "Checks LOD groups for missing levels, material mismatches, and screen transition settings.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration with LOD-specific thresholds."
+              }
+            ]
+          },
+          {
+            "label": "RunPhysicsAnalysis",
+            "method": "UnityScannerBatch.RunPhysicsAnalysis",
+            "signature": "BatchResult RunPhysicsAnalysis(BatchOptions options = null)",
+            "description": "Audits rigidbody counts, mesh collider complexity, layer matrix, and physics materials.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration with physics-specific thresholds."
+              }
+            ]
+          },
+          {
+            "label": "RunAsmDefAudit",
+            "method": "UnityScannerBatch.RunAsmDefAudit",
+            "signature": "BatchResult RunAsmDefAudit(BatchOptions options = null)",
+            "description": "Audits assembly definitions for circular references, editor leakage, platform filters, and duplicates.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration with asmdef audit flags."
+              }
+            ]
+          },
+          {
+            "label": "RunProjectHealth",
+            "method": "UnityScannerBatch.RunProjectHealth",
+            "signature": "BatchResult RunProjectHealth(BatchOptions options = null)",
+            "description": "Detects empty folders, orphaned .meta files, broken assets, empty scenes, and oversized directories.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ]
+          },
+          {
+            "label": "RunSprite2DAnalysis",
+            "method": "UnityScannerBatch.RunSprite2DAnalysis",
+            "signature": "BatchResult RunSprite2DAnalysis(BatchOptions options = null)",
+            "description": "Checks 2D sprites for atlas unused ratio, packing issues, duplicates, and polygon vertex counts.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration with sprite-specific thresholds."
+              }
+            ]
+          },
+          {
+            "label": "RunRegressionTrend",
+            "method": "UnityScannerBatch.RunRegressionTrend",
+            "signature": "BatchResult RunRegressionTrend(BatchOptions options = null)",
+            "description": "Compares scan results against a saved baseline to detect regressions and improvements.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Set BaselinePath and RegressionThreshold for CI regression gates."
+              }
+            ],
+            "example": "var result = UnityScannerBatch.RunRegressionTrend(new BatchOptions {\n    BaselinePath = \"CI/baseline.json\",\n    RegressionThreshold = 0,\n    FailOnSeverity = \"warn\"\n});"
+          },
+          {
+            "label": "RunSelectedCategories",
+            "method": "UnityScannerBatch.RunSelectedCategories",
+            "signature": "BatchResult RunSelectedCategories(string[] categoryIds, BatchOptions options = null)",
+            "description": "Runs a custom list of categories by ID in order.",
+            "arguments": [
+              {
+                "name": "categoryIds",
+                "type": "string[]",
+                "description": "Category IDs to scan (e.g. dependencies, materials, project_health)."
+              },
+              {
+                "name": "options",
+                "type": "BatchOptions",
+                "description": "Optional batch configuration."
+              }
+            ],
+            "example": "UnityScannerBatch.RunSelectedCategories(\n    new[] { \"dependencies\", \"shader_analysis\" },\n    new BatchOptions { PlatformProfile = \"mobile\" }\n);"
+          }
+        ]
+      }
+    },
+    {
+      "type": "intro",
+      "id": "mcp-architecture",
+      "props": {
+        "title": "MCP Architecture",
+        "paragraphs": [
+          "The MCP server uses a bridge architecture. Each tool call launches Unity in batch mode; results are written to a temp file and returned as text and JSON."
+        ],
+        "pre": "AI Client → stdio JSON-RPC → Node.js MCP Server → Unity batch mode → UnityScanner API → JSON result file"
+      }
+    },
+    {
+      "type": "reference_panel",
+      "id": "mcp-tools",
+      "props": {
+        "title": "MCP Server",
+        "intro": "Tools exposed to AI coding assistants. Each call runs a fresh Unity batch instance (~10–30s startup).",
+        "entries": [
+          {
+            "label": "unity_scanner_run_all",
+            "method": "unity_scanner_run_all",
+            "description": "Run all enabled UnityScanner categories and return a full project health report. This is the most comprehensive scan.",
+            "example": "\"Run a full project scan and tell me what's wrong\""
+          },
+          {
+            "label": "unity_scanner_run_category",
+            "method": "unity_scanner_run_category",
+            "description": "Run a specific UnityScanner category by ID. Use unity_scanner_list_categories to discover available IDs.",
+            "arguments": [
+              {
+                "name": "category",
+                "type": "string",
+                "description": "Category ID to scan (e.g. dependencies, shader_analysis, project_health)."
+              }
+            ],
+            "example": "\"Check my project for shader issues\""
+          },
+          {
+            "label": "unity_scanner_run_selected",
+            "method": "unity_scanner_run_selected",
+            "description": "Run multiple selected UnityScanner categories by their IDs.",
+            "arguments": [
+              {
+                "name": "categories",
+                "type": "string[]",
+                "description": "Array of category IDs to scan (e.g. [\"dependencies\", \"materials\", \"project_health\"])."
+              }
+            ]
+          },
+          {
+            "label": "unity_scanner_list_categories",
+            "method": "unity_scanner_list_categories",
+            "description": "List all available UnityScanner categories with their IDs and enabled status.",
+            "example": "\"List all available scanner categories\""
+          },
+          {
+            "label": "unity_scanner_get_settings",
+            "method": "unity_scanner_get_settings",
+            "description": "Get current UnityScanner settings including active platform profile and category enable/disable states."
+          },
+          {
+            "label": "unity_scanner_set_profile",
+            "method": "unity_scanner_set_profile",
+            "description": "Set the platform profile for threshold comparisons. Profiles adjust severity thresholds for mobile, console, or desktop targets.",
+            "arguments": [
+              {
+                "name": "profile",
+                "type": "string",
+                "description": "Platform profile: mobile, console, or desktop."
+              }
+            ],
+            "example": "\"Set the platform profile to mobile, then run project_health and build_platform_readiness\""
+          },
+          {
+            "label": "unity_scanner_regression_check",
+            "method": "unity_scanner_regression_check",
+            "description": "Compare current scan results against a previously saved baseline to detect regressions (new issues).",
+            "arguments": [
+              {
+                "name": "baseline_path",
+                "type": "string",
+                "description": "Path to the baseline JSON file to compare against."
+              }
+            ]
+          },
+          {
+            "label": "unity_scanner_baseline_create",
+            "method": "unity_scanner_baseline_create",
+            "description": "Run a full scan and save results as a baseline snapshot for future regression comparisons.",
+            "example": "\"Create a baseline snapshot of current project health\""
+          }
+        ]
+      }
+    }
+  ]
+}

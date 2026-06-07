@@ -593,6 +593,111 @@ fn build_careers_split_widget(
     )
 }
 
+/// Sidebar + detail panels for `reference_panel` (desktop tabs, mobile `<select>`).
+pub fn build_reference_panel_html(aria_label: &str, id_prefix: &str, entries: &[(String, String)]) -> String {
+    if entries.is_empty() {
+        return String::new();
+    }
+    if entries.len() == 1 {
+        return format!(
+            r#"<div class="reference-panel" data-reference-panel><div class="split-widget split-widget--single"><div class="split-widget__panels"><div class="split-widget__panel is-active">{}</div></div></div></div>"#,
+            entries[0].1
+        );
+    }
+    let mut select_opts = String::new();
+    let mut list = String::new();
+    let mut panels = String::new();
+    for (i, (label, body)) in entries.iter().enumerate() {
+        let id = format!("{id_prefix}-{i}");
+        let tab_class = if i == 0 {
+            "split-widget__tab is-active"
+        } else {
+            "split-widget__tab"
+        };
+        let panel_class = if i == 0 {
+            "split-widget__panel is-active"
+        } else {
+            "split-widget__panel"
+        };
+        let aria_sel = if i == 0 { "true" } else { "false" };
+        let selected = if i == 0 { " selected" } else { "" };
+        select_opts.push_str(&format!(
+            r#"<option value="{id}"{selected}>{}</option>"#,
+            html_escape(label)
+        ));
+        list.push_str(&format!(
+            r#"<li><button type="button" class="{tab_class}" data-target="{id}" role="tab" aria-selected="{aria_sel}">{}</button></li>"#,
+            html_escape(label)
+        ));
+        panels.push_str(&format!(
+            r#"<div id="{id}" class="{panel_class}" role="tabpanel">{body}</div>"#
+        ));
+    }
+    format!(
+        r#"<div class="reference-panel" data-reference-panel aria-label="{al}"><label class="reference-panel__select-wrap"><span class="visually-hidden">{al}</span><select class="reference-panel__select" aria-label="{al}">{select_opts}</select></label><div class="split-widget"><div class="split-widget__layout"><nav class="split-widget__nav" aria-label="{al}"><ul class="split-widget__list">{list}</ul></nav><div class="split-widget__panels">{panels}</div></div></div></div>"#,
+        al = html_escape(aria_label)
+    )
+}
+
+pub fn render_reference_panel_detail_html(
+    method: &str,
+    signature: &str,
+    description: &str,
+    arguments: &[(String, String, String)],
+    example: &str,
+) -> String {
+    let mut parts = String::from(r#"<div class="reference-panel__detail">"#);
+    if !method.is_empty() {
+        parts.push_str(&format!(
+            r#"<h3 class="reference-panel__method">{}</h3>"#,
+            html_escape(method)
+        ));
+    }
+    if !signature.is_empty() {
+        parts.push_str(&format!(
+            r#"<p class="reference-panel__signature">{}</p>"#,
+            html_escape(signature)
+        ));
+    }
+    if !description.is_empty() {
+        parts.push_str(&format!(
+            r#"<p class="reference-panel__description">{}</p>"#,
+            html_escape(description)
+        ));
+    }
+    if !arguments.is_empty() {
+        parts.push_str(r#"<dl class="reference-panel__args">"#);
+        for (name, arg_type, desc) in arguments {
+            parts.push_str(&format!(
+                r#"<div class="reference-panel__arg"><dt>{}</dt>"#,
+                html_escape(name)
+            ));
+            if !arg_type.is_empty() {
+                parts.push_str(&format!(
+                    r#"<dd class="reference-panel__arg-type">{}</dd>"#,
+                    html_escape(arg_type)
+                ));
+            }
+            if !desc.is_empty() {
+                parts.push_str(&format!(
+                    r#"<dd class="reference-panel__arg-desc">{}</dd>"#,
+                    html_escape(desc)
+                ));
+            }
+            parts.push_str("</div>");
+        }
+        parts.push_str("</dl>");
+    }
+    if !example.is_empty() {
+        parts.push_str(&format!(
+            r#"<pre class="reference-panel__code code-block"><code>{}</code></pre>"#,
+            html_escape(example)
+        ));
+    }
+    parts.push_str("</div>");
+    parts
+}
+
 pub fn render_vacancy_panel_html(
     v: &crate::types::Vacancy,
     req_title: &str,

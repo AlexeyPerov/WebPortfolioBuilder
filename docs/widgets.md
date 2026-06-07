@@ -41,6 +41,7 @@ Pages are built from an ordered list of **widgets**. Each widget node has a `typ
 | `follow_us` | Content | Social link button row |
 | `project_grid` | Content | Portfolio / tools card grid |
 | `media_swiper` | Content | Image carousel |
+| `reference_panel` | Content | API/MCP reference with sidebar tabs and detail panels |
 | `row` | Layout | Horizontal group of child widgets |
 | `column` | Layout | Vertical stack of child widgets |
 | `grid` | Layout | Responsive CSS grid of child widgets |
@@ -54,7 +55,7 @@ Pages are built from an ordered list of **widgets**. Each widget node has a `typ
 | `content/demo/pages/gallery.json` | `images_grid`, `media_swiper` |
 | `content/demo/pages/apps.json` | `apps_showcase`, `project_grid` |
 | `content/demo/pages/careers.json` | `careers_tabs`, `info_grid` |
-| `content/demo/pages/about.json` | Mixed composition |
+| `content/demo/pages/about.json` | Mixed composition, `reference_panel` |
 
 ---
 
@@ -102,10 +103,12 @@ Centered heading and one or more paragraphs.
 | `title` | no | Main heading |
 | `paragraphs` | no | Array of strings; empty entries omitted |
 | `cta` | no | `{ label?, url }` — pill button below paragraphs; default label `"Learn more"` when `url` is set |
+| `link_buttons` | no | `{ title?, items[] }` — section heading (default `"Projects"`) plus a row of equal square link buttons; each item is `{ label, url }` |
+| `pre` | no | Optional monospace block below paragraphs (plain text, rendered in `<pre>`) |
 
-If both `title` and `paragraphs` are empty, the section is skipped (warning). `cta` is omitted when `url` is empty.
+If `title`, `paragraphs`, and `pre` are all empty, the section is skipped (warning). `cta` is omitted when `url` is empty. `link_buttons` is omitted when `items` is empty or every item lacks `label`/`url`.
 
-Template: `Template/widgets/intro.html` · Studio form: yes (`cta` via JSON / Props tab only)
+Template: `Template/widgets/intro.html` · Studio form: yes (`cta`, `link_buttons` via JSON / Props tab only)
 
 ### `cover_banner`
 
@@ -225,6 +228,7 @@ Responsive card grid for projects, tools, or portfolio items. Static HTML only (
 | `image` | Optional asset path; omit for text-only cards |
 | `meta` | String **or** object of key/value pairs (secondary line) |
 | `cta` | `{ label?, url }` — primary link; default label `"Learn more"` |
+| `secondary_cta` | `{ label?, url }` — optional second link (e.g. GitHub next to docs) |
 
 Template: `Template/widgets/project_grid.html` · Studio form: yes
 
@@ -241,11 +245,36 @@ Reuses the catalog carousel script and markup contract (`data-catalog-carousel`)
 
 Template: `Template/widgets/media_swiper.html` · Studio form: yes
 
+### `reference_panel`
+
+Interactive API or MCP reference: left sidebar list (desktop) or dropdown (mobile ≤900px), right detail panel with method name, signature, arguments, description, and optional code example.
+
+| Prop | Required | Notes |
+|------|----------|-------|
+| `title` | no | Section `<h2>` |
+| `intro` | no | Paragraph above the panel |
+| `entries` | yes | Non-empty array of entry objects |
+
+**Entry object** (required: `label`, `description`):
+
+| Field | Notes |
+|-------|-------|
+| `label` | Sidebar / dropdown label |
+| `method` | Display name (e.g. `UnityScannerBatch.RunAll` or MCP tool name) |
+| `signature` | One-line signature |
+| `description` | Body copy |
+| `arguments` | `{ name, type?, description? }[]` |
+| `example` | Plain text rendered in `<pre>` (not syntax-highlighted) |
+
+Uses `Template/reference-panel.js`. Reuses split-widget tab styling on desktop.
+
+Template: `Template/widgets/reference_panel.html` · Studio form: no (JSON only)
+
 ---
 
 ## Studio form coverage
 
-The studio **Form** tab on `pages/*.json` includes typed editors for the nine content widgets above. Layout widgets (`row`, `column`, `grid`) and extra props on any widget can be edited via the **Props (JSON)** block or the **JSON** tab.
+The studio **Form** tab on `pages/*.json` includes typed editors for the nine original content widgets above. Layout widgets (`row`, `column`, `grid`) and extra props on any widget can be edited via the **Props (JSON)** block or the **JSON** tab.
 
 Site-wide widget defaults (e.g. `widgets.split_widget` in `site.json`) remain JSON-only.
 

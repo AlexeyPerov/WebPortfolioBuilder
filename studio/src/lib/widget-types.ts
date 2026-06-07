@@ -22,6 +22,7 @@ const WIDGET_LABELS: Record<string, string> = {
   cover_banner: 'Cover banner',
   project_grid: 'Project grid',
   media_swiper: 'Media swiper',
+  reference_panel: 'Reference panel',
   row: 'Row',
   column: 'Column',
   grid: 'Grid',

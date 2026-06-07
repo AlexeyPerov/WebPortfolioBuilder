@@ -51,6 +51,35 @@
       }
     },
     {
+      "type": "reference_panel",
+      "id": "demo-reference",
+      "props": {
+        "title": "Reference panel",
+        "intro": "Demo of the API reference widget — sidebar on desktop, dropdown on narrow screens.",
+        "entries": [
+          {
+            "label": "example_method",
+            "method": "DemoService.Run",
+            "signature": "Result Run(Options options = null)",
+            "description": "Runs the demo scan and returns a structured result.",
+            "arguments": [
+              {
+                "name": "options",
+                "type": "Options",
+                "description": "Optional configuration."
+              }
+            ],
+            "example": "var result = DemoService.Run();"
+          },
+          {
+            "label": "list_items",
+            "method": "DemoService.List",
+            "description": "Lists available demo categories."
+          }
+        ]
+      }
+    },
+    {
       "type": "images_grid",
       "props": {
         "title": "Photos",
